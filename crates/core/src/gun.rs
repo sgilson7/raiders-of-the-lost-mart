@@ -281,8 +281,7 @@ pub fn compose(c: &Content, b: &Build) -> Gun {
     ));
     // the sight on top
     let top = fh + cm(2);
-    let sight_at;
-    match sight.id.as_str() {
+    let sight_at = match sight.id.as_str() {
         "scope" => {
             model.push(tube(v3(0, top + cm(4), -fl / 2), cm(5), cm(26), sight.colour));
             model.push(tube(
@@ -291,7 +290,7 @@ pub fn compose(c: &Content, b: &Build) -> Gun {
                 cm(3),
                 sight.colour,
             ));
-            sight_at = v3(0, top + cm(4), 0);
+            v3(0, top + cm(4), 0)
         }
         "dot" => {
             model.push(piece(
@@ -300,7 +299,7 @@ pub fn compose(c: &Content, b: &Build) -> Gun {
                 v3(cm(4), cm(5), cm(7)),
                 sight.colour,
             ));
-            sight_at = v3(0, top + cm(4), 0);
+            v3(0, top + cm(4), 0)
         }
         "laser" => {
             model.push(piece(
@@ -315,7 +314,7 @@ pub fn compose(c: &Content, b: &Build) -> Gun {
                 v3(cm(1), cm(4), cm(1)),
                 crate::content::hex("#3B2340"),
             ));
-            sight_at = v3(0, top + cm(2), 0);
+            v3(0, top + cm(2), 0)
         }
         "scanner" => {
             model.push(piece(
@@ -332,7 +331,7 @@ pub fn compose(c: &Content, b: &Build) -> Gun {
             );
             screen.glow = ONE / 2;
             model.push(screen);
-            sight_at = v3(0, top + cm(4), 0);
+            v3(0, top + cm(4), 0)
         }
         _ => {
             model.push(piece(
@@ -347,9 +346,9 @@ pub fn compose(c: &Content, b: &Build) -> Gun {
                 v3(cm(3), cm(3), cm(1)),
                 sight.colour,
             ));
-            sight_at = v3(0, top + cm(2), 0);
+            v3(0, top + cm(2), 0)
         }
-    }
+    };
     // the grip below the hand, and a stock or a foregrip
     model.push(piece(
         Mesh::Cube,
