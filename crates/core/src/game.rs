@@ -221,6 +221,8 @@ pub struct Game {
     dyn_draws: Vec<Vec<u32>>,
     scene_version: u32,
     preview: Option<Gun>,
+    /// sounds already in a HUD the page has read
+    sounds_heard: usize,
     /// goodbyes still to send after leaving
     parting: Vec<(u32, String)>,
 }
@@ -318,6 +320,7 @@ impl Game {
             scene_version: 1,
             preview: None,
             parting: Vec::new(),
+            sounds_heard: 0,
         };
         g.load_saved(saved);
         Ok(g)
@@ -960,8 +963,10 @@ impl Game {
     /// The page's clock (µs), the held action bits, the mouse's movement
     /// (CSS pixels ×100).
     pub fn advance(&mut self, now_us: i64, bits: u32, dx: i32, dy: i32) {
-        self.sounds
-            .retain(|s| *s == "equip" || *s == "join" || *s == "van");
+        // every sound is heard once: what the last frame reported goes, and a
+        // sound a button made since then stays for this frame's HUD
+        let heard = self.sounds_heard.min(self.sounds.len());
+        self.sounds.drain(..heard);
         let dt = match self.last_us {
             None => TICK_US,
             Some(last) => (now_us - last).clamp(0, MAX_CATCH_UP_US),
@@ -1003,6 +1008,7 @@ impl Game {
             self.workshop_camera();
         }
         self.render();
+        self.sounds_heard = self.sounds.len();
     }
 
     fn aim_zoom(&self, bits: u32) -> i32 {
@@ -2043,6 +2049,34 @@ mod tests {
         let mut h = game();
         h.load_saved(&saved);
         assert_eq!(h.save, g.save);
+    }
+
+    #[test]
+    fn a_sound_is_reported_once_and_not_every_frame_after() {
+        let mut g = game();
+        g.board();
+        g.start_solo();
+        let mut vans = 0;
+        for _ in 0..120 {
+            frames(&mut g, 1, 0);
+            let hud: Value = serde_json::from_str(&g.hud_json()).unwrap();
+            vans += hud["sounds"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|s| *s == "van")
+                .count();
+        }
+        assert_eq!(vans, 1, "the van starts once, then is quiet");
+        // a button's sound, made between frames, reaches the next frame's HUD once
+        g.mode = Mode::Workshop;
+        g.equip("smg");
+        frames(&mut g, 1, 0);
+        let hud: Value = serde_json::from_str(&g.hud_json()).unwrap();
+        assert!(hud["sounds"].as_array().unwrap().iter().any(|s| s == "equip"));
+        frames(&mut g, 1, 0);
+        let hud: Value = serde_json::from_str(&g.hud_json()).unwrap();
+        assert!(!hud["sounds"].as_array().unwrap().iter().any(|s| s == "equip"));
     }
 
     #[test]

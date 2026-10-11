@@ -381,7 +381,8 @@ impl Drone {
             self.vel.x = fx::approach(self.vel.x, want.x, acc);
             self.vel.z = fx::approach(self.vel.z, want.z, acc);
             self.vel.y -= GRAVITY / TICKS_PER_SECOND;
-            self.gait = (self.gait + self.vel.len_xz() / 14) & (fx::TURN - 1);
+            // a strider steps about twice a second, a tick's short legs faster
+            self.gait = (self.gait + self.vel.len_xz() / 110) & (fx::TURN - 1);
         } else {
             self.vel.x = fx::approach(self.vel.x, want.x, acc);
             self.vel.y = fx::approach(self.vel.y, want.y, acc);

@@ -224,7 +224,8 @@ impl Raider {
         self.vel.y -= GRAVITY / TICKS_PER_SECOND;
         self.moving = wish.len() > 0;
         if self.moving && self.grounded {
-            self.stride = (self.stride + self.vel.len_xz() / 40) & (fx::TURN - 1);
+            // about one and a half strides a second at a walk, two and a half sprinting
+            self.stride = (self.stride + self.vel.len_xz() / STRIDE_PER) & (fx::TURN - 1);
         }
         let step = self.vel.scale(ONE / TICKS_PER_SECOND);
         self.move_axis(0, step.x, map, extra);
@@ -351,6 +352,9 @@ pub fn gun_frame(r: &Raider) -> Affine {
     }
 }
 
+/// Speed (Q16 m/s) per angle unit of the walk cycle a tick.
+pub const STRIDE_PER: i32 = 170;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -385,6 +389,25 @@ mod tests {
             r.prev = inp.b;
         }
         assert!(r.pos.z < -int(4) && r.pos.z > -int(5), "{}", r.pos.z);
+    }
+
+    #[test]
+    fn walking_legs_swing_at_a_human_pace() {
+        let m = flat();
+        let mut r = Raider::new(v3(0, 0, int(20)), 0, 10);
+        let inp = Input { b: B_FWD, y: 0, p: 0 };
+        let mut cycles = 0i64;
+        let mut last = r.stride;
+        for _ in 0..60 {
+            r.step_move(&inp, &m, &[], 100);
+            cycles += (r.stride - last).rem_euclid(fx::TURN) as i64;
+            last = r.stride;
+        }
+        // strides in one second at a walk: between one and two full cycles
+        assert!(
+            cycles > fx::TURN as i64 && cycles < 2 * fx::TURN as i64,
+            "{cycles}"
+        );
     }
 
     #[test]
