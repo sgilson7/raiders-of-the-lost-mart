@@ -15,3 +15,4 @@ Assumptions, surprises, divergences from the plan, and things for Sam, as they c
 | 9 | for Sam | Real names: Southpoint, Hot Topic and Kid Cudi appear in words only (the design names them). No logo is drawn. |
 | 10 | for Sam | The working title, and whether to credit the friend by name. |
 | 11 | assumption | The stash is per browser. Online, each browser keeps its own raider's finds; the run decides who came back, deterministically, so every copy agrees on it. |
+| 12 | surprise | Another session was editing the website tree while the listing was prepared. A `git stash -u` to test the packet briefly took its uncommitted files (they came back intact). The safe way to test a shared tree is a `git archive` copy, which showed the listing was clean; that session then deployed the listing with its own work. |
