@@ -1,0 +1,148 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{xcolor}
+\usetikzlibrary{calc}
+% Palette: Sam_Comm_final.png by eye, and the drones and raiders.
+\definecolor{ink}{HTML}{3B2340}
+\definecolor{sky}{HTML}{EFC46A}
+\definecolor{skyhi}{HTML}{F5DA92}
+\definecolor{skylow}{HTML}{E9B060}
+\definecolor{cloud}{HTML}{F2D58A}
+\definecolor{paper}{HTML}{FBEFD0}
+\definecolor{cream}{HTML}{FFF6E0}
+\definecolor{white}{HTML}{FFFFFF}
+\definecolor{wallA}{HTML}{E88A73}
+\definecolor{wallB}{HTML}{EE9F7E}
+\definecolor{wallC}{HTML}{E47A7E}
+\definecolor{wallD}{HTML}{F0B07E}
+\definecolor{wallE}{HTML}{D9765F}
+\definecolor{wallF}{HTML}{E99A8A}
+\definecolor{greenA}{HTML}{8DBB7E}
+\definecolor{greenB}{HTML}{6FA77A}
+\definecolor{greenC}{HTML}{A9C97F}
+\definecolor{greenD}{HTML}{5E9C6A}
+\definecolor{greenE}{HTML}{4A8060}
+\definecolor{sage}{HTML}{9DB98A}
+\definecolor{sagedark}{HTML}{6F8F66}
+\definecolor{sagelight}{HTML}{C2D6A6}
+\definecolor{window}{HTML}{F6E7A0}
+\definecolor{windark}{HTML}{8C5A64}
+\definecolor{metal}{HTML}{8D9A93}
+\definecolor{metaldark}{HTML}{5E6B66}
+\definecolor{metallight}{HTML}{B9C4BC}
+\definecolor{wood}{HTML}{B9835A}
+\definecolor{wooddark}{HTML}{8C5A3C}
+\definecolor{woodlight}{HTML}{D9A66F}
+\definecolor{stone}{HTML}{E7C9A0}
+\definecolor{stonedark}{HTML}{C9A47E}
+\definecolor{concrete}{HTML}{D8C3A4}
+\definecolor{concretedark}{HTML}{B8A084}
+\definecolor{asphalt}{HTML}{8E7A86}
+\definecolor{asphaltdark}{HTML}{6E5C68}
+\definecolor{roadline}{HTML}{F6E7A0}
+\definecolor{kerb}{HTML}{D8B48C}
+\definecolor{red}{HTML}{E0483E}
+\definecolor{redlight}{HTML}{F27A6A}
+\definecolor{gold}{HTML}{FFB000}
+\definecolor{goldlight}{HTML}{FFD54F}
+\definecolor{teal}{HTML}{4FA3A0}
+\definecolor{tealdark}{HTML}{3C8582}
+\definecolor{magenta}{HTML}{FF2E88}
+\definecolor{cyan}{HTML}{13CFE3}
+\definecolor{violet}{HTML}{8A5BD6}
+\definecolor{orange}{HTML}{F2803A}
+\definecolor{pink}{HTML}{F48FB1}
+\definecolor{glow}{HTML}{4FE6E0}
+\definecolor{glowhi}{HTML}{C8FFF9}
+\definecolor{hot}{HTML}{FF6A1A}
+\definecolor{hothi}{HTML}{FFD07A}
+\definecolor{armour}{HTML}{7E7A86}
+\definecolor{armourdark}{HTML}{5A5466}
+\definecolor{armourlight}{HTML}{A8A2B0}
+\definecolor{wasp}{HTML}{E0A82E}
+\definecolor{waspdark}{HTML}{B07E1A}
+\definecolor{moth}{HTML}{F2E6C8}
+\definecolor{mothdark}{HTML}{D2C09A}
+\definecolor{hornet}{HTML}{3C8582}
+\definecolor{hornetdark}{HTML}{2C6260}
+\definecolor{warden}{HTML}{E47A7E}
+\definecolor{wardendark}{HTML}{B85A62}
+\definecolor{tick}{HTML}{8DBB7E}
+\definecolor{tickdark}{HTML}{5E8A5A}
+\definecolor{strider}{HTML}{D9765F}
+\definecolor{striderdark}{HTML}{A8543F}
+\definecolor{jacket}{HTML}{6FA77A}
+\definecolor{jacketb}{HTML}{4FA3A0}
+\definecolor{jacketc}{HTML}{E88A73}
+\definecolor{jacketd}{HTML}{F0B07E}
+\definecolor{skin}{HTML}{F2C49A}
+\definecolor{skinb}{HTML}{C98C6A}
+\definecolor{skinc}{HTML}{8C5A3C}
+\definecolor{hair}{HTML}{3B2340}
+\definecolor{goo}{HTML}{B6E35A}
+\definecolor{goodark}{HTML}{7FB23A}
+\newcommand{\Ink}{1.8pt}
+\tikzset{inked/.style={draw=ink, line width=\Ink, line join=round, line cap=round}}
+\begin{document}
+\begin{tikzpicture}
+\clip (0,0) rectangle (6,6);
+\fill[wallB] [rounded corners=0.75cm] (0.12,0.12) rectangle (5.88,5.88);
+\begin{scope}\clip [rounded corners=0.75cm] (0.12,0.12) rectangle (5.88,5.88);
+\draw[ink, line width=13.274pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(1.2,3.1) (1.4,4.6) (3,5.35) (4.6,4.6) (4.8,3.1)};
+\draw[armourdark, line width=9.674pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(1.2,3.1) (1.4,4.6) (3,5.35) (4.6,4.6) (4.8,3.1)};
+\draw[ink, line width=12.136pt, line cap=round, line join=round] plot[smooth, tension=0.5] coordinates {(1.95,4.75) (3,5) (4.05,4.75)};
+\draw[ink!78!metaldark, line width=8.536pt, line cap=round, line join=round] plot[smooth, tension=0.5] coordinates {(1.95,4.75) (3,5) (4.05,4.75)};
+\draw[metal, line width=1pt, line cap=round] (2.35,4.906) -- (2.35,5.026);
+\draw[metal, line width=1pt, line cap=round] (2.75,4.935) -- (2.75,5.055);
+\draw[metal, line width=1pt, line cap=round] (3.25,4.935) -- (3.25,5.055);
+\draw[metal, line width=1pt, line cap=round] (3.65,4.906) -- (3.65,5.026);
+\draw[ink, line width=8.152pt, line cap=round, line join=round] plot[smooth, tension=0.5] coordinates {(1.1,2) (1.35,1) (2.3,0.75) (2.95,0.9)};
+\draw[metaldark!85!ink, line width=4.552pt, line cap=round, line join=round] plot[smooth, tension=0.5] coordinates {(1.1,2) (1.35,1) (2.3,0.75) (2.95,0.9)};
+\begin{scope}\clip plot[smooth cycle, tension=0.7] coordinates {(2.85,0.92) (3.1,1.2) (3.55,1.15) (3.65,0.85) (3.3,0.6) (2.95,0.65)};
+\fill[ink!78!metaldark!70!ink] plot[smooth cycle, tension=0.7] coordinates {(2.85,0.92) (3.1,1.2) (3.55,1.15) (3.65,0.85) (3.3,0.6) (2.95,0.65)};
+\fill[ink!78!metaldark, shift={(-0.028,0.08)}] plot[smooth cycle, tension=0.7] coordinates {(2.85,0.92) (3.1,1.2) (3.55,1.15) (3.65,0.85) (3.3,0.6) (2.95,0.65)};
+\end{scope}
+\draw[inked] plot[smooth cycle, tension=0.7] coordinates {(2.85,0.92) (3.1,1.2) (3.55,1.15) (3.65,0.85) (3.3,0.6) (2.95,0.65)};
+\fill[metal] (3.1,0.92) circle (0.04);
+\fill[metal] (3.3,0.92) circle (0.04);
+\fill[metal] (3.45,0.92) circle (0.04);
+\begin{scope}\clip[rounded corners=0.55cm] (0.35,1.75) rectangle (1.85,4);
+\fill[armour!70!ink,rounded corners=0.55cm] (0.35,1.75) rectangle (1.85,4);
+\fill[armour,rounded corners=0.55cm, shift={(-0.07,0.2)}] (0.35,1.75) rectangle (1.85,4);
+\end{scope}
+\draw[inked,rounded corners=0.55cm] (0.35,1.75) rectangle (1.85,4);
+\begin{scope}\clip[rounded corners=0.3cm] (1.2,2) rectangle (1.9,3.75);
+\fill[ink!78!metaldark!70!ink,rounded corners=0.3cm] (1.2,2) rectangle (1.9,3.75);
+\fill[ink!78!metaldark,rounded corners=0.3cm, shift={(-0.028,0.08)}] (1.2,2) rectangle (1.9,3.75);
+\end{scope}
+\draw[inked,rounded corners=0.3cm] (1.2,2) rectangle (1.9,3.75);
+\draw[armourdark, line width=1.4pt, line cap=round] (0.65,2.45) -- (1.05,2.45);
+\draw[armourdark, line width=1.4pt, line cap=round] (0.65,2.83) -- (1.05,2.83);
+\draw[armourdark, line width=1.4pt, line cap=round] (0.65,3.21) -- (1.05,3.21);
+\fill[white, opacity=0.45, rounded corners=0.1cm] (0.5,3.6) rectangle (1.3,3.75);
+\begin{scope}\clip[rounded corners=0.55cm] (4.15,1.75) rectangle (5.65,4);
+\fill[armour!70!ink,rounded corners=0.55cm] (4.15,1.75) rectangle (5.65,4);
+\fill[armour,rounded corners=0.55cm, shift={(-0.07,0.2)}] (4.15,1.75) rectangle (5.65,4);
+\end{scope}
+\draw[inked,rounded corners=0.55cm] (4.15,1.75) rectangle (5.65,4);
+\begin{scope}\clip[rounded corners=0.3cm] (4.1,2) rectangle (4.8,3.75);
+\fill[ink!78!metaldark!70!ink,rounded corners=0.3cm] (4.1,2) rectangle (4.8,3.75);
+\fill[ink!78!metaldark,rounded corners=0.3cm, shift={(-0.028,0.08)}] (4.1,2) rectangle (4.8,3.75);
+\end{scope}
+\draw[inked,rounded corners=0.3cm] (4.1,2) rectangle (4.8,3.75);
+\draw[armourdark, line width=1.4pt, line cap=round] (5.35,2.45) -- (4.95,2.45);
+\draw[armourdark, line width=1.4pt, line cap=round] (5.35,2.83) -- (4.95,2.83);
+\draw[armourdark, line width=1.4pt, line cap=round] (5.35,3.21) -- (4.95,3.21);
+\fill[white, opacity=0.45, rounded corners=0.1cm] (4.3,3.6) rectangle (5.1,3.75);
+\filldraw[inked,fill=metallight,line width=1.1pt] (1.15,3.3) circle (0.1);
+\draw[ink, line width=0.9pt, line cap=round] (1.095,3.245) -- (1.205,3.355);
+\filldraw[inked,fill=red] (0.919,1.537) -- (1.411,1.624) -- (1.448,1.821) -- (1.346,1.993) -- (1.383,2.19) -- (1.281,2.363) -- (0.789,2.276) -- (0.752,2.079) -- (0.854,1.907) -- (0.817,1.71) -- cycle;
+\fill[white, opacity=0.35] (0.855,2.186) -- (1.249,2.256) -- (1.239,2.315) -- (0.845,2.245) -- cycle;
+\fill[glow, opacity=0.18] (4.95,2.35) circle (0.6);
+\fill[glow, opacity=0.25] (4.95,2.35) circle (0.42);
+\filldraw[inked,fill=cyan,line width=1.2pt] (4.95,2.35) circle (0.2);
+\fill[white, opacity=0.9] (4.9,2.42) circle (0.07);
+\filldraw[inked,fill=metallight,line width=1.2pt] (4.85,3.35) circle (0.16);
+\end{scope}
+\draw[inked] [rounded corners=0.75cm] (0.12,0.12) rectangle (5.88,5.88);
+\end{tikzpicture}
+\end{document}

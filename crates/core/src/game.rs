@@ -5,12 +5,14 @@
 //! decides nothing.
 
 use crate::balance::*;
+use crate::content;
 use crate::content::{Cat, Content, Goal, Rgb};
 use crate::draw::{self, DroneColours, Particle};
 use crate::drone::PieceKind;
 use crate::fx::{self, deg, int, ONE};
 use crate::geom::{facing, right_of, v3, yaw_pitch_of, Affine, V3};
 use crate::gun::{self, Build, Gun};
+use crate::kit::{self, Wear};
 use crate::mall;
 use crate::mesh::{self, Mesh};
 use crate::raider::{self, Input, Life, B_AIM, B_FIRE, B_FWD};
@@ -39,8 +41,14 @@ pub const ACTIONS: &[(&str, u32)] = &[
     ("cancel", 1 << 11),
     ("turn_left", 1 << 12),
     ("turn_right", 1 << 13),
+    ("crouch", raider::B_CROUCH),
+    ("melee", raider::B_MELEE),
+    ("roll", raider::B_ROLL),
+    ("gadget", raider::B_GADGET),
+    ("inventory", 1 << 20),
 ];
-const RUN_BITS: u32 = (1 << 10) - 1;
+const INVENTORY: u32 = 1 << 20;
+const RUN_BITS: u32 = raider::B_ALL;
 const CANCEL: u32 = 1 << 11;
 const TURN_LEFT: u32 = 1 << 12;
 const TURN_RIGHT: u32 = 1 << 13;
@@ -49,6 +57,7 @@ const KEY_TURN: i32 = deg(2);
 
 /// Mouse: angle units turned per CSS pixel ×100.
 const LOOK_PER_PX: i32 = deg(14) / 100;
+const STARTER_GEAR: &[(&str, i32)] = &[("kneepads", 1), ("decoys", 1), ("quickgloves", 1)];
 const STARTER: &[(&str, i32)] = &[
     ("smg", 1),
     ("double", 1),
@@ -101,6 +110,13 @@ pub struct Save {
     pub orders: i32,
     #[serde(default)]
     pub sens: i32,
+    /// gear on the shelf, what is worn, and rounds by kind
+    #[serde(default)]
+    pub gear: BTreeMap<String, i32>,
+    #[serde(default)]
+    pub wear: Vec<String>,
+    #[serde(default)]
+    pub ammo: BTreeMap<String, i32>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -109,9 +125,9 @@ pub struct Results {
     pub aborted: bool,
     pub lives: Vec<Life>,
     pub kills: Vec<i32>,
-    pub found: Vec<usize>,
-    pub pay: Vec<usize>,
-    pub lost: Vec<usize>,
+    pub found: Vec<Item>,
+    pub pay: Vec<Item>,
+    pub lost: Vec<Item>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -249,6 +265,12 @@ pub struct Game {
     watched_drones: BTreeMap<u16, i32>,
     /// the drone under the crosshair now
     aimed: Option<u16>,
+    /// what is worn, the inventory sheet, a pack slot to drop next tick, and
+    /// the rounds brought into this run (handed back if it is called off)
+    pub wear: Wear,
+    inv_open: bool,
+    pending_drop: u8,
+    brought: i32,
     /// sounds already in a HUD the page has read
     sounds_heard: usize,
     /// goodbyes still to send after leaving
@@ -291,9 +313,11 @@ impl Game {
         drones: &str,
         missions: &str,
         palette: &str,
+        gear: &str,
         saved: &str,
     ) -> Result<Game, String> {
-        let content = Content::parse(parts, drones, missions, palette)?;
+        let content = Content::parse(parts, drones, missions, palette, gear)?;
+        let wear0 = kit::basic_wear(&content);
         let map = mall::build(&content.palette);
         let mut b = Batch::new(content.palette.get("ink"));
         draw::map_scene(&map, &mut b);
@@ -310,6 +334,9 @@ impl Game {
                 extracted: 0,
                 orders: 0,
                 sens: 100,
+                gear: BTreeMap::new(),
+                wear: Vec::new(),
+                ammo: BTreeMap::new(),
             },
             build,
             pick: 0,
@@ -349,6 +376,10 @@ impl Game {
             preview: None,
             parting: Vec::new(),
             sounds_heard: 0,
+            wear: wear0,
+            inv_open: false,
+            pending_drop: 0,
+            brought: 0,
             popups: Vec::new(),
             watched_drones: BTreeMap::new(),
             aimed: None,
@@ -366,8 +397,29 @@ impl Game {
                 for (id, n) in STARTER {
                     self.save.stash.insert(id.to_string(), *n);
                 }
+                for (id, n) in STARTER_GEAR {
+                    self.save.gear.insert(id.to_string(), *n);
+                }
             }
         }
+        // a record from before ammunition: the starting rounds
+        if self.save.ammo.is_empty() {
+            for a in &self.content.ammo {
+                self.save.ammo.insert(a.id.clone(), a.start);
+            }
+        }
+        let mut w = kit::basic_wear(&self.content);
+        if self.save.wear.len() == content::SLOTS.len() {
+            for (i, id) in self.save.wear.iter().enumerate() {
+                if let Some(g) = self.content.gear_id(id) {
+                    if self.content.gear[g].slot_index() == i {
+                        w[i] = g;
+                    }
+                }
+            }
+        }
+        self.wear = w;
+        self.save.wear = self.wear_ids(&w);
         if self.save.sens <= 0 {
             self.save.sens = 100;
         }
@@ -392,6 +444,71 @@ impl Game {
 
     fn build_ids(&self, b: &Build) -> Vec<String> {
         b.iter().map(|&k| self.content.parts[k].id.clone()).collect()
+    }
+
+    fn wear_ids(&self, w: &Wear) -> Vec<String> {
+        w.iter().map(|&g| self.content.gear[g].id.clone()).collect()
+    }
+
+    fn wear_from_ids(&self, ids: &[String]) -> Wear {
+        let mut w = kit::basic_wear(&self.content);
+        for id in ids {
+            if let Some(g) = self.content.gear_id(id) {
+                w[self.content.gear[g].slot_index()] = g;
+            }
+        }
+        w
+    }
+
+    fn owned_gear(&self, g: usize) -> i32 {
+        let d = &self.content.gear[g];
+        if d.basic {
+            return 99;
+        }
+        *self.save.gear.get(&d.id).unwrap_or(&0)
+    }
+
+    fn give_gear(&mut self, g: usize, n: i32) {
+        let d = &self.content.gear[g];
+        if d.basic {
+            return;
+        }
+        let e = self.save.gear.entry(d.id.clone()).or_insert(0);
+        *e = (*e + n).max(0);
+        if *e == 0 {
+            self.save.gear.remove(&d.id);
+        }
+    }
+
+    fn give_ammo(&mut self, a: usize, n: i32) {
+        let id = self.content.ammo[a].id.clone();
+        let e = self.save.ammo.entry(id).or_insert(0);
+        *e = (*e + n).max(0);
+    }
+
+    /// The rounds this raider takes into a run for their gun: light rounds
+    /// are topped up for free first, then as many as they carry come off
+    /// the shelf (they come back in the pack, or are lost with it).
+    fn ammo_for_run(&mut self) -> i32 {
+        let bring = self.ammo_peek();
+        self.withdraw_ammo(bring);
+        bring
+    }
+
+    /// The rounds this raider would bring (topping light rounds up first).
+    fn ammo_peek(&mut self) -> i32 {
+        let a = gun::compose(&self.content, &self.build).ammo;
+        let def = self.content.ammo[a].clone();
+        let have = *self.save.ammo.get(&def.id).unwrap_or(&0);
+        if have < def.free {
+            self.save.ammo.insert(def.id.clone(), def.free);
+        }
+        (*self.save.ammo.get(&def.id).unwrap_or(&0)).min(def.carry)
+    }
+
+    fn withdraw_ammo(&mut self, n: i32) {
+        let a = gun::compose(&self.content, &self.build).ammo;
+        self.give_ammo(a, -n);
     }
 
     fn build_from_ids(&self, ids: &[String]) -> Build {
@@ -441,7 +558,7 @@ impl Game {
             return false;
         }
         let Some(k) = self.content.part(id) else {
-            return false;
+            return self.equip_gear(id);
         };
         let slot = self.content.parts[k].cat.index();
         let old = self.build[slot];
@@ -453,6 +570,23 @@ impl Game {
         self.build[slot] = k;
         self.save.build = self.build_ids(&self.build.clone());
         self.preview = Some(gun::compose(&self.content, &self.build));
+        self.sounds.push("equip");
+        true
+    }
+
+    fn equip_gear(&mut self, id: &str) -> bool {
+        let Some(g) = self.content.gear_id(id) else {
+            return false;
+        };
+        let slot = self.content.gear[g].slot_index();
+        let old = self.wear[slot];
+        if old == g || self.owned_gear(g) <= 0 {
+            return false;
+        }
+        self.give_gear(g, -1);
+        self.give_gear(old, 1);
+        self.wear[slot] = g;
+        self.save.wear = self.wear_ids(&self.wear.clone());
         self.sounds.push("equip");
         true
     }
@@ -506,16 +640,40 @@ impl Game {
             return;
         }
         let seed = (self.frame as u64).wrapping_mul(0x9E37_79B9) ^ ((self.save.runs as u64 + 1) * 7919);
-        self.begin_run(self.pick, seed, vec![self.build], 0, false);
+        let ammo = self.ammo_for_run();
+        self.begin_run(
+            self.pick,
+            seed,
+            vec![self.build],
+            vec![self.wear],
+            vec![ammo],
+            0,
+            false,
+        );
     }
 
-    fn begin_run(&mut self, mission: usize, seed: u64, builds: Vec<Build>, me: usize, online: bool) {
+    #[allow(clippy::too_many_arguments)]
+    fn begin_run(
+        &mut self,
+        mission: usize,
+        seed: u64,
+        builds: Vec<Build>,
+        wears: Vec<Wear>,
+        ammo_in: Vec<i32>,
+        me: usize,
+        online: bool,
+    ) {
         let guns: Vec<Gun> = builds.iter().map(|b| gun::compose(&self.content, b)).collect();
+        let kits = wears.iter().map(|w| kit::kit(&self.content, w)).collect();
+        self.brought = ammo_in.get(me).copied().unwrap_or(0);
         let setup = Setup {
             mission,
             builds: builds.clone(),
             guns,
             seed,
+            wears,
+            kits,
+            ammo_in,
         };
         let run = {
             let r = Ref {
@@ -539,11 +697,23 @@ impl Game {
         self.results = None;
         self.over_t = 0;
         self.menu_open = false;
+        self.inv_open = false;
         self.particles.clear();
         self.beams.clear();
         self.save.runs += 1;
         self.toast = Some(("toast_doors", secs(5000)));
         self.sounds.push("van");
+    }
+
+    /// Drop a pack item, from the inventory sheet: it goes in with the next tick.
+    pub fn drop_item(&mut self, slot: usize) {
+        if self.mode == Mode::Play && slot < 200 {
+            self.pending_drop = slot as u8 + 1;
+        }
+    }
+
+    pub fn close_inventory(&mut self) {
+        self.inv_open = false;
     }
 
     pub fn pause(&mut self) {
@@ -633,14 +803,14 @@ impl Game {
             pay: Vec::new(),
             lost: Vec::new(),
         };
+        let pack = run.packs[me].clone();
+        let gun_ammo = setup.guns[me].ammo;
+        let mut lost_gear = Vec::new();
         if aborted {
-            // nobody's fault: nothing gained, nothing lost
+            // nobody's fault: nothing gained, nothing lost; the rounds go back
+            self.give_ammo(gun_ammo, self.brought);
         } else if mine == Life::Extracted {
-            for it in &run.packs[me] {
-                if let Item::Part(k) = it {
-                    res.found.push(*k as usize);
-                }
-            }
+            res.found = pack.iter().filter(|it| **it != Item::Mission).copied().collect();
             if success {
                 let m = &self.content.missions[setup.mission];
                 let mut rng = Rng::new(setup.seed ^ ((me as u64 + 1) * 0xabcdef));
@@ -648,22 +818,53 @@ impl Game {
                     .filter(|&k| self.content.parts[k].rarity >= 2)
                     .collect();
                 for _ in 0..m.pay {
-                    res.pay.push(pool[rng.range(0, pool.len() as i32 - 1) as usize]);
+                    res.pay.push(Item::Part(
+                        pool[rng.range(0, pool.len() as i32 - 1) as usize] as u16,
+                    ));
                 }
             }
         } else {
-            res.lost = Run::staked(&self.content, &self.build);
+            res.lost = Run::staked(&self.content, &self.build)
+                .into_iter()
+                .map(|k| Item::Part(k as u16))
+                .collect();
+            for (slot, &g) in self.wear.iter().enumerate() {
+                if !self.content.gear[g].basic {
+                    res.lost.push(Item::Gear(g as u16));
+                    lost_gear.push(slot);
+                }
+            }
         }
-        for &k in res.found.iter().chain(res.pay.iter()) {
-            self.give(k, 1);
+        for it in res.found.clone().iter().chain(res.pay.clone().iter()) {
+            match *it {
+                Item::Part(k) => self.give(k as usize, 1),
+                Item::Gear(g) => self.give_gear(g as usize, 1),
+                Item::Ammo(a, n) => self.give_ammo(a as usize, n as i32),
+                Item::Mission => {}
+            }
         }
-        if !res.lost.is_empty() {
+        let lost_parts: Vec<usize> = res
+            .lost
+            .iter()
+            .filter_map(|it| match it {
+                Item::Part(k) => Some(*k as usize),
+                _ => None,
+            })
+            .collect();
+        if !lost_parts.is_empty() {
             let basic = gun::basic_build(&self.content);
-            for &k in &res.lost {
+            for k in lost_parts {
                 let slot = self.content.parts[k].cat.index();
                 self.build[slot] = basic[slot];
             }
             self.save.build = self.build_ids(&self.build.clone());
+        }
+        if !lost_gear.is_empty() {
+            let basic = kit::basic_wear(&self.content);
+            for slot in lost_gear {
+                self.wear[slot] = basic[slot];
+            }
+            self.save.wear = self.wear_ids(&self.wear.clone());
         }
         if mine == Life::Extracted {
             self.save.extracted += 1;
@@ -674,6 +875,7 @@ impl Game {
         self.sounds.push(if success { "win" } else { "lose" });
         self.results = Some(res);
         self.mode = Mode::Results;
+        self.inv_open = false;
         if let Some(o) = &mut self.online {
             o.started = false;
         }
@@ -682,12 +884,15 @@ impl Game {
     // ---- online -------------------------------------------------------------------------
 
     pub fn host_online(&mut self, build: &str, seed: u64) -> String {
+        let host_ammo = self.ammo_peek();
         let room = crate::online_code::room_code(seed);
         let mut o = Online::new(Role::Host, &room, build);
         o.seats = vec![Seat {
             kind: "host".into(),
             name: String::new(),
             build: self.build_ids(&self.build.clone()),
+            gear: self.wear_ids(&self.wear.clone()),
+            ammo: host_ammo,
         }];
         o.mission = self.pick;
         self.online = Some(o);
@@ -734,6 +939,8 @@ impl Game {
 
     pub fn net_peer(&mut self, peer: u32) {
         let gun = self.build_ids(&self.build.clone());
+        let gear = self.wear_ids(&self.wear.clone());
+        let ammo = self.ammo_peek();
         let Some(o) = &mut self.online else { return };
         match o.role {
             Role::Joiner => {
@@ -743,6 +950,8 @@ impl Game {
                         proto: rollback::PROTO,
                         build: o.build.clone(),
                         gun,
+                        gear,
+                        ammo,
                     };
                     o.send(peer, &m);
                     // "waiting" once the host's lobby, with my seat in it, arrives
@@ -823,7 +1032,13 @@ impl Game {
     fn host_hears(&mut self, peer: u32, m: Msg) {
         let Some(o) = &mut self.online else { return };
         match m {
-            Msg::Hello { proto, build, gun } => {
+            Msg::Hello {
+                proto,
+                build,
+                gun,
+                gear,
+                ammo,
+            } => {
                 if proto != rollback::PROTO || build != o.build {
                     o.send(
                         peer,
@@ -850,6 +1065,8 @@ impl Game {
                     kind: "remote".into(),
                     name: String::new(),
                     build: gun,
+                    gear,
+                    ammo,
                 });
                 self.sounds.push("join");
                 self.lobby_changed();
@@ -906,17 +1123,28 @@ impl Game {
                 mission,
                 seed,
                 guns,
+                gears,
+                ammos,
                 you,
             } => {
                 o.started = true;
                 o.status = "online_playing";
+                // everyone, me included, plays what the start lists: every
+                // copy must begin the same run
                 let builds: Vec<Build> = guns.iter().map(|g| self.build_from_ids(g)).collect();
-                // play with my own gun, whatever the host thinks it is
-                let mut builds = builds;
-                if you < builds.len() {
-                    builds[you] = self.build;
-                }
-                self.begin_run(mission, seed, builds, you, true);
+                let wears: Vec<Wear> = (0..builds.len())
+                    .map(|k| {
+                        gears
+                            .get(k)
+                            .map(|g| self.wear_from_ids(g))
+                            .unwrap_or(kit::basic_wear(&self.content))
+                    })
+                    .collect();
+                let ammos: Vec<i32> = (0..builds.len())
+                    .map(|k| ammos.get(k).copied().unwrap_or(0))
+                    .collect();
+                self.withdraw_ammo(ammos.get(you).copied().unwrap_or(0));
+                self.begin_run(mission, seed, builds, wears, ammos, you, true);
             }
             Msg::In { p, from, i, at } => {
                 if let Some(s) = &mut self.session {
@@ -951,6 +1179,7 @@ impl Game {
             return;
         }
         o.seats[0].build = self.save.build.clone();
+        o.seats[0].gear = self.save.wear.clone();
         let peers: Vec<(u32, usize)> = o.peers.iter().map(|(p, s)| (*p, *s)).collect();
         for (p, s) in peers {
             let m = Msg::Lobby {
@@ -973,6 +1202,8 @@ impl Game {
         let seed =
             (self.frame as u64).wrapping_mul(2654435761) ^ (o.room.len() as u64 + o.seats.len() as u64 * 977);
         let guns: Vec<Vec<String>> = o.seats.iter().map(|s| s.build.clone()).collect();
+        let gears: Vec<Vec<String>> = o.seats.iter().map(|s| s.gear.clone()).collect();
+        let ammos: Vec<i32> = o.seats.iter().map(|s| s.ammo).collect();
         let mission = o.mission;
         let peers: Vec<(u32, usize)> = o.peers.iter().map(|(p, s)| (*p, *s)).collect();
         for (p, s) in peers {
@@ -980,13 +1211,16 @@ impl Game {
                 mission,
                 seed,
                 guns: guns.clone(),
+                gears: gears.clone(),
+                ammos: ammos.clone(),
                 you: s,
             };
             o.send(p, &m);
         }
-        let mut builds: Vec<Build> = guns.iter().map(|g| self.build_from_ids(g)).collect();
-        builds[0] = self.build;
-        self.begin_run(mission, seed, builds, 0, true);
+        let builds: Vec<Build> = guns.iter().map(|g| self.build_from_ids(g)).collect();
+        let wears: Vec<Wear> = gears.iter().map(|g| self.wear_from_ids(g)).collect();
+        self.withdraw_ammo(ammos[0]);
+        self.begin_run(mission, seed, builds, wears, ammos, 0, true);
     }
 
     // ---- the clock ------------------------------------------------------------------------
@@ -1021,7 +1255,12 @@ impl Game {
             self.acc -= TICK_US;
             due += 1;
         }
-        if self.mode == Mode::Play && edges & CANCEL != 0 {
+        if self.mode == Mode::Play && edges & INVENTORY != 0 && !self.menu_open {
+            self.inv_open = !self.inv_open;
+        }
+        if self.mode == Mode::Play && edges & CANCEL != 0 && self.inv_open {
+            self.inv_open = false;
+        } else if self.mode == Mode::Play && edges & CANCEL != 0 {
             if self.online.is_some() {
                 self.menu_open = !self.menu_open;
             } else {
@@ -1029,7 +1268,7 @@ impl Game {
             }
         }
         // the look
-        if self.mode == Mode::Play && !self.menu_open {
+        if self.mode == Mode::Play && !self.menu_open && !self.inv_open {
             let zoom = self.aim_zoom(bits);
             let k = self.save.sens * zoom / 100;
             self.yaw = fx::wrap(self.yaw - dx * LOOK_PER_PX / 100 * k / 100);
@@ -1059,13 +1298,22 @@ impl Game {
     }
 
     fn play_frame(&mut self, bits: u32, due: u32) {
-        let held = if self.menu_open { 0 } else { bits & RUN_BITS };
+        let quiet = self.menu_open || self.inv_open;
+        let held = if quiet { 0 } else { bits & RUN_BITS };
         let input = Input {
-            b: held | (self.pending & RUN_BITS),
+            b: held | if quiet { 0 } else { self.pending & RUN_BITS },
             y: self.yaw,
             p: self.pitch,
+            d: self.pending_drop,
         };
-        self.pending = 0;
+        // a press or a drop is used by the first tick that runs; a frame
+        // with no tick due (a fast screen) keeps it for the next one, or a
+        // tap of R between ticks would be lost
+        let ticks = if self.session.is_some() { due.max(1) } else { due };
+        if ticks > 0 {
+            self.pending = 0;
+            self.pending_drop = 0;
+        }
         let (Some(run), Some(setup)) = (&mut self.run, &self.setup) else {
             return;
         };
@@ -1499,6 +1747,43 @@ impl Game {
                 self.sounds.push("wave");
                 self.toast = Some(("toast_wave", secs(3000)));
             }
+            Event::Melee { who, at, hit } => {
+                self.sounds.push(if hit { "thud" } else { "swing" });
+                if hit {
+                    self.burst(
+                        at,
+                        8,
+                        &["spark", "metal"],
+                        int(4),
+                        ONE / 8,
+                        ONE,
+                        secs(300),
+                        Mesh::Sphere,
+                    );
+                    if who == me {
+                        self.kick = ONE / 2;
+                    }
+                }
+            }
+            Event::Gadget { kind, at, by } => {
+                match kind {
+                    crate::kit::Gadget::Decoy => self.sounds.push("beep"),
+                    crate::kit::Gadget::Mine => self.sounds.push("mine"),
+                    crate::kit::Gadget::Paint => {
+                        self.sounds.push("paint");
+                        self.burst(at, 10, &["shock"], int(2), ONE / 6, ONE, secs(500), Mesh::Sphere);
+                    }
+                    crate::kit::Gadget::Smoke => self.sounds.push("lob"),
+                }
+                let _ = by;
+            }
+            Event::Noticed { .. } => self.sounds.push("hmm"),
+            Event::NoAmmo { who } => {
+                if who == me {
+                    self.sounds.push("click");
+                    self.toast = Some(("toast_no_ammo", secs(2500)));
+                }
+            }
             Event::Stomp { at } => {
                 self.sounds.push("boom");
                 self.burst(
@@ -1569,15 +1854,7 @@ impl Game {
         } else {
             (ra.yaw, ra.pitch)
         };
-        let (eye, fwd) = raider::camera(
-            ra.pos,
-            yaw,
-            pitch,
-            ra.aiming,
-            ra.life == Life::Downed,
-            &self.map,
-            &run.extra,
-        );
+        let (eye, fwd) = raider::camera_at(ra.pos, yaw, pitch, ra.aiming, ra.eye_up(), &self.map, &run.extra);
         self.eye = eye;
         self.fwd = fwd;
     }
@@ -1625,7 +1902,7 @@ impl Game {
                     } else {
                         ra
                     };
-                    let look = draw::raider_look(pal, i);
+                    let look = draw::raider_look(pal, i, &self.content, &setup.wears[i]);
                     draw::raider(&mut b, ra, &look, &setup.guns[i], tick);
                     draw::muzzle_flash(&mut b, ra, &setup.guns[i], self.c("spark"));
                 }
@@ -1654,6 +1931,9 @@ impl Game {
                 }
                 if let Some(h) = &run.hive {
                     draw::hive(&mut b, h, pal, tick);
+                }
+                for gd in &run.gadgets {
+                    draw::gadget(&mut b, gd, pal, tick);
                 }
                 for p in &run.pickups {
                     draw::pickup(&mut b, p, &self.content, tick, pal);
@@ -1942,19 +2222,18 @@ impl Game {
         }
         let prompt = run.use_target(&r, self.me).map(|u| {
             let progress = if me.use_on >= 0 {
-                pct(me.use_t, u.needs())
+                pct(me.use_t, run.needs_for(&r, self.me, u))
             } else {
                 "0%".into()
             };
-            let extra = match u {
-                Use::Pick(k) => match run.pickups.get(k as usize).map(|p| p.item) {
-                    Some(Item::Part(pk)) => self.content.parts[pk as usize].id.clone(),
-                    Some(Item::Mission) => format!("item_{}", m.item),
-                    None => String::new(),
-                },
-                _ => String::new(),
+            let item = match u {
+                Use::Pick(k) => run
+                    .pickups
+                    .get(k as usize)
+                    .map(|p| self.item_json(&p.item, &m.item)),
+                _ => None,
             };
-            json!({ "key": format!("use_{}", u.name()), "pct": progress, "part": extra })
+            json!({ "key": format!("use_{}", u.name()), "pct": progress, "item": item })
         });
         let objective = match m.goal {
             Goal::Fetch => json!({ "key": format!("goal_{}", m.id), "have": run.found, "need": m.count }),
@@ -1998,13 +2277,50 @@ impl Game {
                 })
             })
             .collect();
-        let pack: Vec<String> = run.packs[self.me]
+        let pack: Vec<Value> = run.packs[self.me]
             .iter()
-            .map(|it| match it {
-                Item::Part(k) => self.content.parts[*k as usize].id.clone(),
-                Item::Mission => format!("item_{}", m.item),
-            })
+            .map(|it| self.item_json(it, &m.item))
             .collect();
+        let kit = &setup.kits[self.me];
+        let wear: Vec<Value> = setup.wears[self.me]
+            .iter()
+            .map(|&g| self.item_json(&Item::Gear(g as u16), &m.item))
+            .collect();
+        let gun_parts: Vec<Value> = setup.builds[self.me]
+            .iter()
+            .map(|&k| self.item_json(&Item::Part(k as u16), &m.item))
+            .collect();
+        // how aware drones are of me: over those I can see (or all near,
+        // with a headset), a meter that fills and turns red when alerted
+        for d in run
+            .drones
+            .iter()
+            .filter(|d| d.active() && d.pos.dist(from) < int(60))
+        {
+            let level = d.brain.aware.get(self.me).copied().unwrap_or(0);
+            let alerted = d.brain.target == Some(self.me as u8) && level >= crate::run::AWARE_FULL;
+            if level < 40 && !alerted {
+                continue;
+            }
+            let shown = kit.headset || self.map.clear(cam.eye, d.centre(), &run.extra);
+            if !shown {
+                continue;
+            }
+            let def = &self.content.drones[d.def];
+            let top = d.centre().add(v3(0, d.radius(def) + ONE * 13 / 10, 0));
+            if let Some((x, y)) = cam.screen(self.aspect, top) {
+                if x > 0 && x < 100 * ONE && y > 0 && y < 100 * ONE {
+                    markers.push(json!({
+                        "kind": "aware",
+                        "x": pct_q16(x),
+                        "y": pct_q16(y),
+                        "level": pct(level, crate::run::AWARE_FULL),
+                        "alert": alerted,
+                        "suspect": level >= crate::run::AWARE_SUSPECT,
+                    }));
+                }
+            }
+        }
         let spread = if me.aiming { gun.aim_spread } else { gun.hip_spread }
             * if me.moving && !me.aiming { 16 } else { 10 }
             / 10;
@@ -2038,7 +2354,21 @@ impl Game {
             "markers": markers,
             "team": team,
             "pack": pack,
-            "pack_max": BACKPACK,
+            "pack_max": kit.slots,
+            "wear": wear,
+            "gun_parts": gun_parts,
+            "inventory": self.inv_open,
+            "reserve": run.rounds(self.me, gun.ammo),
+            "ammo_kind": format!("ammo_{}", self.content.ammo[gun.ammo].id),
+            "crouch": me.crouch,
+            "melee": pct(kit.melee.cooldown - me.melee_cd, kit.melee.cooldown.max(1)),
+            "melee_name": format!("gear_{}", self.content.gear[setup.wears[self.me][content::SLOT_MELEE]].id),
+            "roll": if kit.roll { Some(pct(120 - me.roll_cd.min(120), 120)) } else { None },
+            "gadget": kit.gadget.map(|_| json!({
+                "name": format!("gear_{}", self.content.gear[setup.wears[self.me][content::SLOT_BELT]].id),
+                "icon": format!("gear/{}", self.content.gear[setup.wears[self.me][content::SLOT_BELT]].id),
+                "charges": me.charges,
+            })),
             "van_doors": run.van.doors_open,
             "leaving": run.van.leaving.map(tenths),
             "in_van": run.van.inside().contains(me.chest()),
@@ -2060,6 +2390,28 @@ impl Game {
             "drones": run.drones.iter().filter(|d| d.active()).count(),
         });
         h.to_string()
+    }
+
+    /// Any item as the page shows it: its picture, the copy key of its name
+    /// and of what it does, how many, and what kind of thing it is.
+    fn item_json(&self, it: &Item, mission_item: &str) -> Value {
+        match *it {
+            Item::Part(k) => {
+                let id = &self.content.parts[k as usize].id;
+                json!({ "icon": format!("parts/{id}"), "name": format!("part_{id}"), "about": format!("part_{id}_about"), "kind": "part", "rarity": self.content.parts[k as usize].rarity })
+            }
+            Item::Gear(g) => {
+                let d = &self.content.gear[g as usize];
+                json!({ "icon": format!("gear/{}", d.id), "name": format!("gear_{}", d.id), "about": format!("gear_{}_about", d.id), "kind": d.slot, "rarity": d.rarity, "basic": d.basic })
+            }
+            Item::Ammo(a, n) => {
+                let id = &self.content.ammo[a as usize].id;
+                json!({ "icon": format!("gear/ammo_{id}"), "name": format!("ammo_{id}"), "about": format!("ammo_{id}_about"), "kind": "ammo", "n": n, "rarity": self.content.ammo[a as usize].rarity })
+            }
+            Item::Mission => {
+                json!({ "icon": "gear/belt", "name": format!("item_{mission_item}"), "about": "item_about", "kind": "mission", "rarity": 3 })
+            }
+        }
     }
 
     fn part_json(&self, k: usize) -> Value {
@@ -2111,6 +2463,30 @@ impl Game {
             .map(|m| json!({ "id": m.id, "entrance": m.entrance, "pay": m.pay, "drones": m.drones }))
             .collect();
         let stash: Vec<Value> = (0..self.content.parts.len()).map(|k| self.part_json(k)).collect();
+        let gear: Vec<Value> = self
+            .content
+            .gear
+            .iter()
+            .enumerate()
+            .map(|(k, d)| {
+                json!({
+                    "id": d.id,
+                    "slot": d.slot,
+                    "basic": d.basic,
+                    "rarity": d.rarity,
+                    "owned": if d.basic { None } else { Some(self.owned_gear(k)) },
+                    "on": self.wear.contains(&k),
+                })
+            })
+            .collect();
+        let ammo: Vec<Value> = self
+            .content
+            .ammo
+            .iter()
+            .map(|a| json!({ "id": a.id, "n": self.save.ammo.get(&a.id).copied().unwrap_or(0), "carry": a.carry }))
+            .collect();
+        let my_gun = gun::compose(&self.content, &self.build);
+        let kit_now = kit::kit(&self.content, &self.wear);
         let build: Vec<String> = self.build_ids(&self.build);
         let gun = gun::compose(&self.content, &self.build);
         let lobby = self.online.as_ref().map(|o| {
@@ -2124,6 +2500,7 @@ impl Game {
                     "you": (o.role == Role::Host && i == 0) || (o.role == Role::Joiner && i == o.you && !o.seats.is_empty()),
                     "colour": hex(self.c(&format!("jacket_{}", i % 4))),
                     "gun": s.build,
+                    "gear": s.gear,
                 })).collect::<Vec<_>>(),
                 "mission": o.mission,
                 "can_start": o.role == Role::Host && !o.started,
@@ -2137,9 +2514,9 @@ impl Game {
                 "lives": r.lives.iter().map(|l| l.name()).collect::<Vec<_>>(),
                 "kills": r.kills,
                 "colours": (0..r.lives.len()).map(|i| hex(self.c(&format!("jacket_{}", i % 4)))).collect::<Vec<_>>(),
-                "found": r.found.iter().map(|&k| self.content.parts[k].id.clone()).collect::<Vec<_>>(),
-                "pay": r.pay.iter().map(|&k| self.content.parts[k].id.clone()).collect::<Vec<_>>(),
-                "lost": r.lost.iter().map(|&k| self.content.parts[k].id.clone()).collect::<Vec<_>>(),
+                "found": r.found.iter().map(|it| self.item_json(it, "")).collect::<Vec<_>>(),
+                "pay": r.pay.iter().map(|it| self.item_json(it, "")).collect::<Vec<_>>(),
+                "lost": r.lost.iter().map(|it| self.item_json(it, "")).collect::<Vec<_>>(),
                 "mission": self.setup.as_ref().map(|s| self.content.missions[s.mission].id.clone()),
             })
         });
@@ -2148,6 +2525,20 @@ impl Game {
             "missions": missions,
             "pick": self.pick,
             "stash": stash,
+            "gear": gear,
+            "slots": content::SLOTS,
+            "wear": self.wear_ids(&self.wear),
+            "ammo": ammo,
+            "gun_ammo": self.content.ammo[my_gun.ammo].id,
+            "kit": {
+                "hp": kit_now.max_hp,
+                "armour": kit_now.armour_pct,
+                "speed": kit_now.speed_pct,
+                "slots": kit_now.slots,
+                "notice": kit_now.notice_pct,
+                "noise": kit_now.noise_pct,
+                "melee": kit_now.melee.damage,
+            },
             "build": build,
             "gun": self.gun_stats(&gun),
             "record": { "runs": self.save.runs, "extracted": self.save.extracted, "orders": self.save.orders },
@@ -2220,6 +2611,7 @@ mod tests {
             include_str!("../../../data/drones.json"),
             include_str!("../../../data/missions.json"),
             include_str!("../../../data/palette.json"),
+            include_str!("../../../data/gear.json"),
             "",
         )
         .unwrap()
@@ -2274,6 +2666,26 @@ mod tests {
         frames(&mut g, 1, 0);
         let hud: Value = serde_json::from_str(&g.hud_json()).unwrap();
         assert!(!hud["sounds"].as_array().unwrap().iter().any(|s| s == "equip"));
+    }
+
+    #[test]
+    fn a_drop_or_a_press_on_a_frame_with_no_tick_is_kept_for_the_next() {
+        let mut g = game();
+        g.board();
+        g.start_solo();
+        frames(&mut g, 5, 0);
+        let before = g.run.as_ref().unwrap().packs[0].len();
+        g.drop_item(0);
+        // a frame a millisecond later: no tick is due
+        let t = g.last_us.unwrap() + 1000;
+        g.advance(t, 0, 0, 0);
+        assert_eq!(g.run.as_ref().unwrap().packs[0].len(), before, "nothing ran yet");
+        frames(&mut g, 2, 0);
+        assert_eq!(
+            g.run.as_ref().unwrap().packs[0].len(),
+            before - 1,
+            "the drop happened"
+        );
     }
 
     #[test]

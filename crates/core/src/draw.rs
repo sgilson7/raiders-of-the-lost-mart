@@ -2,6 +2,7 @@
 //! itself as boxes, balls and tubes for the renderer (render.rs). Nothing
 //! here changes the run; it reads it.
 
+use crate::balance::{secs, TICKS_PER_SECOND};
 use crate::content::{Content, Rgb};
 use crate::content::{Palette, ShotKind};
 use crate::drone::{zones, Drone, Kind, State, Zone};
@@ -140,10 +141,35 @@ pub struct Look2 {
     pub helmet: Rgb,
     pub pack: Rgb,
     pub visor: Rgb,
+    /// what is worn that shows: the head piece, a vest, a coat's colour,
+    /// and the melee weapon
+    pub head: &'static str,
+    pub vest: bool,
+    pub coat: Option<Rgb>,
+    pub melee: &'static str,
 }
 
-pub fn raider_look(pal: &Palette, i: usize) -> Look2 {
+pub fn raider_look(pal: &Palette, i: usize, c: &Content, wear: &crate::kit::Wear) -> Look2 {
+    let id = |slot: usize| c.gear[wear[slot]].id.as_str();
+    let head = match id(0) {
+        "helmet" => "helmet",
+        "headset" => "headset",
+        _ => "cap",
+    };
+    let coat = match id(3) {
+        "poncho" | "trench" | "hazmat" => Some(crate::content::hex(&c.gear[wear[3]].colour)),
+        _ => None,
+    };
+    let melee = match id(crate::content::SLOT_MELEE) {
+        "sledge" => "sledge",
+        "machete" => "machete",
+        _ => "bat",
+    };
     Look2 {
+        head,
+        vest: id(2) == "vest",
+        coat,
+        melee,
         jacket: pal.get(&format!("jacket_{}", i % 4)),
         skin: pal.get(&format!("skin_{}", i % 4)),
         pants: pal.get("pants"),
@@ -176,16 +202,25 @@ pub fn raider(b: &mut Batch, r: &Raider, look: &Look2, gun: &Gun, tick: u32) {
     } else {
         look.jacket
     };
+    // crouched: lower, the thighs forward
+    let hip_y = if r.crouch || r.roll_t > 0 || r.slide_t > 0 {
+        cm(55)
+    } else {
+        cm(90)
+    };
+    let bend = if hip_y < cm(90) { -deg(22) } else { 0 };
     // legs swing about the hips
     for (side, s) in [(-1, swing), (1, -swing)] {
-        let hip = Affine::translate(v3(side * cm(13), cm(90), 0)).then(&Affine::rot_x(s));
+        let hip = Affine::translate(v3(side * cm(13), hip_y, 0)).then(&Affine::rot_x(s + bend));
         let leg = base.then(&hip);
+        // crouched, the legs fold: a short thigh down to a knee on the floor
+        let len = if bend != 0 { cm(58) } else { cm(84) };
         put(
             b,
             Mesh::Cube,
             &leg,
-            v3(0, -cm(42), 0),
-            v3(cm(17), cm(84), cm(19)),
+            v3(0, -len / 2, 0),
+            v3(cm(17), len, cm(19)),
             look.pants,
             0,
             true,
@@ -194,7 +229,7 @@ pub fn raider(b: &mut Batch, r: &Raider, look: &Look2, gun: &Gun, tick: u32) {
             b,
             Mesh::Cube,
             &leg,
-            v3(0, -cm(84), -cm(4)),
+            v3(0, -len, -cm(4)),
             v3(cm(19), cm(12), cm(28)),
             look.boots,
             0,
@@ -202,10 +237,17 @@ pub fn raider(b: &mut Batch, r: &Raider, look: &Look2, gun: &Gun, tick: u32) {
         );
     }
     // the body
-    let lean = if r.sprinting { deg(10) } else { 0 };
+    let lean = if r.sprinting {
+        deg(10)
+    } else if hip_y < cm(90) {
+        deg(18)
+    } else {
+        0
+    };
     let torso = base
-        .then(&Affine::translate(v3(0, cm(90), 0)))
+        .then(&Affine::translate(v3(0, hip_y, 0)))
         .then(&Affine::rot_x(-lean));
+    let coat = look.coat.unwrap_or(jacket);
     put(
         b,
         Mesh::Cube,
@@ -216,6 +258,31 @@ pub fn raider(b: &mut Batch, r: &Raider, look: &Look2, gun: &Gun, tick: u32) {
         0,
         true,
     );
+    if look.coat.is_some() {
+        // a coat over the jacket, longer, open at the front
+        put(
+            b,
+            Mesh::Cube,
+            &torso,
+            v3(0, cm(20), cm(2)),
+            v3(cm(52), cm(80), cm(30)),
+            coat,
+            0,
+            true,
+        );
+    }
+    if look.vest {
+        put(
+            b,
+            Mesh::Cube,
+            &torso,
+            v3(0, cm(36), -cm(3)),
+            v3(cm(50), cm(40), cm(30)),
+            shade(look.helmet, 85),
+            0,
+            true,
+        );
+    }
     put(
         b,
         Mesh::Cube,
@@ -260,34 +327,143 @@ pub fn raider(b: &mut Batch, r: &Raider, look: &Look2, gun: &Gun, tick: u32) {
         0,
         true,
     );
-    put(
-        b,
-        Mesh::Sphere,
-        &head,
-        v3(0, cm(8), cm(2)),
-        v3(cm(31), cm(22), cm(31)),
-        look.helmet,
-        0,
-        true,
-    );
-    put(
-        b,
-        Mesh::Cube,
-        &head,
-        v3(0, cm(2), -cm(12)),
-        v3(cm(22), cm(7), cm(5)),
-        look.visor,
-        ONE / 2,
-        true,
-    );
+    match look.head {
+        "helmet" => {
+            put(
+                b,
+                Mesh::Sphere,
+                &head,
+                v3(0, cm(8), cm(2)),
+                v3(cm(34), cm(26), cm(34)),
+                look.helmet,
+                0,
+                true,
+            );
+            put(
+                b,
+                Mesh::Cube,
+                &head,
+                v3(0, cm(2), -cm(13)),
+                v3(cm(28), cm(14), cm(4)),
+                look.visor,
+                ONE / 3,
+                true,
+            );
+        }
+        "headset" => {
+            put(
+                b,
+                Mesh::Sphere,
+                &head,
+                v3(0, cm(9), cm(2)),
+                v3(cm(30), cm(18), cm(30)),
+                look.skin,
+                0,
+                true,
+            );
+            for side in [-1, 1] {
+                put(
+                    b,
+                    Mesh::Cyl,
+                    &head,
+                    v3(side * cm(15), 0, 0),
+                    v3(cm(12), cm(6), cm(12)),
+                    shade(look.helmet, 50),
+                    0,
+                    true,
+                );
+            }
+            put(
+                b,
+                Mesh::Sphere,
+                &head,
+                v3(cm(10), -cm(6), -cm(14)),
+                v3(cm(5), cm(5), cm(5)),
+                look.visor,
+                ONE,
+                false,
+            );
+        }
+        _ => {
+            // a cap, its peak forward
+            put(
+                b,
+                Mesh::Sphere,
+                &head,
+                v3(0, cm(9), cm(1)),
+                v3(cm(29), cm(17), cm(29)),
+                look.jacket,
+                0,
+                true,
+            );
+            put(
+                b,
+                Mesh::Cube,
+                &head,
+                v3(0, cm(6), -cm(15)),
+                v3(cm(22), cm(3), cm(14)),
+                look.jacket,
+                0,
+                true,
+            );
+        }
+    }
     if downed {
         return;
+    }
+    let shoulder_r = torso.apply(v3(cm(26), cm(52), 0));
+    let shoulder_l = torso.apply(v3(-cm(26), cm(52), 0));
+    let (len, w, metal) = match look.melee {
+        "sledge" => (cm(95), cm(5), true),
+        "machete" => (cm(70), cm(3), false),
+        _ => (cm(85), cm(6), false),
+    };
+    let head_rgb = [ONE * 72 / 100, ONE * 76 / 100, ONE * 74 / 100];
+    if r.melee_t > 0 {
+        // the swing: from up behind the right shoulder, down across the front
+        let t = (ONE * r.melee_t / crate::run::MELEE_HIT).min(ONE * 14 / 10);
+        let a = -deg(110) + fx::mul(deg(170), t);
+        let dir = torso
+            .apply_dir(v3(fx::sin(a) / 2, fx::cos(a), -fx::cos(a / 2).abs()))
+            .norm();
+        let hand = shoulder_r.add(torso.apply_dir(v3(0, -cm(10), -cm(30))));
+        let tip = hand.add(dir.scale(len));
+        segment(b, Mesh::Cube, shoulder_r, hand, cm(12), jacket, 0, true);
+        segment(b, Mesh::Cyl, hand, tip, w, head_rgb, 0, true);
+        if metal {
+            put(
+                b,
+                Mesh::Cube,
+                &Affine::translate(tip),
+                V3::ZERO,
+                v3(cm(24), cm(14), cm(14)),
+                shade(head_rgb, 60),
+                0,
+                true,
+            );
+        }
+        segment(b, Mesh::Cube, shoulder_l, hand, cm(12), jacket, 0, true);
+        return;
+    }
+    // the melee weapon rides on the pack
+    let a = torso.apply(v3(-cm(22), cm(10), cm(34)));
+    let z = torso.apply(v3(cm(22), cm(10) + len, cm(34)));
+    segment(b, Mesh::Cyl, a, z, w, head_rgb, 0, true);
+    if metal {
+        put(
+            b,
+            Mesh::Cube,
+            &Affine::translate(z),
+            V3::ZERO,
+            v3(cm(24), cm(14), cm(14)),
+            shade(head_rgb, 60),
+            0,
+            true,
+        );
     }
     // the gun, and arms reaching to it
     let g = gun_frame(r);
     gun_model(b, &g, gun);
-    let shoulder_r = torso.apply(v3(cm(26), cm(52), 0));
-    let shoulder_l = torso.apply(v3(-cm(26), cm(52), 0));
     let grip = g.apply(v3(0, -cm(3), cm(2)));
     let fore = g.apply(v3(0, 0, -cm(22)));
     segment(b, Mesh::Cube, shoulder_r, grip, cm(12), jacket, 0, true);
@@ -1229,6 +1405,46 @@ pub fn pickup(b: &mut Batch, p: &Pickup, c: &Content, tick: u32, pal: &Palette) 
             );
             glow_ball(b, spin.t, cm(80), pal.get("objective"), ONE / 2);
         }
+        Item::Gear(gk) => {
+            let gear = &c.gear[gk as usize];
+            let colour = crate::content::hex(&gear.colour);
+            put(
+                b,
+                Mesh::Cube,
+                &spin,
+                V3::ZERO,
+                v3(cm(36), cm(18), cm(30)),
+                colour,
+                ONE / 5,
+                true,
+            );
+            put(
+                b,
+                Mesh::Cube,
+                &spin,
+                v3(0, cm(11), 0),
+                v3(cm(38), cm(4), cm(32)),
+                pal.get("loot_rare"),
+                ONE / 2,
+                false,
+            );
+            glow_ball(b, spin.t, cm(50), pal.get("loot_rare"), ONE / 4);
+        }
+        Item::Ammo(_, _) => {
+            for k in [-1, 0, 1] {
+                put(
+                    b,
+                    Mesh::Cyl,
+                    &spin,
+                    v3(k * cm(9), 0, 0),
+                    v3(cm(7), cm(22), cm(7)),
+                    pal.get("gold"),
+                    ONE / 6,
+                    true,
+                );
+            }
+            glow_ball(b, spin.t, cm(35), pal.get("loot"), ONE / 4);
+        }
         Item::Part(k) => {
             let part = &c.parts[k as usize];
             let rare = part.rarity >= 3;
@@ -1336,6 +1552,117 @@ pub fn shot(b: &mut Batch, s: &Shot, pal: &Palette) {
                 ONE / 3,
                 true,
             );
+        }
+    }
+}
+
+/// A belt gadget out in the world.
+pub fn gadget(b: &mut Batch, g: &crate::run::Placed, pal: &Palette, tick: u32) {
+    use crate::kit::Gadget;
+    let blink = if tick % 30 < 15 { ONE } else { ONE / 6 };
+    match g.kind {
+        Gadget::Mine => {
+            put(
+                b,
+                Mesh::Cyl,
+                &Affine::translate(g.pos),
+                v3(0, cm(5), 0),
+                v3(cm(40), cm(10), cm(40)),
+                pal.get("metal_dark"),
+                0,
+                true,
+            );
+            let light = if g.armed > 0 {
+                pal.get("gold")
+            } else {
+                pal.get("red")
+            };
+            put(
+                b,
+                Mesh::Sphere,
+                &Affine::translate(g.pos),
+                v3(0, cm(12), 0),
+                v3(cm(8), cm(8), cm(8)),
+                light,
+                blink,
+                false,
+            );
+        }
+        Gadget::Decoy => {
+            put(
+                b,
+                Mesh::Cyl,
+                &Affine::translate(g.pos),
+                v3(0, cm(10), 0),
+                v3(cm(12), cm(20), cm(12)),
+                pal.get("gold"),
+                0,
+                true,
+            );
+            if g.landed && tick % 60 < 8 {
+                glow_ball(b, g.pos.add(v3(0, cm(30), 0)), cm(60), pal.get("gold"), ONE / 2);
+            }
+        }
+        Gadget::Smoke => {
+            if !g.landed {
+                put(
+                    b,
+                    Mesh::Sphere,
+                    &Affine::translate(g.pos),
+                    V3::ZERO,
+                    v3(cm(14), cm(14), cm(14)),
+                    pal.get("smoke"),
+                    0,
+                    true,
+                );
+                return;
+            }
+            // the cloud: a heap of soft puffs that grows in its first second
+            let grow = ONE.min(ONE * (secs(12_000) - g.life).max(0) / TICKS_PER_SECOND.max(1) + ONE / 3);
+            for k in 0..7 {
+                let a = deg(51) * k + (tick as i32 * deg(1) / 4);
+                let r = fx::mul(int(3), grow);
+                let at = g
+                    .pos
+                    .add(facing(a, 0).scale(r / 2))
+                    .add(v3(0, int(1) + (k % 3) * ONE * 8 / 10, 0));
+                let s = fx::mul(int(4), grow);
+                b.push(
+                    Mesh::Blob,
+                    &Affine::translate(at).then(&Affine::scale(v3(s, s * 3 / 4, s))),
+                    pal.get("smoke"),
+                    0,
+                    PASS_SOLID,
+                );
+            }
+        }
+        Gadget::Paint => {
+            let base = Affine::translate(g.pos).then(&Affine::rot_y(g.yaw));
+            b.push(
+                Mesh::Ground,
+                &base.then(&Affine::scale(v3(
+                    crate::run::PAINT_WIDE,
+                    ONE,
+                    crate::run::PAINT_LONG,
+                ))),
+                pal.get("shock"),
+                ONE / 2,
+                PASS_SOLID,
+            );
+            for k in 0..4 {
+                let z = -crate::run::PAINT_LONG / 2 + (k * 2 + 1) * crate::run::PAINT_LONG / 8;
+                let at = base.apply(v3(0, cm(2), z));
+                put(
+                    b,
+                    Mesh::Wedge,
+                    &Affine::translate(at).then(&Affine::rot_y(g.yaw)),
+                    V3::ZERO,
+                    v3(cm(80), cm(2), cm(60)),
+                    pal.get("cream"),
+                    ONE / 2,
+                    false,
+                );
+            }
         }
     }
 }

@@ -59,6 +59,8 @@ pub enum C {
     Disarmed,
     /// a walker down to two legs or fewer
     Lame,
+    /// it noticed something it has not made out: a sound, a shape
+    Suspicious,
 }
 
 /// Actions: each sets the drone's goal, heading or orders and says how it went.
@@ -88,6 +90,8 @@ pub enum A {
     Ram,
     /// stay put and turn to face the target (a walker that cannot walk)
     Anchor,
+    /// go, slowly, to where it noticed something, and look about
+    Search,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -115,6 +119,7 @@ pub const WASP: Bt = Sel(&[
         ]),
     ]),
     Seq(&[If(C::HasTarget), Do(A::Investigate)]),
+    Seq(&[If(C::Suspicious), Do(A::Search)]),
     Do(A::Patrol),
 ]);
 
@@ -129,6 +134,7 @@ pub const MOTH: Bt = Sel(&[
             Seq(&[If(C::TargetHidden), Do(A::Call), Do(A::Bait)]),
         ]),
     ]),
+    Seq(&[If(C::Suspicious), Do(A::Search)]),
     Do(A::Patrol),
 ]);
 
@@ -147,6 +153,7 @@ pub const HORNET: Bt = Sel(&[
             Do(A::Investigate),
         ]),
     ]),
+    Seq(&[If(C::Suspicious), Do(A::Search)]),
     Do(A::Patrol),
 ]);
 
@@ -162,6 +169,7 @@ pub const WARDEN: Bt = Sel(&[
         ]),
     ]),
     Seq(&[If(C::HasTarget), Do(A::Investigate)]),
+    Seq(&[If(C::Suspicious), Do(A::Search)]),
     Do(A::Patrol),
 ]);
 
@@ -172,6 +180,7 @@ pub const TICK: Bt = Sel(&[
         If(C::HasTarget),
         Sel(&[Seq(&[If(C::Near(2)), Do(A::Arm)]), Do(A::Rush)]),
     ]),
+    Seq(&[If(C::Suspicious), Do(A::Search)]),
     Do(A::Patrol),
 ]);
 
@@ -194,6 +203,7 @@ pub const STRIDER: Bt = Sel(&[
         ]),
     ]),
     Seq(&[If(C::HasTarget), Do(A::Investigate)]),
+    Seq(&[If(C::Suspicious), Do(A::Search)]),
     Do(A::Patrol),
 ]);
 
@@ -241,6 +251,14 @@ pub struct Brain {
     pub stomp: i32,
     /// what the drone is doing, for the HUD's scanner and for tests
     pub doing: A,
+    /// how aware it is of each raider, in thousandths (run.rs: AWARE_*)
+    pub aware: [i32; 4],
+    /// where it noticed something, and how long it will keep looking
+    pub suspect: Option<V3>,
+    pub suspect_t: i32,
+    /// stuck: where it was when last checked, and for how long it has barely moved
+    pub last_pos: V3,
+    pub stuck_t: i32,
 }
 
 impl Brain {
@@ -273,6 +291,11 @@ impl Brain {
             called: 0,
             stomp: 0,
             doing: A::Patrol,
+            aware: [0; 4],
+            suspect: None,
+            suspect_t: 0,
+            last_pos: home,
+            stuck_t: 0,
         }
     }
 }
@@ -286,6 +309,8 @@ pub struct Seen {
     pub yaw: i32,
     pub pitch: i32,
     pub vel: V3,
+    /// how much they stand out, in percent: stance times gear
+    pub notice: i32,
     pub active: bool,
 }
 
@@ -392,6 +417,7 @@ fn cond(c: C, d: &Drone, cx: &Ctx) -> bool {
         C::Baiting => b.bait > 0,
         C::TargetHidden => !b.sees,
         C::Disarmed => d.disarmed(),
+        C::Suspicious => b.target.is_none() && b.suspect.is_some(),
         C::Lame => d.lame(),
     }
 }
@@ -402,7 +428,8 @@ fn hover(cx: &Ctx, d: &Drone) -> i32 {
         OUTDOOR_HOVER
     } else {
         match d.kind {
-            Kind::Warden => int(5),
+            // under the balconies (5.2 m), rotors and all
+            Kind::Warden => int(3),
             Kind::Hornet => int(4),
             _ => HOVER_LOW + (d.brain.home.x & (ONE * 2 - 1)),
         }
@@ -710,6 +737,30 @@ fn act(a: A, d: &mut Drone, cx: &mut Ctx) -> Status {
             }
             Status::Running
         }
+        A::Search => {
+            let Some(p) = d.brain.suspect else {
+                return Status::Failure;
+            };
+            let at = if flyer {
+                v3(p.x, p.y + hover(cx, d), p.z)
+            } else {
+                p
+            };
+            d.brain.goal = at;
+            if d.pos.sub(at).len_xz() < int(3) {
+                // there: turn about, looking
+                d.brain.face = fx::wrap(d.brain.face + deg(15));
+                d.brain.suspect_t -= THINK_EVERY as i32 * 2;
+            } else {
+                d.brain.face = aim_at(d.pos, at);
+                d.brain.suspect_t -= THINK_EVERY as i32 / 2;
+            }
+            if d.brain.suspect_t <= 0 {
+                d.brain.suspect = None;
+                return Status::Success;
+            }
+            Status::Running
+        }
         A::Anchor => {
             d.brain.goal = d.pos;
             if let Some(t) = target {
@@ -869,6 +920,7 @@ mod tests {
             yaw,
             pitch: 0,
             vel: V3::ZERO,
+            notice: 100,
             active: true,
         }
     }

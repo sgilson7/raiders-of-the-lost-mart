@@ -678,20 +678,20 @@ impl Drone {
 
     fn integrate(&mut self, dt: i32, map: &Map, extra: &[Aabb]) {
         let step = self.vel.scale(dt);
-        let (half, h) = if self.kind.walks() {
-            (
-                if self.kind == Kind::Strider {
-                    cm(110)
-                } else {
-                    cm(40)
-                },
-                cm(80),
-            )
-        } else {
-            (cm(45), cm(50))
+        // the body a drone collides with spans its rotors: a warden whose
+        // box was only its core pushed its rotor pods into the balconies
+        let (half, h) = match self.kind {
+            Kind::Strider => (cm(110), cm(80)),
+            Kind::Tick => (cm(40), cm(80)),
+            Kind::Warden => (cm(165), cm(90)),
+            Kind::Moth => (cm(95), cm(50)),
+            Kind::Hornet => (cm(60), cm(55)),
+            Kind::Wasp => (cm(60), cm(50)),
         };
         let lift = if self.kind.walks() { 0 } else { cm(25) };
         let body = |p: V3| Aabb::standing(v3(p.x, p.y - lift, p.z), half, h);
+        // already wedged in something (spawned or shoved there): let it move out
+        let wedged = map.blocked(&body(self.pos), extra);
         for axis in 0..3 {
             let mut next = self.pos;
             match axis {
@@ -699,7 +699,7 @@ impl Drone {
                 1 => next.y += step.y,
                 _ => next.z += step.z,
             }
-            if !map.blocked(&body(next), extra) {
+            if wedged || !map.blocked(&body(next), extra) {
                 self.pos = next;
                 continue;
             }

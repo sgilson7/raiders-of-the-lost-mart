@@ -31,12 +31,12 @@ import artlib  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "web" / "art"
 SRC = ROOT / "tools" / "art"
-DPI = {"": 150, "missions": 120, "drones": 120, "parts": 110}
+DPI = {"": 150, "missions": 120, "drones": 120, "parts": 110, "gear": 110}
 
 
 def pictures():
     found = {}
-    for mod in ("art_scenes", "art_drones", "art_parts"):
+    for mod in ("art_scenes", "art_drones", "art_parts", "art_gear"):
         try:
             m = __import__(mod)
         except ModuleNotFoundError as e:
@@ -64,7 +64,7 @@ def main():
             if r.returncode != 0:
                 print(r.stdout[-3000:])
                 raise SystemExit(f"{name}: pdflatex failed")
-            clear = ["-transp"] if folder in ("drones", "parts") else []
+            clear = ["-transp"] if folder in ("drones", "parts", "gear") else []
             subprocess.run(["pdftocairo", "-png", *clear, "-r", str(DPI.get(folder, 150)), "-singlefile", str(t / "art.pdf"), str(t / "art")], check=True)
             out = OUT / f"{name}.png"
             out.parent.mkdir(parents=True, exist_ok=True)

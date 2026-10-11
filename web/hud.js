@@ -12,16 +12,67 @@ export function fill(text, values) {
   return out;
 }
 
-function partIcon(id, copy) {
+// An item (the core's item JSON) as a little picture, with its count.
+export function itemIcon(it, copy) {
+  const wrap = document.createElement("span");
+  wrap.className = "item r" + it.rarity + " " + it.kind;
   const img = document.createElement("img");
-  img.src = id.startsWith("item_") ? "art/parts/scanner.png" : "art/parts/" + id + ".png";
-  img.alt = copy[id.startsWith("item_") ? id : "part_" + id] || id;
-  img.title = img.alt;
-  if (id.startsWith("item_")) img.className = "mission-item";
-  return img;
+  img.src = "art/" + it.icon + ".png";
+  img.alt = copy[it.name] || "";
+  wrap.title = img.alt;
+  wrap.append(img);
+  if (it.n !== undefined) {
+    const n = document.createElement("span");
+    n.className = "count";
+    n.textContent = it.n;
+    wrap.append(n);
+  }
+  return wrap;
 }
 
-export function makeHud(copy) {
+export function makeHud(copy, game) {
+  let shownInv = "";
+  let chosen = null;
+  // the inventory sheet: the pack, the gun's parts and what is worn; hover
+  // or click an item to read it, and drop what is in the pack
+  function detail(it, slot) {
+    chosen = slot;
+    el("inv-d-icon").src = "art/" + it.icon + ".png";
+    el("inv-d-name").textContent = (copy[it.name] || "") + (it.n !== undefined ? " ×" + it.n : "");
+    el("inv-d-about").textContent = copy[it.about] || "";
+    el("inv-drop").hidden = slot === null;
+  }
+  function inventory(h) {
+    const key = JSON.stringify([h.pack, h.wear, h.gun_parts]);
+    if (key === shownInv) return;
+    shownInv = key;
+    const grid = (id, list, droppable) =>
+      el(id).replaceChildren(
+        ...list.map((it, k) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "inv-item";
+          b.append(itemIcon(it, copy));
+          const show = () => detail(it, droppable ? k : null);
+          b.addEventListener("mouseenter", show);
+          b.addEventListener("focus", show);
+          b.addEventListener("click", show);
+          return b;
+        }),
+      );
+    grid("inv-pack", h.pack, true);
+    grid("inv-gun", h.gun_parts, false);
+    grid("inv-wear", h.wear, false);
+    if (h.pack.length) detail(h.pack[0], 0);
+    else el("inv-drop").hidden = true;
+  }
+  el("inv-drop").addEventListener("click", () => {
+    if (chosen !== null) game.drop_item(chosen);
+    chosen = null;
+    el("inv-drop").hidden = true;
+  });
+  el("inv-close").addEventListener("click", () => game.close_inventory());
+
   // A drone's health bar: its name, how much health it has left, a pip for
   // each breakable part (dark once torn off), and what losing them did.
   function healthBar(d, m) {
@@ -62,7 +113,7 @@ export function makeHud(copy) {
   }
 
   return {
-    partIcon: (id) => partIcon(id, copy),
+    itemIcon: (it) => itemIcon(it, copy),
     draw(h) {
       for (const s of h.sounds || []) play(s);
       if (h.mode !== "play" && h.mode !== "paused") return;
@@ -78,7 +129,26 @@ export function makeHud(copy) {
       const busy = h.reload || h.spin;
       el("reload-wrap").hidden = !busy;
       if (busy) setBar("reload-bar", h.reload || h.spin);
-      el("ammo-sub").textContent = h.reload ? copy.hud_reloading : h.ammo === 0 ? copy.hud_empty : h.spin ? copy.hud_spinning : "";
+      el("ammo-sub").textContent = h.reload ? copy.hud_reloading : h.ammo === 0 ? (h.reserve ? copy.hud_empty : copy.hud_dry) : h.spin ? copy.hud_spinning : "";
+      el("reserve-n").textContent = h.reserve;
+      el("ammo-icon").src = "art/gear/" + h.ammo_kind + ".png";
+      el("ammo-icon").title = copy[h.ammo_kind] || "";
+      // stance, melee, the belt gadget, the roll
+      el("stance").textContent = h.crouch ? copy.hud_crouched : copy.hud_standing;
+      el("k-stance").classList.toggle("on", Boolean(h.crouch));
+      el("melee-name").textContent = copy[h.melee_name] || "";
+      setBar("melee-bar", h.melee);
+      el("k-gadget").hidden = !h.gadget;
+      if (h.gadget) {
+        el("gadget-icon").src = "art/" + h.gadget.icon + ".png";
+        el("gadget-name").textContent = copy[h.gadget.name] || "";
+        el("gadget-n").textContent = h.gadget.charges;
+      }
+      el("k-roll").hidden = !h.roll;
+      if (h.roll) setBar("roll-bar", h.roll);
+      el("inventory").hidden = !h.inventory;
+      if (h.inventory) inventory(h);
+      else shownInv = "";
       // the crosshair, the hit marker, the scope and the hurt flash
       document.body.style.setProperty("--spread", h.spread);
       el("hitmark").hidden = !h.hit;
@@ -90,8 +160,8 @@ export function makeHud(copy) {
       // what E would do
       el("prompt").hidden = !h.prompt;
       if (h.prompt) {
-        const part = h.prompt.part ? copy[h.prompt.part.startsWith("item_") ? h.prompt.part : "part_" + h.prompt.part] : "";
-        el("prompt-text").textContent = copy[h.prompt.key] + (part ? ": " + part : "");
+        const item = h.prompt.item ? copy[h.prompt.item.name] + (h.prompt.item.n !== undefined ? " ×" + h.prompt.item.n : "") : "";
+        el("prompt-text").textContent = copy[h.prompt.key] + (item ? ": " + item : "");
         setBar("prompt-bar", h.prompt.pct);
       }
       el("toast").hidden = !h.toast;
@@ -104,10 +174,10 @@ export function makeHud(copy) {
       if (h.leaving) el("leave-n").textContent = h.leaving;
       el("clock").textContent = h.time;
       // the pack
-      const packKey = h.pack.join(",");
+      const packKey = JSON.stringify(h.pack);
       if (packKey !== shownPack) {
         shownPack = packKey;
-        el("pack-items").replaceChildren(...h.pack.map((id) => partIcon(id, copy)));
+        el("pack-items").replaceChildren(...h.pack.map((it) => itemIcon(it, copy)));
       }
       el("pack-n").textContent = h.pack.length + " / " + h.pack_max;
       // the team
@@ -141,6 +211,19 @@ export function makeHud(copy) {
         d.style.left = m.x;
         d.style.top = m.y;
         if (m.kind === "health") return healthBar(d, m);
+        if (m.kind === "aware") {
+          // a drone's awareness of me: a meter that fills, "?" then "!"
+          if (m.alert) d.classList.add("alert");
+          else if (m.suspect) d.classList.add("suspect");
+          const fillMeter = document.createElement("span");
+          fillMeter.className = "fill";
+          fillMeter.style.height = m.level;
+          const mark = document.createElement("span");
+          mark.className = "mark";
+          mark.textContent = m.alert ? "!" : "?";
+          d.append(fillMeter, mark);
+          return d;
+        }
         if (m.kind === "pop") {
           d.classList.add(m.cls);
           d.textContent = m.text.startsWith("off_") ? copy[m.text] : m.text;

@@ -29,9 +29,10 @@ impl Game {
         drones: &str,
         missions: &str,
         palette: &str,
+        gear: &str,
         saved: &str,
     ) -> Result<Game, JsValue> {
-        game::Game::new(parts, drones, missions, palette, saved)
+        game::Game::new(parts, drones, missions, palette, gear, saved)
             .map(|inner| Game { inner })
             .map_err(|e| JsValue::from_str(&e))
     }
@@ -123,6 +124,15 @@ impl Game {
 
     pub fn quit_run(&mut self) {
         self.inner.quit_run()
+    }
+
+    /// Drop the pack item in this slot (from the inventory sheet).
+    pub fn drop_item(&mut self, slot: u32) {
+        self.inner.drop_item(slot as usize)
+    }
+
+    pub fn close_inventory(&mut self) {
+        self.inner.close_inventory()
     }
 
     pub fn dev_place(&mut self, at: &str) {

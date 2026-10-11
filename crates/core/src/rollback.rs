@@ -42,6 +42,11 @@ pub struct Seat {
     pub name: String,
     /// the seat's gun, as part ids in category order
     pub build: Vec<String>,
+    /// what the seat wears, by slot, and the rounds it brings
+    #[serde(default)]
+    pub gear: Vec<String>,
+    #[serde(default)]
+    pub ammo: i32,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
@@ -52,6 +57,10 @@ pub enum Msg {
         proto: u32,
         build: String,
         gun: Vec<String>,
+        #[serde(default)]
+        gear: Vec<String>,
+        #[serde(default)]
+        ammo: i32,
     },
     /// Host to joiner: the lobby, the order chosen, and my seat.
     Lobby {
@@ -64,10 +73,16 @@ pub enum Msg {
         gun: Vec<String>,
     },
     /// Host to everyone: the run begins.
+    /// Every seat plays the gun, gear and rounds listed here, its own
+    /// included, so every copy starts the same run.
     Start {
         mission: usize,
         seed: u64,
         guns: Vec<Vec<String>>,
+        #[serde(default)]
+        gears: Vec<Vec<String>>,
+        #[serde(default)]
+        ammos: Vec<i32>,
         you: usize,
     },
     /// Inputs of player `p` from tick `from` on; `at` is the sender's
@@ -376,6 +391,7 @@ mod tests {
             b,
             y: (t as i32 * 97 * (p as i32 + 1)) & 0xffff,
             p: 0,
+            d: 0,
         }
     }
 
@@ -518,11 +534,21 @@ mod tests {
                 proto: PROTO,
                 build: "b".into(),
                 gun: vec!["pistol".into()],
+                gear: vec!["helmet".into()],
+                ammo: 60,
             },
             Msg::In {
                 p: 2,
                 from: 9,
-                i: vec![Input { b: 5, y: -3, p: 7 }, Input::default()],
+                i: vec![
+                    Input {
+                        b: 5,
+                        y: -3,
+                        p: 7,
+                        d: 0,
+                    },
+                    Input::default(),
+                ],
                 at: 11,
             },
             Msg::Left { p: 1, from: 30 },
@@ -530,6 +556,8 @@ mod tests {
                 mission: 2,
                 seed: 7,
                 guns: vec![vec!["ak".into()]],
+                gears: vec![vec!["vest".into()]],
+                ammos: vec![30],
                 you: 1,
             },
         ];

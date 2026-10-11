@@ -6,7 +6,6 @@
 use rm_core::content::Content;
 use rm_core::fx::{int, ONE};
 use rm_core::geom::v3;
-use rm_core::gun::{basic_build, compose};
 use rm_core::raider::{Input, B_FIRE, B_FWD, B_LEFT};
 use rm_core::run::{Ref, Run, Setup};
 use std::time::Instant;
@@ -18,6 +17,7 @@ fn a_busy_tick_is_cheap_enough_to_roll_back() {
         include_str!("../../../data/drones.json"),
         include_str!("../../../data/missions.json"),
         include_str!("../../../data/palette.json"),
+        include_str!("../../../data/gear.json"),
     )
     .unwrap();
     let t0 = Instant::now();
@@ -28,13 +28,7 @@ fn a_busy_tick_is_cheap_enough_to_roll_back() {
         map.nodes.len(),
         t0.elapsed()
     );
-    let b = basic_build(&c);
-    let s = Setup {
-        mission: 4,
-        builds: vec![b; 4],
-        guns: vec![compose(&c, &b); 4],
-        seed: 1,
-    };
+    let s = Setup::basic(&c, 4, 4, 1);
     let r = Ref {
         content: &c,
         map: &map,
@@ -58,6 +52,7 @@ fn a_busy_tick_is_cheap_enough_to_roll_back() {
                 },
                 y: k * 300 + i * 9000,
                 p: -ONE / 30,
+                d: 0,
             })
             .collect();
         let tc = Instant::now();
@@ -83,16 +78,11 @@ fn drones_find_and_fight_a_raider_standing_in_the_concourse() {
         include_str!("../../../data/drones.json"),
         include_str!("../../../data/missions.json"),
         include_str!("../../../data/palette.json"),
+        include_str!("../../../data/gear.json"),
     )
     .unwrap();
     let map = rm_core::mall::build(&c.palette);
-    let b = basic_build(&c);
-    let s = Setup {
-        mission: 0,
-        builds: vec![b; 1],
-        guns: vec![compose(&c, &b); 1],
-        seed: 3,
-    };
+    let s = Setup::basic(&c, 0, 1, 3);
     let r = Ref {
         content: &c,
         map: &map,

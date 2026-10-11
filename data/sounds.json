@@ -15,7 +15,11 @@
   "spotted": 0.6,
   "boom": 0.08,
   "search": 0.3,
-  "reload": 0.3
+  "reload": 0.3,
+  "hmm": 0.5,
+  "beep": 0.2,
+  "thud": 0.08,
+  "click": 0.15
  },
  "recipes": {
   "shot": [
@@ -698,6 +702,120 @@
     "attack": 0.002,
     "dur": 0.15,
     "gain": 0.25
+   }
+  ],
+  "swing": [
+   {
+    "type": "noise",
+    "filter": "bandpass",
+    "freq": 900,
+    "q": 0.9,
+    "at": 0,
+    "attack": 0.03,
+    "dur": 0.18,
+    "gain": 0.3
+   }
+  ],
+  "thud": [
+   {
+    "type": "osc",
+    "wave": "sine",
+    "from": 160,
+    "to": 60,
+    "at": 0,
+    "attack": 0.002,
+    "dur": 0.15,
+    "gain": 0.5
+   },
+   {
+    "type": "noise",
+    "filter": "lowpass",
+    "freq": 700,
+    "q": 0.8,
+    "at": 0,
+    "attack": 0.002,
+    "dur": 0.12,
+    "gain": 0.4
+   }
+  ],
+  "beep": [
+   {
+    "type": "osc",
+    "wave": "square",
+    "from": 1800,
+    "to": 1800,
+    "at": 0,
+    "attack": 0.002,
+    "dur": 0.06,
+    "gain": 0.12
+   }
+  ],
+  "mine": [
+   {
+    "type": "osc",
+    "wave": "square",
+    "from": 900,
+    "to": 1300,
+    "at": 0,
+    "attack": 0.002,
+    "dur": 0.08,
+    "gain": 0.14
+   },
+   {
+    "type": "osc",
+    "wave": "square",
+    "from": 1300,
+    "to": 1300,
+    "at": 0.12,
+    "attack": 0.002,
+    "dur": 0.08,
+    "gain": 0.14
+   }
+  ],
+  "paint": [
+   {
+    "type": "noise",
+    "filter": "highpass",
+    "freq": 3500,
+    "q": 0.7,
+    "at": 0,
+    "attack": 0.02,
+    "dur": 0.6,
+    "gain": 0.25
+   }
+  ],
+  "hmm": [
+   {
+    "type": "osc",
+    "wave": "triangle",
+    "from": 520,
+    "to": 700,
+    "at": 0,
+    "attack": 0.01,
+    "dur": 0.18,
+    "gain": 0.18
+   },
+   {
+    "type": "osc",
+    "wave": "triangle",
+    "from": 700,
+    "to": 620,
+    "at": 0.18,
+    "attack": 0.01,
+    "dur": 0.14,
+    "gain": 0.15
+   }
+  ],
+  "click": [
+   {
+    "type": "noise",
+    "filter": "bandpass",
+    "freq": 4000,
+    "q": 8,
+    "at": 0,
+    "attack": 0.001,
+    "dur": 0.03,
+    "gain": 0.4
    }
   ]
  }

@@ -1,7 +1,7 @@
 // The menus: the workshop, the client board, the lobby, the results and
 // the help sheet, drawn from the core's screen() JSON. Clicking a part or an
 // order calls the core; the core says what changed.
-import { fill } from "./hud.js";
+import { fill, itemIcon } from "./hud.js";
 
 const el = (id) => document.getElementById(id);
 const make = (tag, cls, text) => {
@@ -61,6 +61,58 @@ export function makeScreens(game, copy, changed) {
       stat("muzzles", g.muzzles),
       stat("speed", g.speed),
       make("div", "tags", tags.join(" · ")),
+    );
+    // the gear: a row per slot, the piece worn first
+    el("ws-gear").replaceChildren(
+      ...s.slots.map((slot) => {
+        const box = make("div", "cat");
+        box.append(make("div", "label", copy["slot_" + slot]));
+        const row = make("div", "parts");
+        for (const g of s.gear.filter((q) => q.slot === slot)) {
+          const b = make("button", "part r" + g.rarity);
+          b.type = "button";
+          if (g.on) b.classList.add("on");
+          if (!g.basic && !g.owned && !g.on) b.classList.add("none");
+          const img = make("img");
+          img.src = "art/gear/" + g.id + ".png";
+          img.alt = "";
+          b.append(img, make("span", "p-name", copy["gear_" + g.id]));
+          b.append(make("span", "p-count", g.on ? copy.ws_worn : g.basic ? copy.ws_basic : fill(copy.ws_owned, { n: g.owned })));
+          b.title = copy["gear_" + g.id + "_about"];
+          b.addEventListener("click", () => {
+            game.equip(g.id);
+            changed();
+          });
+          row.append(b);
+        }
+        box.append(row);
+        return box;
+      }),
+    );
+    const k = s.kit;
+    const kstat = (key, v) => {
+      const d = make("div", "stat");
+      d.append(make("span", "label", copy["kit_" + key]), make("strong", "", String(v)));
+      return d;
+    };
+    el("ws-kit").replaceChildren(
+      kstat("hp", k.hp),
+      kstat("armour", k.armour + "%"),
+      kstat("speed", k.speed + "%"),
+      kstat("slots", k.slots),
+      kstat("notice", k.notice + "%"),
+      kstat("melee", k.melee),
+    );
+    el("ws-ammo").replaceChildren(
+      ...s.ammo.map((a) => {
+        const d = make("div", "ammo-tile" + (a.id === s.gun_ammo ? " on" : ""));
+        const img = make("img");
+        img.src = "art/gear/ammo_" + a.id + ".png";
+        img.alt = "";
+        d.title = copy["ammo_" + a.id + "_about"];
+        d.append(img, make("span", "p-name", copy["ammo_" + a.id]), make("strong", "", String(a.n)));
+        return d;
+      }),
     );
     el("ws-cats").replaceChildren(
       ...cats.map((cat) => {
@@ -131,6 +183,15 @@ export function makeScreens(game, copy, changed) {
           parts.append(img);
         }
         d.append(parts);
+        const worn = make("div", "parts-row");
+        for (const id of seat.gear || []) {
+          const img = make("img");
+          img.src = "art/gear/" + id + ".png";
+          img.alt = copy["gear_" + id];
+          img.title = img.alt;
+          worn.append(img);
+        }
+        d.append(worn);
         return d;
       }),
     );
@@ -170,17 +231,7 @@ export function makeScreens(game, copy, changed) {
       }),
     );
     const row = (id, list) => {
-      el(id).replaceChildren(
-        ...(list.length
-          ? list.map((pid) => {
-              const img = make("img");
-              img.src = "art/parts/" + pid + ".png";
-              img.alt = copy["part_" + pid];
-              img.title = img.alt;
-              return img;
-            })
-          : [make("span", "fine", copy.r_none)]),
-      );
+      el(id).replaceChildren(...(list.length ? list.map((it) => itemIcon(it, copy)) : [make("span", "fine", copy.r_none)]));
     };
     row("r-found", r.found);
     row("r-pay", r.pay);

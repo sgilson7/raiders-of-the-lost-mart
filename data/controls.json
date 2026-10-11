@@ -12,7 +12,7 @@
  "Mouse2": "aim",
  "KeyR": "reload",
  "KeyE": "use",
- "KeyF": "use",
+ "KeyF": "melee",
  "ShiftLeft": "sprint",
  "ShiftRight": "sprint",
  "Space": "jump",
@@ -20,5 +20,12 @@
  "KeyP": "cancel",
  "KeyQ": "turn_left",
  "Enter": "fire",
- "KeyC": "aim"
+ "KeyC": "crouch",
+ "ControlLeft": "crouch",
+ "KeyV": "melee",
+ "KeyX": "roll",
+ "AltLeft": "roll",
+ "KeyG": "gadget",
+ "Tab": "inventory",
+ "KeyI": "inventory"
 }

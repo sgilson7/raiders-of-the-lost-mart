@@ -222,3 +222,40 @@ kbd { border: 2px solid var(--ink); border-radius: 6px; padding: 0.05em 0.4em; b
   .ws-build { grid-template-columns: repeat(3, 1fr); }
   .parts { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* kit, inventory, items */
+#kit { left: 1em; bottom: 5.4em; width: 16em; font-size: 0.8em; display: flex; flex-direction: column; gap: 0.2em; }
+.kit-row { display: flex; align-items: center; gap: 0.4em; }
+.kit-row.on { color: #2f8a4a; font-weight: 800; }
+.kit-row img { width: 1.6em; height: 1.6em; }
+.key { display: inline-block; border: 2px solid var(--ink); border-radius: 5px; padding: 0 0.3em; font-size: 0.85em; font-weight: 800; background: #fff; }
+.bar.mini { width: 4em; display: inline-block; margin-left: auto; }
+.reserve { display: flex; align-items: center; justify-content: flex-end; gap: 0.3em; font-weight: 800; }
+.reserve img { width: 1.6em; height: 1.6em; }
+#pack { bottom: 7.6em; }
+.item { position: relative; display: inline-block; }
+.item img { width: 2em; height: 2em; display: block; }
+.item .count { position: absolute; right: -0.2em; bottom: -0.2em; background: var(--ink); color: #fff; border-radius: 6px; font-size: 0.65em; padding: 0 0.25em; font-weight: 800; }
+.item.mission img { outline: 3px solid var(--glow); border-radius: 6px; }
+.parts-row .item img { width: 2.6em; height: 2.6em; }
+.inv { pointer-events: auto; }
+.inv-cols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 1.2em; }
+.inv-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.35em; margin: 0.3em 0 0.8em; }
+.inv-grid.small { grid-template-columns: repeat(10, 1fr); }
+.inv-item { padding: 0.2em; border-radius: 10px; box-shadow: 0 2px 0 var(--ink); }
+.inv-item .item img { width: 100%; height: auto; }
+.inv-detail { border: 3px solid var(--ink); border-radius: 14px; padding: 0.8em; background: var(--paper-2); align-self: start; }
+.inv-detail img { width: 6em; height: 6em; }
+.ammo-row { gap: 0.6em; }
+.ammo-tile { display: flex; flex-direction: column; align-items: center; border: 3px solid var(--ink); border-radius: 12px; padding: 0.3em; background: var(--paper-2); min-width: 5em; font-size: 0.8em; }
+.ammo-tile img { width: 3em; }
+.ammo-tile.on { background: var(--glow); }
+
+/* a drone's awareness of you */
+.marker.aware { width: 1.4em; height: 1.9em; padding: 0; border-radius: 8px; background: rgba(255, 244, 220, 0.85); overflow: hidden; transform: translate(-50%, -100%); }
+.marker.aware::after { display: none; }
+.marker.aware .fill { position: absolute; left: 0; right: 0; bottom: 0; background: #f2b53a; }
+.marker.aware .mark { position: relative; display: block; text-align: center; font-weight: 900; font-size: 1.2em; line-height: 1.5em; }
+.marker.aware.alert { border-color: #e0483e; }
+.marker.aware.alert .fill { background: #e0483e; }
+.marker.aware.alert .mark { color: #fff; }

@@ -13,7 +13,10 @@ use crate::drone::{self, Drone, Kind, PieceKind, State, Zone};
 use crate::fx::{self, deg, int, ONE};
 use crate::geom::{facing, right_of, v3, yaw_pitch_of, V3};
 use crate::gun::{Build, Gun};
-use crate::raider::{self, gun_frame, Input, Life, Raider, B_FIRE, B_GONE, B_RELOAD, B_USE};
+use crate::kit::{Gadget, Kit, Wear};
+use crate::raider::{
+    self, gun_frame, Input, Life, Raider, B_FIRE, B_GADGET, B_GONE, B_MELEE, B_RELOAD, B_USE,
+};
 use crate::rng::Rng;
 use crate::world::{Aabb, Map, SpotKind};
 
@@ -23,6 +26,10 @@ pub enum Item {
     Part(u16),
     /// the mission's thing: the shirt, a drive
     Mission,
+    /// a piece of gear, by index into `Content::gear`
+    Gear(u16),
+    /// rounds of one kind of ammunition (index into `Content::ammo`)
+    Ammo(u8, u16),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -244,6 +251,26 @@ pub enum Event {
     Stomp {
         at: V3,
     },
+    /// a melee swing landed on something (or swished through air)
+    Melee {
+        who: u8,
+        at: V3,
+        hit: bool,
+    },
+    /// a gadget went out, or went off
+    Gadget {
+        kind: Gadget,
+        at: V3,
+        by: u8,
+    },
+    /// a drone began to wonder about someone
+    Noticed {
+        at: V3,
+    },
+    /// a raider's gun is dry and the pack has nothing for it
+    NoAmmo {
+        who: u8,
+    },
 }
 
 /// What a raider's E key would do now, for the HUD prompt.
@@ -300,7 +327,101 @@ pub struct Setup {
     pub builds: Vec<Build>,
     pub guns: Vec<Gun>,
     pub seed: u64,
+    /// what each raider wears, and what it adds up to
+    pub wears: Vec<Wear>,
+    pub kits: Vec<Kit>,
+    /// rounds of their gun's ammunition each raider brings
+    pub ammo_in: Vec<i32>,
 }
+
+impl Setup {
+    /// A setup with every raider in basic gear and the basic gun, carrying
+    /// the free light rounds: for tests and probes.
+    pub fn basic(c: &Content, mission: usize, players: usize, seed: u64) -> Setup {
+        let b = crate::gun::basic_build(c);
+        let w = crate::kit::basic_wear(c);
+        Setup {
+            mission,
+            builds: vec![b; players],
+            guns: vec![crate::gun::compose(c, &b); players],
+            seed,
+            wears: vec![w; players],
+            kits: vec![crate::kit::kit(c, &w); players],
+            ammo_in: vec![c.ammo[0].free.max(60); players],
+        }
+    }
+}
+
+/// Something a raider or a drone heard.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Noise {
+    pub at: V3,
+    pub radius: i32,
+    /// who made it (drones learn where they are), or nobody (a decoy)
+    pub who: Option<u8>,
+}
+
+/// A belt gadget out in the world.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Placed {
+    pub kind: Gadget,
+    pub pos: V3,
+    pub vel: V3,
+    pub yaw: i32,
+    /// ticks left
+    pub life: i32,
+    /// thrown things fly until they land
+    pub landed: bool,
+    pub owner: u8,
+    /// a mine arms after a moment
+    pub armed: i32,
+}
+
+/// A melee swing: the blow lands this many ticks in, and it is over at the second.
+pub const MELEE_HIT: i32 = secs(140);
+pub const MELEE_RECOVER: i32 = secs(380);
+
+/// Awareness, in thousandths: full is alerted, past suspect it comes to look.
+pub const AWARE_FULL: i32 = 1000;
+pub const AWARE_SUSPECT: i32 = 350;
+/// A raider it has fought, seen again with this much left, it knows at once.
+pub const AWARE_KNOWN: i32 = 500;
+/// Gained a look in plain view, close, walking; lost a look out of sight.
+pub const AWARE_GAIN: i32 = 140;
+pub const AWARE_FADE: i32 = 22;
+pub const SUSPECT_TIME: i32 = secs(7000);
+
+/// Does a smoke cloud centred at `c` stand between two points?
+pub fn smoke_between(c: V3, a: V3, b: V3) -> bool {
+    let d = b.sub(a);
+    let len = d.len().max(1);
+    let dir = d.norm();
+    let t = c.sub(a).dot(dir).clamp(0, len);
+    a.add(dir.scale(t)).dist(c) < SMOKE_RADIUS * 9 / 10
+}
+
+/// Rounds as pack items, in stacks.
+pub fn ammo_stacks(c: &Content, ammo: usize, n: i32) -> Vec<Item> {
+    let stack = c.ammo[ammo].stack.max(1);
+    let mut out = Vec::new();
+    let mut left = n;
+    while left > 0 {
+        let put = left.min(stack);
+        out.push(Item::Ammo(ammo as u8, put as u16));
+        left -= put;
+    }
+    out
+}
+
+pub const MINE_RADIUS: i32 = ONE * 28 / 10;
+pub const MINE_BLAST: i32 = int(4);
+pub const MINE_DAMAGE: i32 = 80;
+pub const DECOY_NOISE: i32 = int(45);
+pub const SMOKE_RADIUS: i32 = int(5);
+pub const PAINT_LONG: i32 = int(9);
+pub const PAINT_WIDE: i32 = ONE * 24 / 10;
+pub const PAINT_BOOST: i32 = 140;
+pub const PAINT_SLOW: i32 = 50;
 
 pub struct Ref<'a> {
     pub content: &'a Content,
@@ -336,7 +457,10 @@ pub struct Run {
     pub events: Vec<Event>,
     /// the van's boxes, rebuilt when the doors change
     pub extra: Vec<Aabb>,
-    pub noise: Vec<(V3, u8)>,
+    pub noise: Vec<Noise>,
+    pub gadgets: Vec<Placed>,
+    /// each raider's kit, for the damage their gear takes off
+    pub kits: Vec<Kit>,
 }
 
 fn snap_quarter(yaw: i32) -> i32 {
@@ -380,8 +504,19 @@ impl Run {
             events: Vec::new(),
             extra: Vec::new(),
             noise: Vec::new(),
+            gadgets: Vec::new(),
+            kits: s.kits.clone(),
         };
         run.extra = run.van.boxes();
+        for i in 0..players {
+            let k = &s.kits[i];
+            let ra = &mut run.raiders[i];
+            ra.max_hp = k.max_hp;
+            ra.hp = k.max_hp;
+            ra.charges = k.charges;
+            let ammo = s.guns[i].ammo;
+            run.packs[i] = ammo_stacks(c, ammo, s.ammo_in[i]);
+        }
         run.populate(r, &mut rng, &ent.door);
         // mission things lie at their spots
         if m.goal == Goal::Fetch {
@@ -542,6 +677,7 @@ impl Run {
             let inp = inputs.get(i).copied().unwrap_or_default();
             self.raider_tick(r, i, &inp);
         }
+        self.gadgets_tick(r);
         self.drones_tick(r);
         self.shots_tick(r);
         self.pickups_tick(map);
@@ -554,8 +690,9 @@ impl Run {
 
     fn raider_tick(&mut self, r: &Ref, i: usize, inp: &Input) {
         let gun = &r.setup.guns[i];
-        let me = &mut self.raiders[i];
+        let kit = r.setup.kits[i];
         if inp.b & B_GONE != 0 {
+            let me = &mut self.raiders[i];
             if me.life.active() {
                 me.life = Life::Gone;
                 let pos = me.pos;
@@ -564,15 +701,44 @@ impl Run {
             }
             return;
         }
-        if !me.life.active() {
+        if !self.raiders[i].life.active() {
             return;
         }
+        // painted ground speeds a raider up
+        let boost = if self.on_paint(self.raiders[i].pos) {
+            PAINT_BOOST
+        } else {
+            100
+        };
+        let me = &mut self.raiders[i];
         me.hurt_flash = (me.hurt_flash - 1).max(0);
         me.firing = (me.firing - 1).max(0);
-        me.step_move(inp, r.map, &self.extra, gun.move_pct);
+        me.step_move_kit(inp, r.map, &self.extra, gun.move_pct * boost / 100, &kit.moves());
         if me.pos.y < -int(5) {
             me.pos.y = 0;
         }
+        // footsteps, which drones hear: loud running, nothing crouched
+        let step_noise = if me.landed {
+            int(9)
+        } else if !me.moving || !me.grounded || me.crouch {
+            0
+        } else if me.sprinting {
+            int(13)
+        } else {
+            int(6)
+        } * kit.noise_pct
+            / 100;
+        if step_noise > 0 && (self.tick + i as u32).is_multiple_of(6) {
+            self.noise.push(Noise {
+                at: me.pos,
+                radius: step_noise,
+                who: Some(i as u8),
+            });
+        }
+        if inp.d > 0 {
+            self.drop_from_pack(i, inp.d as usize - 1);
+        }
+        let me = &mut self.raiders[i];
         let pressed = |b: u32| inp.b & b != 0 && me.prev & b == 0;
         let held = |b: u32| inp.b & b != 0;
         if me.life == Life::Downed {
@@ -587,22 +753,37 @@ impl Run {
             self.raiders[i].prev = inp.b;
             return;
         }
-        // health creeps back after a while unhurt
+        // health creeps back after a while unhurt, up to the kit's threshold
         me.since_hurt += 1;
-        if me.since_hurt > REGEN_AFTER && me.hp < REGEN_TO {
-            me.regen_t += 1;
-            if me.regen_t >= REGEN_EVERY {
+        if me.since_hurt > REGEN_AFTER && me.hp < kit.regen_to {
+            me.regen_t += kit.regen_pct;
+            if me.regen_t >= REGEN_EVERY * 100 {
                 me.regen_t = 0;
                 me.hp += 1;
             }
         }
+        // the melee swing: a wind-up, the blow, a recovery
+        me.melee_cd = (me.melee_cd - 1).max(0);
+        if me.melee_t > 0 {
+            me.melee_t += 1;
+            if me.melee_t > MELEE_RECOVER {
+                me.melee_t = 0;
+            }
+        }
+        let swing = pressed(B_MELEE) && me.melee_cd == 0 && me.melee_t == 0;
+        if swing {
+            me.melee_t = 1;
+            me.melee_cd = kit.melee.cooldown;
+            me.reloading = 0;
+        }
+        let blow = me.melee_t == MELEE_HIT;
+        let gadget = pressed(B_GADGET) && me.charges > 0 && kit.gadget.is_some();
         // the gun
         me.cooldown = (me.cooldown - 1).max(0);
+        let mut reload_done = false;
         if me.reloading > 0 {
             me.reloading -= 1;
-            if me.reloading == 0 {
-                me.ammo = gun.mag;
-            }
+            reload_done = me.reloading == 0;
         }
         let wants_reload = pressed(B_RELOAD) && me.ammo < gun.mag;
         let trigger = if gun.auto || gun.gatling {
@@ -617,19 +798,304 @@ impl Run {
                 (me.spin - 2).max(0)
             };
         }
-        if me.reloading == 0 && (wants_reload || (trigger && me.ammo == 0)) {
-            me.reloading = gun.reload;
-            self.events.push(Event::Reload { who: i as u8 });
-        }
+        let dry_click = trigger && me.ammo == 0 && me.prev & B_FIRE == 0;
+        let swinging = me.melee_t > 0;
         let spun = !gun.gatling || me.spin >= RELOAD_GATLING_SPIN;
-        let can_fire =
-            trigger && me.reloading == 0 && me.cooldown == 0 && me.ammo > 0 && spun && !self.in_van(i);
+        let can_fire = trigger && me.reloading == 0 && me.cooldown == 0 && me.ammo > 0 && spun && !swinging;
         let use_held = held(B_USE);
         self.raiders[i].prev = inp.b;
-        if can_fire {
+        if reload_done {
+            // the magazine fills from the rounds in the pack
+            let want = (gun.mag - self.raiders[i].ammo) * gun.per_volley;
+            let got = self.take_rounds(i, gun.ammo, want);
+            let volleys = got / gun.per_volley.max(1);
+            let spare = got - volleys * gun.per_volley.max(1);
+            if spare > 0 {
+                self.give_rounds(i, gun.ammo, spare);
+            }
+            self.raiders[i].ammo += volleys;
+        }
+        let can_reload =
+            self.raiders[i].reloading == 0 && !swinging && self.rounds(i, gun.ammo) >= gun.per_volley;
+        if can_reload && (wants_reload || (trigger && self.raiders[i].ammo == 0)) {
+            self.raiders[i].reloading = gun.reload * kit.reload_pct / 100;
+            self.events.push(Event::Reload { who: i as u8 });
+        } else if dry_click && !can_reload && self.raiders[i].reloading == 0 {
+            self.events.push(Event::NoAmmo { who: i as u8 });
+        }
+        if can_fire && !self.in_van(i) {
             self.fire(r, i);
         }
+        if blow {
+            self.melee(r, i);
+        }
+        if gadget && !self.in_van(i) {
+            self.use_gadget(r, i);
+        }
         self.use_tick(r, i, use_held);
+    }
+
+    /// Rounds of one ammunition in a raider's pack.
+    pub fn rounds(&self, i: usize, ammo: usize) -> i32 {
+        self.packs[i]
+            .iter()
+            .map(|it| match it {
+                Item::Ammo(a, n) if *a as usize == ammo => *n as i32,
+                _ => 0,
+            })
+            .sum()
+    }
+
+    fn take_rounds(&mut self, i: usize, ammo: usize, want: i32) -> i32 {
+        let mut got = 0;
+        for it in self.packs[i].iter_mut() {
+            if let Item::Ammo(a, n) = it {
+                if *a as usize == ammo && got < want {
+                    let take = (*n as i32).min(want - got);
+                    *n -= take as u16;
+                    got += take;
+                }
+            }
+        }
+        self.packs[i].retain(|it| !matches!(it, Item::Ammo(_, 0)));
+        got
+    }
+
+    fn give_rounds(&mut self, i: usize, ammo: usize, n: i32) {
+        self.packs[i].push(Item::Ammo(ammo as u8, n as u16));
+    }
+
+    /// Slots a pack has free (the order's things do not take one).
+    fn pack_room(&self, r: &Ref, i: usize) -> i32 {
+        let used = self.packs[i].iter().filter(|it| **it != Item::Mission).count() as i32;
+        r.setup.kits[i].slots - used
+    }
+
+    fn drop_from_pack(&mut self, i: usize, k: usize) {
+        if k >= self.packs[i].len() {
+            return;
+        }
+        let item = self.packs[i].remove(k);
+        if item == Item::Mission {
+            self.found -= 1;
+        }
+        let me = &self.raiders[i];
+        let at = me.pos.add(facing(me.yaw, 0).scale(ONE * 8 / 10));
+        self.pickups.push(Pickup {
+            pos: v3(at.x, me.pos.y + ONE / 2, at.z),
+            item,
+            vy: int(2),
+        });
+    }
+
+    /// Is a point on a painted strip?
+    pub fn on_paint(&self, p: V3) -> bool {
+        self.gadgets.iter().any(|g| {
+            if g.kind != Gadget::Paint {
+                return false;
+            }
+            let rel = p.sub(g.pos);
+            let along = rel.dot(facing(g.yaw, 0));
+            let across = rel.dot(right_of(g.yaw));
+            along.abs() <= PAINT_LONG / 2 && across.abs() <= PAINT_WIDE / 2 && (p.y - g.pos.y).abs() < int(3)
+        })
+    }
+
+    /// Does smoke stand between two points?
+    pub fn smoked(&self, a: V3, b: V3) -> bool {
+        self.gadgets.iter().any(|g| {
+            if g.kind != Gadget::Smoke || !g.landed {
+                return false;
+            }
+            let c = v3(g.pos.x, g.pos.y + int(2), g.pos.z);
+            let d = b.sub(a);
+            let len = d.len().max(1);
+            let dir = d.norm();
+            let t = c.sub(a).dot(dir).clamp(0, len);
+            a.add(dir.scale(t)).dist(c) < SMOKE_RADIUS * 9 / 10
+        })
+    }
+
+    /// The blow of a melee swing: the nearest thing in reach along the look,
+    /// or anything in the swing's arc. A part it lands on takes extra.
+    fn melee(&mut self, r: &Ref, i: usize) {
+        let kit = r.setup.kits[i];
+        let me = &self.raiders[i];
+        let from = me.chest();
+        let dir = facing(me.yaw, me.pitch);
+        let reach = kit.melee.reach * ONE / 100;
+        self.noise.push(Noise {
+            at: me.pos,
+            radius: int(8),
+            who: Some(i as u8),
+        });
+        let mut best: Option<(i32, usize, Zone)> = None;
+        for (k, d) in self.drones.iter().enumerate() {
+            if !d.active() || d.centre().dist(from) > reach + int(3) {
+                continue;
+            }
+            if let Some((t, z)) = d.ray(from, dir, reach) {
+                if best.is_none_or(|b| t < b.0) {
+                    best = Some((t, k, z));
+                }
+            }
+        }
+        if best.is_none() {
+            // a sweep: anything in the arc in front, at body height
+            let half = deg(kit.melee.arc) / 2;
+            for (k, d) in self.drones.iter().enumerate() {
+                if !d.active() {
+                    continue;
+                }
+                let to = d.centre().sub(from);
+                let dist = to.len();
+                if dist > reach + ONE / 2 {
+                    continue;
+                }
+                let off = fx::wrap(yaw_pitch_of(to).0 - me.yaw).abs();
+                if off <= half && best.is_none_or(|b| dist < b.0) {
+                    best = Some((dist, k, Zone::Body));
+                }
+            }
+        }
+        let Some((t, k, z)) = best else {
+            self.events.push(Event::Melee {
+                who: i as u8,
+                at: from.add(dir.scale(reach)),
+                hit: false,
+            });
+            return;
+        };
+        let at = from.add(dir.scale(t.min(reach)));
+        let dmg = match z {
+            Zone::Piece(_) => kit.melee.damage * kit.melee.rips / 100,
+            _ => kit.melee.damage,
+        };
+        let push = dir.scale(ONE * kit.melee.knock / 4);
+        self.strike_drone(r.content, k, z, dmg, push.norm(), at, i as u8, Effect::None, 0);
+        let d = &mut self.drones[k];
+        d.vel = d.vel.add(push);
+        d.stun = d.stun.max(secs(150));
+        self.events.push(Event::Melee {
+            who: i as u8,
+            at,
+            hit: true,
+        });
+    }
+
+    fn use_gadget(&mut self, r: &Ref, i: usize) {
+        let Some(kind) = r.setup.kits[i].gadget else {
+            return;
+        };
+        let me = &mut self.raiders[i];
+        me.charges -= 1;
+        let fwd = facing(me.yaw, 0);
+        let (pos, vel, life, landed) = match kind {
+            Gadget::Mine => (me.pos, V3::ZERO, secs(180_000), true),
+            Gadget::Paint => (
+                me.pos.add(fwd.scale(PAINT_LONG / 2 + ONE / 2)),
+                V3::ZERO,
+                secs(40_000),
+                true,
+            ),
+            Gadget::Decoy | Gadget::Smoke => {
+                let throw = facing(me.yaw, me.pitch + deg(18)).scale(int(15));
+                (me.chest(), throw, secs(14_000), false)
+            }
+        };
+        let yaw = me.yaw;
+        self.gadgets.push(Placed {
+            kind,
+            pos: v3(pos.x, if landed { me.pos.y + ONE / 50 } else { pos.y }, pos.z),
+            vel,
+            yaw,
+            life,
+            landed,
+            owner: i as u8,
+            armed: secs(1000),
+        });
+        self.events.push(Event::Gadget {
+            kind,
+            at: pos,
+            by: i as u8,
+        });
+    }
+
+    fn gadgets_tick(&mut self, r: &Ref) {
+        let mut boom: Vec<(V3, u8)> = Vec::new();
+        for g in self.gadgets.iter_mut() {
+            g.life -= 1;
+            g.armed = (g.armed - 1).max(0);
+            if !g.landed {
+                g.vel.y -= SHOT_GRAVITY / TICKS_PER_SECOND;
+                let step = g.vel.scale(ONE / TICKS_PER_SECOND);
+                let len = step.len();
+                match r.map.ray(g.pos, step.norm(), len, &self.extra, true) {
+                    Some(h) => {
+                        g.pos = h.at.add(h.normal.scale(ONE / 20));
+                        if h.normal.y > ONE / 2 {
+                            g.landed = true;
+                            g.vel = V3::ZERO;
+                        } else {
+                            let into = g.vel.dot(h.normal);
+                            g.vel = g.vel.sub(h.normal.scale(into * 2)).scale(ONE / 2);
+                        }
+                    }
+                    None => g.pos = g.pos.add(step),
+                }
+                continue;
+            }
+            match g.kind {
+                Gadget::Decoy => {
+                    // a beep every second: drones come to see
+                    if g.life % TICKS_PER_SECOND == 0 {
+                        self.noise.push(Noise {
+                            at: g.pos,
+                            radius: DECOY_NOISE,
+                            who: None,
+                        });
+                        self.events.push(Event::Gadget {
+                            kind: Gadget::Decoy,
+                            at: g.pos,
+                            by: g.owner,
+                        });
+                    }
+                    if g.life > secs(7000) {
+                        g.life = secs(7000);
+                    }
+                }
+                Gadget::Smoke => {
+                    if g.life > secs(12_000) {
+                        g.life = secs(12_000);
+                    }
+                }
+                Gadget::Mine => {
+                    if g.armed == 0
+                        && self.drones.iter().any(|d| {
+                            d.active()
+                                && d.centre().sub(g.pos).len_xz() < MINE_RADIUS
+                                && d.centre().y - g.pos.y < int(4)
+                        })
+                    {
+                        boom.push((g.pos, g.owner));
+                        g.life = 0;
+                    }
+                }
+                Gadget::Paint => {}
+            }
+        }
+        self.gadgets.retain(|g| g.life > 0);
+        for (at, by) in boom {
+            self.explode(
+                r,
+                v3(at.x, at.y + ONE / 2, at.z),
+                MINE_BLAST,
+                MINE_DAMAGE,
+                Effect::None,
+                0,
+                Some(by),
+            );
+        }
     }
 
     fn in_van(&self, i: usize) -> bool {
@@ -639,7 +1105,15 @@ impl Run {
     /// Where a raider's crosshair lands: the camera's ray, through drones too.
     pub fn aim_point(&self, r: &Ref, i: usize) -> V3 {
         let me = &self.raiders[i];
-        let (eye, fwd) = raider::camera(me.pos, me.yaw, me.pitch, me.aiming, false, r.map, &self.extra);
+        let (eye, fwd) = raider::camera_at(
+            me.pos,
+            me.yaw,
+            me.pitch,
+            me.aiming,
+            me.eye_up(),
+            r.map,
+            &self.extra,
+        );
         let mut t = r
             .map
             .ray(eye, fwd, AIM_RANGE, &self.extra, true)
@@ -721,7 +1195,11 @@ impl Run {
             at,
             kind: gun.kind,
         });
-        self.noise.push((me.pos, i as u8));
+        self.noise.push(Noise {
+            at: me.pos,
+            radius: NOISE,
+            who: Some(i as u8),
+        });
     }
 
     /// What E would do for raider `i` now.
@@ -773,6 +1251,20 @@ impl Run {
         None
     }
 
+    /// How long raider `i` holds E for this, with what their gloves do.
+    pub fn needs_for(&self, r: &Ref, i: usize, u: Use) -> i32 {
+        Self::needs_with(r, i, u)
+    }
+
+    fn needs_with(r: &Ref, i: usize, u: Use) -> i32 {
+        let k = &r.setup.kits[i];
+        match u {
+            Use::Search(_) => u.needs() * k.search_pct / 100,
+            Use::Revive(_) => u.needs() * k.revive_pct / 100,
+            _ => u.needs(),
+        }
+    }
+
     fn use_tick(&mut self, r: &Ref, i: usize, held: bool) {
         let target = if held { self.use_target(r, i) } else { None };
         let me = &mut self.raiders[i];
@@ -786,7 +1278,8 @@ impl Run {
             me.use_t = 0;
         }
         me.use_t += 1;
-        if me.use_t < u.needs() {
+        let needs = Self::needs_with(r, i, u);
+        if me.use_t < needs {
             return;
         }
         me.use_t = 0;
@@ -795,17 +1288,44 @@ impl Run {
             Use::Revive(j) => {
                 let o = &mut self.raiders[j as usize];
                 o.life = Life::Alive;
-                o.hp = REVIVE_HP;
+                o.hp = r.setup.kits[i].revive_hp.min(o.max_hp);
                 o.since_hurt = 0;
                 self.events.push(Event::Revived { who: j });
             }
             Use::Pick(k) => {
                 let pk = self.pickups[k as usize];
-                let room = self.packs[i]
-                    .iter()
-                    .filter(|it| matches!(it, Item::Part(_)))
-                    .count()
-                    < BACKPACK;
+                if let Item::Ammo(a, n) = pk.item {
+                    // rounds go on to the stacks there are, then into a new one
+                    let stack = r.content.ammo[a as usize].stack;
+                    let mut left = n as i32;
+                    for it in self.packs[i].iter_mut() {
+                        if let Item::Ammo(b, m) = it {
+                            if *b == a && (*m as i32) < stack {
+                                let put = (stack - *m as i32).min(left);
+                                *m += put as u16;
+                                left -= put;
+                            }
+                        }
+                    }
+                    while left > 0 && self.pack_room(r, i) > 0 {
+                        let put = left.min(stack);
+                        self.packs[i].push(Item::Ammo(a, put as u16));
+                        left -= put;
+                    }
+                    if left > 0 {
+                        self.pickups[k as usize].item = Item::Ammo(a, left as u16);
+                    } else {
+                        self.pickups.remove(k as usize);
+                    }
+                    if left < n as i32 {
+                        self.events.push(Event::Picked {
+                            who: i as u8,
+                            item: pk.item,
+                        });
+                    }
+                    return;
+                }
+                let room = self.pack_room(r, i) > 0;
                 if pk.item == Item::Mission || room {
                     self.pickups.remove(k as usize);
                     self.packs[i].push(pk.item);
@@ -824,7 +1344,7 @@ impl Run {
                 let at = r.map.spots[k as usize].at;
                 let n = self.rng.range(0, 2) + i32::from(self.rng.chance(30));
                 for _ in 0..n {
-                    let item = self.roll_part(r.content, 0);
+                    let item = self.roll_loot(r.content, 0);
                     self.pickups.push(Pickup {
                         pos: v3(at.x, at.y + ONE / 2, at.z),
                         item,
@@ -858,6 +1378,54 @@ impl Run {
     }
 
     /// A random part to find, rarer ones less often; `luck` shifts the odds.
+    /// What a container gives: rounds most often, then a part, now and
+    /// then a piece of gear.
+    fn roll_loot(&mut self, c: &Content, luck: i32) -> Item {
+        let roll = self.rng.range(0, 99);
+        if roll < 45 {
+            return self.roll_ammo(c);
+        }
+        if roll < 85 {
+            return self.roll_part(c, luck);
+        }
+        let weight = |g: &crate::content::GearDef| match g.rarity {
+            1 => 6,
+            2 => 3 + luck,
+            3 => 1 + luck,
+            _ => 0,
+        };
+        let total: i32 = c.gear.iter().map(weight).sum();
+        let mut roll = self.rng.range(0, total.max(1) - 1);
+        for (k, g) in c.gear.iter().enumerate() {
+            let w = weight(g);
+            if roll < w {
+                return Item::Gear(k as u16);
+            }
+            roll -= w;
+        }
+        self.roll_part(c, luck)
+    }
+
+    /// Rounds: plenty of the common kinds, a few rockets.
+    fn roll_ammo(&mut self, c: &Content) -> Item {
+        let weight = |rarity: i32| match rarity {
+            1 => 10,
+            2 => 5,
+            _ => 2,
+        };
+        let total: i32 = c.ammo.iter().map(|a| weight(a.rarity)).sum();
+        let mut roll = self.rng.range(0, total - 1);
+        for (k, a) in c.ammo.iter().enumerate() {
+            let w = weight(a.rarity);
+            if roll < w {
+                let n = a.stack / 2 + self.rng.range(0, a.stack / 2);
+                return Item::Ammo(k as u8, n.max(1) as u16);
+            }
+            roll -= w;
+        }
+        Item::Ammo(0, 10)
+    }
+
     fn roll_part(&mut self, c: &Content, luck: i32) -> Item {
         let weight = |rarity: i32| -> i32 {
             match rarity {
@@ -916,13 +1484,34 @@ impl Run {
     fn seen(&self) -> Vec<Seen> {
         self.raiders
             .iter()
-            .map(|r| Seen {
+            .enumerate()
+            .map(|(i, r)| Seen {
                 pos: r.pos,
                 chest: r.chest(),
                 head: r.head(),
                 yaw: r.yaw,
                 pitch: r.pitch,
                 vel: r.vel,
+                notice: {
+                    let stance = if r.firing > 0 || r.melee_t > 0 {
+                        300
+                    } else if r.roll_t > 0 || r.slide_t > 0 {
+                        120
+                    } else if r.crouch {
+                        if r.moving {
+                            40
+                        } else {
+                            25
+                        }
+                    } else if r.sprinting {
+                        160
+                    } else if r.moving {
+                        100
+                    } else {
+                        60
+                    };
+                    stance * self.kits.get(i).map(|k| k.notice_pct).unwrap_or(100) / 100
+                },
                 active: r.life.active() && (self.van.doors_open || !self.van.inside().contains(r.chest())),
             })
             .collect()
@@ -935,6 +1524,18 @@ impl Run {
         let tick = self.tick;
         let mut orders: Vec<(usize, Order)> = Vec::new();
         let noise = self.noise.clone();
+        let smoke: Vec<V3> = self
+            .gadgets
+            .iter()
+            .filter(|g| g.kind == Gadget::Smoke && g.landed)
+            .map(|g| v3(g.pos.x, g.pos.y + int(2), g.pos.z))
+            .collect();
+        let painted: Vec<usize> = (0..n)
+            .filter(|&k| {
+                let d = &self.drones[k];
+                d.active() && (d.kind.walks() || d.pos.y < int(3)) && self.on_paint(d.pos)
+            })
+            .collect();
         for k in 0..n {
             let def = &c.drones[self.drones[k].def];
             let d = &mut self.drones[k];
@@ -950,45 +1551,102 @@ impl Run {
             }
             // too far from every raider: drift along the patrol and nothing else
             let near = seen.iter().any(|s| s.active && s.pos.dist(d.pos) < WAKE_RANGE);
-            // hearing: a shot wakes drones that have no target
-            for &(at, who) in &noise {
-                if d.brain.target.is_none() && at.dist(d.pos) < NOISE {
-                    d.brain.target = Some(who);
-                    d.brain.seen_at = at;
-                    d.brain.seen_t = FORGET / 2;
+            // hearing: what a drone hears raises its awareness of whoever
+            // made it, and it comes to look at the spot
+            for nz in &noise {
+                let dist = nz.at.dist(d.pos);
+                if dist >= nz.radius {
+                    continue;
+                }
+                let close = ONE - fx::div(dist, nz.radius);
+                if let Some(j) = nz.who {
+                    let j = j as usize;
+                    if j < d.brain.aware.len() {
+                        let gain = if nz.radius >= int(30) {
+                            500 + fx::mul(close, 600)
+                        } else {
+                            40 + fx::mul(close, 90)
+                        };
+                        d.brain.aware[j] = (d.brain.aware[j] + gain).min(AWARE_FULL);
+                    }
+                }
+                if d.brain.target.is_none() {
+                    d.brain.suspect = Some(nz.at);
+                    d.brain.suspect_t = SUSPECT_TIME;
                 }
             }
-            // sight
+            // sight: awareness fills while a raider is in view, faster close,
+            // in front of it, and the more they stand out
             if near && (tick + k as u32).is_multiple_of(LOOK_EVERY) {
                 let eye = d.eye();
-                let mut best: Option<(i32, usize)> = None;
-                for (j, s) in seen.iter().enumerate() {
-                    if !s.active {
+                let face = facing(d.yaw, 0);
+                let range = int(def.sight);
+                let kind_pct = match d.kind {
+                    Kind::Moth => 140,
+                    Kind::Hornet => 120,
+                    Kind::Warden => 90,
+                    Kind::Tick => 80,
+                    _ => 100,
+                };
+                for (j, s) in seen.iter().enumerate().take(d.brain.aware.len()) {
+                    let dist = s.chest.dist(eye);
+                    let visible = s.active
+                        && dist < range
+                        && (map.clear(eye, s.chest, &self.extra) || map.clear(eye, s.head, &self.extra))
+                        && !smoke.iter().any(|c| smoke_between(*c, eye, s.head));
+                    if !visible {
+                        d.brain.aware[j] = (d.brain.aware[j] - AWARE_FADE).max(0);
+                        if d.brain.target == Some(j as u8) {
+                            d.brain.sees = false;
+                        }
                         continue;
                     }
-                    let dist = s.chest.dist(eye);
-                    let close = dist < int(4);
-                    if (dist < int(def.sight) || close)
-                        && (close
-                            || map.clear(eye, s.chest, &self.extra)
-                            || map.clear(eye, s.head, &self.extra))
-                        && best.is_none_or(|b| dist < b.0)
-                    {
-                        best = Some((dist, j));
+                    let flat = v3(s.chest.x - eye.x, 0, s.chest.z - eye.z).norm();
+                    let cos = flat.dot(face);
+                    let mut cone = if cos > ONE * 64 / 100 {
+                        100
+                    } else if cos > -ONE * 34 / 100 {
+                        30
+                    } else {
+                        8
+                    };
+                    if dist < int(3) {
+                        cone = cone.max(70);
                     }
-                }
-                match best {
-                    Some((_, j)) => {
-                        if d.brain.target.is_none() || d.brain.seen_t > secs(3000) {
+                    let dist_pct = 25 + 75 * ((range - dist) / (range / 100).max(1)) / 100;
+                    let gain = AWARE_GAIN * cone / 100 * dist_pct / 100 * s.notice / 100 * kind_pct / 100;
+                    let before = d.brain.aware[j];
+                    // one it has fought already, it knows again at once
+                    let known = d.brain.target == Some(j as u8) && before >= AWARE_KNOWN;
+                    d.brain.aware[j] = if known {
+                        AWARE_FULL
+                    } else {
+                        (before + gain.max(1)).min(AWARE_FULL)
+                    };
+                    if d.brain.aware[j] >= AWARE_FULL {
+                        if d.brain.target != Some(j as u8)
+                            && (d.brain.target.is_none() || d.brain.seen_t > secs(3000))
+                        {
                             self.events.push(Event::Spotted { at: d.pos });
                         }
-                        d.brain.target = Some(j as u8);
-                        d.brain.seen_at = seen[j].pos;
-                        d.brain.seen_t = 0;
-                        d.brain.sees = true;
-                        d.brain.ambush = None;
+                        if d.brain.target.is_none()
+                            || d.brain.target == Some(j as u8)
+                            || d.brain.seen_t > secs(3000)
+                        {
+                            d.brain.target = Some(j as u8);
+                            d.brain.seen_at = seen[j].pos;
+                            d.brain.seen_t = 0;
+                            d.brain.sees = true;
+                            d.brain.ambush = None;
+                            d.brain.suspect = None;
+                        }
+                    } else if d.brain.aware[j] >= AWARE_SUSPECT && d.brain.target.is_none() {
+                        if before < AWARE_SUSPECT {
+                            self.events.push(Event::Noticed { at: d.pos });
+                        }
+                        d.brain.suspect = Some(seen[j].pos);
+                        d.brain.suspect_t = SUSPECT_TIME;
                     }
-                    None => d.brain.sees = false,
                 }
             }
             let outdoors = !map.zone_at(d.pos).is_some_and(|z| z.indoors);
@@ -1023,7 +1681,41 @@ impl Run {
                 d.brain.target = None;
                 ai::think(d, &mut cx);
             }
-            let top = def.speed * ONE / 10 * d.speed_pct() / 100;
+            // searching and patrolling it goes carefully; painted ground slows it
+            let careful = matches!(d.brain.doing, crate::ai::A::Patrol | crate::ai::A::Search);
+            let mut top = def.speed * ONE / 10 * d.speed_pct() / 100;
+            if careful {
+                top = top * 55 / 100;
+            }
+            if painted.contains(&k) {
+                top = top * PAINT_SLOW / 100;
+            }
+            // stuck against something for a while: forget the path and shake loose
+            if (tick + k as u32).is_multiple_of(30) {
+                let moved = d.pos.dist(d.brain.last_pos);
+                d.brain.last_pos = d.pos;
+                let trying = d.brain.goal.dist(d.pos) > int(2);
+                d.brain.stuck_t = if trying && moved < ONE / 3 {
+                    d.brain.stuck_t + 30
+                } else {
+                    0
+                };
+                if d.brain.stuck_t >= 90 {
+                    d.brain.stuck_t = 0;
+                    d.brain.path.clear();
+                    d.brain.replan = 0;
+                    let side =
+                        crate::geom::right_of(d.yaw).scale(if (tick / 30 + k as u32).is_multiple_of(2) {
+                            int(3)
+                        } else {
+                            -int(3)
+                        });
+                    d.vel = d
+                        .vel
+                        .add(side)
+                        .add(v3(0, if d.kind.walks() { 0 } else { -int(1) }, 0));
+                }
+            }
             let want = ai::steer(d, map, &self.extra, top, outdoors);
             let face = d.brain.face;
             d.step_body(def, want, face, map, &self.extra);
@@ -1126,6 +1818,9 @@ impl Run {
                         continue;
                     }
                     if d.brain.target.is_none() || d.brain.target == Some(t) {
+                        if let Some(a) = d.brain.aware.get_mut(t as usize) {
+                            *a = AWARE_FULL;
+                        }
                         d.brain.target = Some(t);
                         d.brain.seen_at = seen_at;
                         d.brain.seen_t = d.brain.seen_t.min(secs(2000));
@@ -1186,7 +1881,11 @@ impl Run {
         let at = d.pos;
         let luck = r.content.drones[d.def].loot;
         if self.rng.chance(DRONE_DROP_PCT + luck * 10) {
-            let item = self.roll_part(r.content, luck * 2);
+            let item = if self.rng.chance(40) {
+                self.roll_ammo(r.content)
+            } else {
+                self.roll_part(r.content, luck * 2)
+            };
             let floor = r
                 .map
                 .floor_under(&Aabb::standing(at, ONE / 4, ONE / 4), at.y, &self.extra);
@@ -1207,11 +1906,28 @@ impl Run {
     }
 
     fn hurt_raider(&mut self, j: usize, dmg: i32) {
+        self.hurt_raider_by(j, dmg, false);
+    }
+
+    /// Damage to a raider, less what their gear takes: armour from
+    /// everything, blast protection from explosions. A roll dodges shots.
+    fn hurt_raider_by(&mut self, j: usize, dmg: i32, blast: bool) {
+        let k = self.kits.get(j).copied();
         let ra = &mut self.raiders[j];
         if !ra.life.active() {
             return;
         }
-        if ra.hurt(dmg) {
+        if ra.roll_t > 0 && !blast {
+            return;
+        }
+        let mut dmg = dmg;
+        if let Some(k) = k {
+            dmg = dmg * (100 - k.armour_pct) / 100;
+            if blast {
+                dmg = dmg * k.blast_pct / 100;
+            }
+        }
+        if ra.hurt(dmg.max(1)) {
             self.events.push(Event::Downed { who: j as u8 });
         } else {
             self.events.push(Event::Hurt { who: j as u8 });
@@ -1368,6 +2084,7 @@ impl Run {
         let def = &c.drones[self.drones[j].def];
         let s = self.drones[j].strike(def, z, dmg, dir, at, who);
         self.drones[j].apply_effect(e, power, who);
+        self.alert(j, who);
         let plated = matches!(z, Zone::Piece(i) if matches!(drone::pieces(self.drones[j].kind)[i].kind, PieceKind::Plate | PieceKind::Wing));
         self.events.push(Event::Hit {
             at,
@@ -1409,6 +2126,22 @@ impl Run {
                 if s.killed {
                     self.kill(o, who);
                 }
+            }
+        }
+    }
+
+    /// A drone that is hit knows who did it.
+    fn alert(&mut self, j: usize, who: u8) {
+        let pos = self.raiders.get(who as usize).map(|r| r.pos);
+        let b = &mut self.drones[j].brain;
+        if let Some(a) = b.aware.get_mut(who as usize) {
+            *a = AWARE_FULL;
+        }
+        if b.target.is_none() {
+            b.target = Some(who);
+            b.seen_t = 0;
+            if let Some(p) = pos {
+                b.seen_at = p;
             }
         }
     }
@@ -1548,7 +2281,7 @@ impl Run {
                     let dist = ra.chest().dist(at);
                     if dist < radius && r.map.clear(at, ra.chest(), &self.extra) {
                         let fall = ONE - fx::div(dist, radius.max(1)) / 2;
-                        self.hurt_raider(j, fx::mul(dmg, fall));
+                        self.hurt_raider_by(j, fx::mul(dmg, fall), true);
                     }
                 }
             }
@@ -1757,13 +2490,12 @@ pub(crate) mod tests {
     use crate::raider::{B_FWD, B_RIGHT};
 
     pub fn setup(c: &Content, mission: &str, players: usize) -> Setup {
-        let b = basic_build(c);
-        Setup {
-            mission: c.missions.iter().position(|m| m.id == mission).unwrap(),
-            builds: vec![b; players],
-            guns: vec![compose(c, &b); players],
-            seed: 42,
-        }
+        Setup::basic(
+            c,
+            c.missions.iter().position(|m| m.id == mission).unwrap(),
+            players,
+            42,
+        )
     }
 
     #[test]
@@ -1817,7 +2549,15 @@ pub(crate) mod tests {
         let yaw = run.van.yaw;
         let walk = |run: &mut Run, b: u32, n: i32| {
             for _ in 0..n {
-                run.step(&r, &[Input { b, y: yaw, p: 0 }]);
+                run.step(
+                    &r,
+                    &[Input {
+                        b,
+                        y: yaw,
+                        p: 0,
+                        d: 0,
+                    }],
+                );
             }
         };
         walk(&mut run, B_FWD, 60);
@@ -1861,6 +2601,7 @@ pub(crate) mod tests {
                     },
                     y: t * 40,
                     p: 0,
+                    d: 0,
                 },
                 Input::default(),
             ];
@@ -1908,6 +2649,7 @@ pub(crate) mod tests {
                 b: 0,
                 y: yaw,
                 p: pitch,
+                d: 0,
             }],
         );
         let fired_before = run.raiders[0].ammo;
@@ -1918,6 +2660,7 @@ pub(crate) mod tests {
                     b: B_FIRE,
                     y: yaw,
                     p: pitch,
+                    d: 0,
                 }],
             );
             run.raiders[0].prev = 0;
@@ -1944,7 +2687,18 @@ pub(crate) mod tests {
         run.hurt_raider(1, 200);
         assert_eq!(run.raiders[1].life, Life::Downed);
         for _ in 0..(REVIVE + 2) {
-            run.step(&r, &[Input { b: B_USE, y: 0, p: 0 }, Input::default()]);
+            run.step(
+                &r,
+                &[
+                    Input {
+                        b: B_USE,
+                        y: 0,
+                        p: 0,
+                        d: 0,
+                    },
+                    Input::default(),
+                ],
+            );
         }
         assert_eq!(run.raiders[1].life, Life::Alive);
     }
@@ -1972,6 +2726,7 @@ pub(crate) mod tests {
                         b: B_USE,
                         y: run.van.yaw,
                         p: 0,
+                        d: 0,
                     },
                     Input::default(),
                 ],
@@ -1980,5 +2735,332 @@ pub(crate) mod tests {
         assert_eq!(run.raiders[0].life, Life::Extracted);
         assert_eq!(run.raiders[1].life, Life::Left);
         assert_eq!(run.over, Some(false), "no shirt: the order is not done");
+    }
+
+    /// A run with one raider at (x, z) in the concourse, no drones, doors open.
+    fn open_run<'a>(r: &Ref<'a>, at: V3) -> Run {
+        let mut run = Run::new(r);
+        run.drones.clear();
+        run.open_doors();
+        run.raiders[0].pos = at;
+        run
+    }
+
+    fn place(run: &mut Run, c: &Content, kind: &str, at: V3, yaw: i32) -> usize {
+        let def = c.drone(kind);
+        let mut d = Drone::new(Kind::from_id(kind), def, &c.drones[def], at, yaw, at);
+        d.brain.patrol = vec![at];
+        run.drones.push(d);
+        run.drones.len() - 1
+    }
+
+    fn input(b: u32) -> Input {
+        Input { b, y: 0, p: 0, d: 0 }
+    }
+
+    #[test]
+    fn reloading_takes_rounds_from_the_pack_and_an_empty_pack_clicks() {
+        let c = content();
+        let m = map();
+        let mut s = setup(&c, "cudi", 1);
+        s.ammo_in = vec![14];
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let mut run = open_run(&r, v3(0, 0, int(40)));
+        assert_eq!(run.rounds(0, 0), 14);
+        run.raiders[0].ammo = 0;
+        run.step(&r, &[input(B_RELOAD)]);
+        for _ in 0..200 {
+            run.step(&r, &[input(0)]);
+        }
+        assert_eq!(run.raiders[0].ammo, 12, "a full magazine");
+        assert_eq!(run.rounds(0, 0), 2, "twelve rounds came out of the pack");
+        run.raiders[0].ammo = 0;
+        run.packs[0].clear();
+        run.step(&r, &[input(B_FIRE)]);
+        assert!(run.events.iter().any(|e| matches!(e, Event::NoAmmo { .. })));
+        assert_eq!(run.raiders[0].reloading, 0, "nothing to load");
+    }
+
+    /// Ticks until a wasp facing a raider 15 m off is fully aware of them.
+    fn ticks_to_notice(bits: u32, notice: &str) -> u32 {
+        let c = content();
+        let m = map();
+        let mut s = setup(&c, "cudi", 1);
+        if !notice.is_empty() {
+            let mut w = crate::kit::basic_wear(&c);
+            let g = c.gear_id(notice).unwrap();
+            w[c.gear[g].slot_index()] = g;
+            s.wears[0] = w;
+            s.kits[0] = crate::kit::kit(&c, &w);
+        }
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let mut run = open_run(&r, v3(0, 0, int(40)));
+        // the wasp hovers 15 m up the concourse, facing the raider (+z)
+        place(&mut run, &c, "wasp", v3(0, int(3), int(25)), fx::HALF);
+        for t in 0..1200u32 {
+            // held where they are, keys down (so moving when walking); the
+            // wasp held facing them
+            run.step(&r, &[input(bits)]);
+            run.raiders[0].pos = v3(0, run.raiders[0].pos.y, int(40));
+            run.drones[0].yaw = fx::HALF;
+            run.drones[0].pos = v3(0, int(3), int(25));
+            if run.drones[0].brain.aware[0] >= AWARE_FULL {
+                return t;
+            }
+        }
+        1200
+    }
+
+    #[test]
+    fn standing_still_or_crouching_takes_a_drone_longer_to_notice() {
+        let walking = ticks_to_notice(B_FWD, "");
+        let still = ticks_to_notice(0, "");
+        let crouched = ticks_to_notice(raider::B_CROUCH, "");
+        let poncho = ticks_to_notice(raider::B_CROUCH, "poncho");
+        assert!(walking < still, "{walking} {still}");
+        assert!(still < crouched, "{still} {crouched}");
+        assert!(crouched < poncho, "{crouched} {poncho}");
+        assert!(walking > 10, "not at once: {walking}");
+    }
+
+    #[test]
+    fn running_behind_a_drone_is_heard_and_creeping_is_not() {
+        let c = content();
+        let m = map();
+        let s = setup(&c, "cudi", 1);
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        for (bits, heard) in [
+            (B_FWD | raider::B_SPRINT, true),
+            (B_FWD | raider::B_CROUCH, false),
+        ] {
+            let mut run = open_run(&r, v3(0, 0, int(40)));
+            // facing away (−z), the raider 8 m behind it
+            place(&mut run, &c, "wasp", v3(0, int(3), int(32)), 0);
+            for _ in 0..120 {
+                run.step(
+                    &r,
+                    &[Input {
+                        b: bits,
+                        y: fx::HALF,
+                        p: 0,
+                        d: 0,
+                    }],
+                );
+                run.raiders[0].pos = v3(0, 0, int(40));
+            }
+            let d = &run.drones[0].brain;
+            assert_eq!(
+                d.aware[0] > AWARE_SUSPECT || d.target.is_some(),
+                heard,
+                "{bits}: {}",
+                d.aware[0]
+            );
+        }
+    }
+
+    #[test]
+    fn a_decoy_draws_a_drone_to_look_and_smoke_hides_a_raider() {
+        let c = content();
+        let m = map();
+        let mut s = setup(&c, "cudi", 1);
+        for g in ["decoys", "smoke"] {
+            let mut w = crate::kit::basic_wear(&c);
+            w[crate::content::SLOT_BELT] = c.gear_id(g).unwrap();
+            s.wears[0] = w;
+            s.kits[0] = crate::kit::kit(&c, &w);
+            let r = Ref {
+                content: &c,
+                map: &m,
+                setup: &s,
+            };
+            let mut run = open_run(&r, v3(0, 0, int(40)));
+            // facing away from the raider, toward where the gadget lands
+            let k = place(&mut run, &c, "wasp", v3(0, int(3), int(10)), 0);
+            run.raiders[0].pitch = 0;
+            run.step(&r, &[input(B_GADGET)]);
+            assert_eq!(run.gadgets.len(), 1);
+            // the decoy draws it to look (it may then turn and see the raider)
+            let mut drawn = false;
+            for _ in 0..240 {
+                run.step(&r, &[input(0)]);
+                if let Some(gd) = run.gadgets.first() {
+                    drawn |= gd.landed
+                        && run.drones[k]
+                            .brain
+                            .suspect
+                            .is_some_and(|p| p.dist(gd.pos) < int(2));
+                }
+            }
+            let g0 = run.gadgets.first().map(|g| (g.kind, g.landed, g.pos));
+            if g == "decoys" {
+                assert!(drawn, "the wasp went to look at the decoy");
+            } else {
+                let (_, _, at) = g0.unwrap();
+                let eye = v3(0, int(3), int(10));
+                let behind = at.add(v3(0, int(1), int(4)));
+                assert!(smoke_between(v3(at.x, at.y + int(2), at.z), eye, behind));
+            }
+        }
+    }
+
+    #[test]
+    fn a_bat_knocks_a_tick_about_and_tears_a_leg_off() {
+        let c = content();
+        let m = map();
+        let s = setup(&c, "cudi", 1);
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let mut run = open_run(&r, v3(0, 0, int(40)));
+        let k = place(&mut run, &c, "tick", v3(0, 0, int(39)), 0);
+        let hp = run.drones[k].hp;
+        let legs = run.drones[k].alive_count(crate::drone::PieceKind::Leg);
+        for t in 0..400 {
+            let b = if t % 60 == 0 { B_MELEE } else { 0 };
+            run.step(
+                &r,
+                &[Input {
+                    b,
+                    y: 0,
+                    p: -deg(40),
+                    d: 0,
+                }],
+            );
+            run.raiders[0].pos = v3(0, 0, int(40));
+            run.raiders[0].hp = 100;
+        }
+        let d = &run.drones[k];
+        assert!(
+            !d.active() || d.hp < hp || d.alive_count(crate::drone::PieceKind::Leg) < legs,
+            "the bat landed"
+        );
+    }
+
+    #[test]
+    fn a_mine_goes_off_under_a_drone() {
+        let c = content();
+        let m = map();
+        let mut s = setup(&c, "cudi", 1);
+        let mut w = crate::kit::basic_wear(&c);
+        w[crate::content::SLOT_BELT] = c.gear_id("mines").unwrap();
+        s.wears[0] = w;
+        s.kits[0] = crate::kit::kit(&c, &w);
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let mut run = open_run(&r, v3(0, 0, int(40)));
+        run.step(&r, &[input(B_GADGET)]);
+        assert_eq!(run.raiders[0].charges, 2);
+        run.raiders[0].pos = v3(int(10), 0, int(60));
+        for _ in 0..90 {
+            run.step(&r, &[input(0)]);
+        }
+        let k = place(&mut run, &c, "tick", v3(ONE, 0, int(40)), 0);
+        run.drones[k].brain.patrol = vec![v3(ONE, 0, int(40))];
+        for _ in 0..30 {
+            run.step(&r, &[input(0)]);
+        }
+        assert!(run.gadgets.is_empty(), "the mine went off");
+        assert!(run.drones[k].hp < c.drones[run.drones[k].def].hp);
+    }
+
+    #[test]
+    fn dropping_a_pack_item_leaves_it_on_the_floor() {
+        let c = content();
+        let m = map();
+        let s = setup(&c, "cudi", 1);
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let mut run = open_run(&r, v3(0, 0, int(40)));
+        let before = run.packs[0].len();
+        let picks = run.pickups.len();
+        run.step(
+            &r,
+            &[Input {
+                b: 0,
+                y: 0,
+                p: 0,
+                d: 1,
+            }],
+        );
+        assert_eq!(run.packs[0].len(), before - 1);
+        assert_eq!(run.pickups.len(), picks + 1);
+    }
+
+    #[test]
+    fn gear_takes_damage_off_and_adds_health() {
+        let c = content();
+        let m = map();
+        let mut s = setup(&c, "cudi", 1);
+        let mut w = crate::kit::basic_wear(&c);
+        w[2] = c.gear_id("vest").unwrap();
+        s.wears[0] = w;
+        s.kits[0] = crate::kit::kit(&c, &w);
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let mut run = open_run(&r, v3(0, 0, int(40)));
+        assert_eq!(run.raiders[0].hp, RAIDER_HP + 35);
+        run.hurt_raider(0, 20);
+        assert_eq!(run.raiders[0].hp, RAIDER_HP + 35 - 18, "the vest takes a tenth");
+    }
+
+    #[test]
+    fn a_warden_flies_under_the_balconies_without_its_rotors_in_them() {
+        let c = content();
+        let m = map();
+        let s = setup(&c, "cudi", 1);
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let mut run = open_run(&r, v3(int(60), 0, int(200)));
+        let k = place(&mut run, &c, "warden", v3(int(6), int(3), int(40)), 0);
+        run.drones[k].brain.patrol = vec![
+            v3(int(6), 0, int(30)),
+            v3(int(6), 0, int(100)),
+            v3(-int(6), 0, int(70)),
+        ];
+        let def = c.drones[run.drones[k].def].clone();
+        for _ in 0..1800 {
+            run.step(&r, &[input(0)]);
+            let d = &run.drones[k];
+            // its whole span, rotors and all, never sinks into a solid
+            let span = Aabb::standing(
+                v3(d.pos.x, d.pos.y - ONE / 4, d.pos.z),
+                ONE * 165 / 100,
+                ONE * 9 / 10,
+            );
+            assert!(
+                !m.blocked(&span, &[]) || d.pos.y < int(1),
+                "wedged at {:?}",
+                d.pos
+            );
+            let _ = &def;
+        }
+        let travelled = run.drones[k].pos.dist(v3(int(6), int(3), int(40)));
+        assert!(travelled > int(10), "it got about: {travelled}");
     }
 }

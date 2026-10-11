@@ -43,11 +43,11 @@ function fillCopy(copy) {
 }
 
 async function start() {
-  const names = ["parts", "drones", "missions", "palette", "copy", "controls", "sounds", "display"];
+  const names = ["parts", "drones", "missions", "palette", "gear", "copy", "controls", "sounds", "display"];
   const texts = await Promise.all(
     names.map((n) => file(`data/${n}.json`)).concat([file("data/shaders/scene.vert"), file("data/shaders/scene.frag")]),
   );
-  const [parts, drones, missions, palette, copyText, controlsText, soundsText, displayText, vertex, fragment] = texts;
+  const [parts, drones, missions, palette, gear, copyText, controlsText, soundsText, displayText, vertex, fragment] = texts;
   const copy = JSON.parse(copyText);
   const display = JSON.parse(displayText);
   fillCopy(copy);
@@ -57,7 +57,7 @@ async function start() {
 
   let game;
   try {
-    game = new Game(parts, drones, missions, palette, storage.load());
+    game = new Game(parts, drones, missions, palette, gear, storage.load());
   } catch (e) {
     el("message").textContent = String(e);
     document.body.dataset.ready = "true";
@@ -68,7 +68,7 @@ async function start() {
   const renderer = makeRenderer(canvas, N, { vertex, fragment, software: display.software }, (id) => mesh(id));
   if (!renderer) el("message").textContent = copy.no_webgl;
   const input = makeInput(canvas, JSON.parse(controlsText), N.actions);
-  const hud = makeHud(copy);
+  const hud = makeHud(copy, game);
   const save = () => storage.save(game.saved());
   const online = makeOnline(game, BUILD);
   const screens = makeScreens(game, copy, () => redraw());
@@ -202,8 +202,9 @@ async function start() {
     if (document.body.dataset.mode === "play") input.capture();
   });
   document.addEventListener("pointerlockchange", () => {
-    // leaving the capture (Escape) while playing opens the menu
-    if (!input.locked() && document.body.dataset.mode === "play") {
+    // leaving the capture (Escape) while playing opens the menu, unless the
+    // inventory sheet is what freed the pointer
+    if (!input.locked() && document.body.dataset.mode === "play" && el("inventory").hidden) {
       game.pause();
       redraw();
     }
@@ -234,7 +235,8 @@ async function start() {
   function showMode(h) {
     const mode = h.mode;
     const menu = Boolean(h.menu);
-    const key = mode + (menu ? "+menu" : "");
+    const inv = Boolean(h.inventory);
+    const key = mode + (menu ? "+menu" : "") + (inv ? "+inv" : "");
     if (key !== shownMode) {
       document.body.dataset.mode = mode;
       for (const id of Object.values(overlays)) el(id).hidden = true;
@@ -242,7 +244,7 @@ async function start() {
       if (menu) el("paused").hidden = false;
       el("p-title").textContent = menu ? copy.menu : copy.paused;
       el("hud").hidden = !["play", "paused"].includes(mode);
-      if (mode !== "play" || menu) {
+      if (mode !== "play" || menu || inv) {
         input.release();
         input.free();
       }

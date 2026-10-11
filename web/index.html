@@ -36,12 +36,19 @@
     </div>
     <div id="ammo" class="panel">
       <div id="ammo-n" class="ammo-n"></div>
+      <div class="reserve"><img id="ammo-icon" alt=""><span id="reserve-n"></span></div>
       <div id="ammo-sub" class="label"></div>
       <div class="bar thin" id="reload-wrap" hidden><div id="reload-bar"></div></div>
     </div>
     <div id="pack" class="panel">
-      <div class="label"><span data-copy="hud_pack"></span> <span id="pack-n"></span></div>
+      <div class="label"><span data-copy="hud_pack"></span> <span id="pack-n"></span> <span class="key">Tab</span></div>
       <div id="pack-items"></div>
+    </div>
+    <div id="kit" class="panel">
+      <div class="kit-row" id="k-stance"><span class="key">C</span> <span id="stance"></span></div>
+      <div class="kit-row"><span class="key">F</span> <span id="melee-name"></span><span class="bar thin mini"><span id="melee-bar"></span></span></div>
+      <div class="kit-row" id="k-gadget" hidden><span class="key">G</span> <img id="gadget-icon" alt=""> <span id="gadget-name"></span> ×<span id="gadget-n"></span></div>
+      <div class="kit-row" id="k-roll" hidden><span class="key">X</span> <span data-copy="hud_roll"></span><span class="bar thin mini"><span id="roll-bar"></span></span></div>
     </div>
     <div id="prompt" class="panel" hidden>
       <div id="prompt-text"></div>
@@ -57,6 +64,31 @@
     <div id="leaving" class="panel" hidden><span data-copy="hud_leaving"></span> <span id="leave-n"></span></div>
     <div id="netline" hidden></div>
     <div id="clock"></div>
+  </div>
+
+  <!-- the inventory sheet, over the run (which goes on) -->
+  <div id="inventory" class="overlay sheet-bg" hidden>
+    <div class="sheet wide inv">
+      <h2 data-copy="inv_title"></h2>
+      <p class="fine" data-copy="inv_hint"></p>
+      <div class="inv-cols">
+        <div>
+          <div class="label" data-copy="inv_pack"></div>
+          <div id="inv-pack" class="inv-grid"></div>
+          <div class="label" data-copy="inv_gun"></div>
+          <div id="inv-gun" class="inv-grid small"></div>
+          <div class="label" data-copy="inv_wear"></div>
+          <div id="inv-wear" class="inv-grid small"></div>
+        </div>
+        <div id="inv-detail" class="inv-detail">
+          <img id="inv-d-icon" alt="">
+          <h3 id="inv-d-name"></h3>
+          <p id="inv-d-about"></p>
+          <button id="inv-drop" type="button" data-copy="btn_drop" hidden></button>
+        </div>
+      </div>
+      <div class="buttons"><button id="inv-close" class="primary" type="button" data-copy="btn_close"></button></div>
+    </div>
   </div>
 
   <!-- title -->
@@ -112,6 +144,12 @@
       <div id="ws-build" class="ws-build"></div>
       <div id="ws-stats" class="ws-stats"></div>
       <div id="ws-cats"></div>
+      <h3 data-copy="ws_gear_title"></h3>
+      <p class="hint" data-copy="ws_gear_hint"></p>
+      <div id="ws-kit" class="ws-stats"></div>
+      <div id="ws-gear"></div>
+      <h3 data-copy="ws_ammo_title"></h3>
+      <div id="ws-ammo" class="parts-row ammo-row"></div>
       <div class="buttons"><button id="ws-board" class="primary" type="button" data-copy="btn_to_board"></button><button id="ws-back" type="button" data-copy="btn_back"></button></div>
     </div>
   </div>

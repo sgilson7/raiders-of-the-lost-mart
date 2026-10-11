@@ -1,0 +1,329 @@
+{
+ "_doc": "Body gear, belt gadgets, melee weapons and ammunition. Slots: head, shoulders, chest, coat, hands, legs, knees, feet, belt, melee; one basic (free, never lost) item each. Percentages are of normal (100); hp, regen_to and slots are added. notice_pct scales how fast drones notice you, noise_pct your footsteps. Melee: damage, cooldown in ticks, reach in cm, arc in degrees, rips = percent of damage dealt to a part it hits. Ammo: what one carries at most, a pack stack, the starter given with a new stash, and a free top-up before every run (only light rounds).",
+ "gear": [
+  {
+   "id": "cap",
+   "slot": "head",
+   "colour": "#4FA3A0",
+   "rarity": 0,
+   "basic": true
+  },
+  {
+   "id": "helmet",
+   "slot": "head",
+   "colour": "#5E6B66",
+   "rarity": 2,
+   "armour_pct": 12,
+   "hp": 10
+  },
+  {
+   "id": "headset",
+   "slot": "head",
+   "colour": "#3A3040",
+   "rarity": 2,
+   "headset": true,
+   "notice_pct": 90
+  },
+  {
+   "id": "sling",
+   "slot": "shoulders",
+   "colour": "#B9835A",
+   "rarity": 0,
+   "basic": true
+  },
+  {
+   "id": "pads",
+   "slot": "shoulders",
+   "colour": "#5E6B66",
+   "rarity": 1,
+   "hp": 15,
+   "melee_pct": 110
+  },
+  {
+   "id": "straps",
+   "slot": "shoulders",
+   "colour": "#8C5A3C",
+   "rarity": 1,
+   "slots": 6
+  },
+  {
+   "id": "brace",
+   "slot": "shoulders",
+   "colour": "#4A3A4A",
+   "rarity": 2,
+   "recoil_pct": 60,
+   "melee_pct": 120
+  },
+  {
+   "id": "tee",
+   "slot": "chest",
+   "colour": "#FFF6E0",
+   "rarity": 0,
+   "basic": true
+  },
+  {
+   "id": "vest",
+   "slot": "chest",
+   "colour": "#5E6B66",
+   "rarity": 2,
+   "hp": 35,
+   "armour_pct": 10,
+   "speed_pct": 95
+  },
+  {
+   "id": "mesh",
+   "slot": "chest",
+   "colour": "#9DB98A",
+   "rarity": 2,
+   "regen_to": 35,
+   "regen_pct": 250
+  },
+  {
+   "id": "hoodie",
+   "slot": "coat",
+   "colour": "#E88A73",
+   "rarity": 0,
+   "basic": true
+  },
+  {
+   "id": "poncho",
+   "slot": "coat",
+   "colour": "#6F8F66",
+   "rarity": 2,
+   "notice_pct": 55,
+   "noise_pct": 80
+  },
+  {
+   "id": "trench",
+   "slot": "coat",
+   "colour": "#8C5A3C",
+   "rarity": 1,
+   "slots": 4,
+   "armour_pct": 8
+  },
+  {
+   "id": "hazmat",
+   "slot": "coat",
+   "colour": "#FFB000",
+   "rarity": 2,
+   "blast_pct": 40,
+   "goo_immune": true
+  },
+  {
+   "id": "workgloves",
+   "slot": "hands",
+   "colour": "#B9835A",
+   "rarity": 0,
+   "basic": true
+  },
+  {
+   "id": "quickgloves",
+   "slot": "hands",
+   "colour": "#3A3040",
+   "rarity": 1,
+   "reload_pct": 65,
+   "search_pct": 50
+  },
+  {
+   "id": "medgloves",
+   "slot": "hands",
+   "colour": "#FFF6E0",
+   "rarity": 2,
+   "revive_pct": 40,
+   "revive_hp": 70
+  },
+  {
+   "id": "jeans",
+   "slot": "legs",
+   "colour": "#5E5A70",
+   "rarity": 0,
+   "basic": true
+  },
+  {
+   "id": "cargo",
+   "slot": "legs",
+   "colour": "#9C8670",
+   "rarity": 1,
+   "slots": 4
+  },
+  {
+   "id": "joggers",
+   "slot": "legs",
+   "colour": "#3C8582",
+   "rarity": 1,
+   "sprint_pct": 115,
+   "noise_pct": 60
+  },
+  {
+   "id": "patches",
+   "slot": "knees",
+   "colour": "#5E5A70",
+   "rarity": 0,
+   "basic": true
+  },
+  {
+   "id": "kneepads",
+   "slot": "knees",
+   "colour": "#5E6B66",
+   "rarity": 1,
+   "crouch_full": true,
+   "slide": true
+  },
+  {
+   "id": "springs",
+   "slot": "knees",
+   "colour": "#8D9A93",
+   "rarity": 2,
+   "jump_pct": 165
+  },
+  {
+   "id": "sneakers",
+   "slot": "feet",
+   "colour": "#FFF6E0",
+   "rarity": 0,
+   "basic": true
+  },
+  {
+   "id": "runners",
+   "slot": "feet",
+   "colour": "#E0483E",
+   "rarity": 2,
+   "speed_pct": 108,
+   "roll": true
+  },
+  {
+   "id": "sockshoes",
+   "slot": "feet",
+   "colour": "#C2D6A6",
+   "rarity": 1,
+   "noise_pct": 0
+  },
+  {
+   "id": "boots",
+   "slot": "feet",
+   "colour": "#4A3A3A",
+   "rarity": 2,
+   "blast_pct": 60,
+   "hp": 10,
+   "speed_pct": 96
+  },
+  {
+   "id": "belt",
+   "slot": "belt",
+   "colour": "#8C5A3C",
+   "rarity": 0,
+   "basic": true
+  },
+  {
+   "id": "mines",
+   "slot": "belt",
+   "colour": "#E0483E",
+   "rarity": 2,
+   "belt": "mine",
+   "charges": 3
+  },
+  {
+   "id": "decoys",
+   "slot": "belt",
+   "colour": "#FFB000",
+   "rarity": 1,
+   "belt": "decoy",
+   "charges": 4
+  },
+  {
+   "id": "paint",
+   "slot": "belt",
+   "colour": "#13CFE3",
+   "rarity": 2,
+   "belt": "paint",
+   "charges": 2
+  },
+  {
+   "id": "smoke",
+   "slot": "belt",
+   "colour": "#9C8494",
+   "rarity": 1,
+   "belt": "smoke",
+   "charges": 3
+  },
+  {
+   "id": "bat",
+   "slot": "melee",
+   "colour": "#B9C4BC",
+   "rarity": 0,
+   "basic": true,
+   "damage": 22,
+   "cooldown": 34,
+   "reach": 230,
+   "arc": 70,
+   "rips": 150,
+   "knock": 4
+  },
+  {
+   "id": "sledge",
+   "slot": "melee",
+   "colour": "#5E6B66",
+   "rarity": 2,
+   "damage": 55,
+   "cooldown": 62,
+   "reach": 240,
+   "arc": 60,
+   "rips": 260,
+   "knock": 9
+  },
+  {
+   "id": "machete",
+   "slot": "melee",
+   "colour": "#D8C3A4",
+   "rarity": 1,
+   "damage": 18,
+   "cooldown": 20,
+   "reach": 200,
+   "arc": 80,
+   "rips": 120,
+   "knock": 2
+  }
+ ],
+ "ammo": [
+  {
+   "id": "light",
+   "carry": 240,
+   "stack": 60,
+   "start": 60,
+   "free": 60,
+   "rarity": 1
+  },
+  {
+   "id": "heavy",
+   "carry": 120,
+   "stack": 30,
+   "start": 30,
+   "free": 0,
+   "rarity": 2
+  },
+  {
+   "id": "shells",
+   "carry": 80,
+   "stack": 20,
+   "start": 20,
+   "free": 0,
+   "rarity": 1
+  },
+  {
+   "id": "rockets",
+   "carry": 12,
+   "stack": 4,
+   "start": 4,
+   "free": 0,
+   "rarity": 3
+  },
+  {
+   "id": "grenades",
+   "carry": 16,
+   "stack": 6,
+   "start": 6,
+   "free": 0,
+   "rarity": 2
+  }
+ ]
+}

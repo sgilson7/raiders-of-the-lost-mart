@@ -20,6 +20,7 @@ pub mod fx;
 pub mod game;
 pub mod geom;
 pub mod gun;
+pub mod kit;
 pub mod mall;
 pub mod mesh;
 pub mod online_code;

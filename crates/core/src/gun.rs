@@ -78,6 +78,9 @@ pub struct Gun {
     pub model: Vec<Piece>,
     /// where the sight's eye line sits, for the aimed camera
     pub sight_at: V3,
+    /// the ammunition it takes, and the rounds one volley uses
+    pub ammo: usize,
+    pub per_volley: i32,
 }
 
 /// Centimetres to Q16 metres.
@@ -423,6 +426,8 @@ pub fn compose(c: &Content, b: &Build) -> Gun {
         muzzles,
         model,
         sight_at,
+        ammo: barrel.ammo,
+        per_volley,
     }
 }
 

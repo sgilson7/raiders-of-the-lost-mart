@@ -1,40 +1,411 @@
 {
-  "_doc": "Weapon parts. Six categories of five. Distances in cm, spreads in tenths of a degree, times in ticks (60 a second), percentages as whole numbers. A basic part is never used up and never dropped; the stash holds counts of the rest.",
-  "parts": [
-    { "id": "pistol", "cat": "frame", "basic": true, "auto": false, "cooldown": 10, "mag": 12, "reload": 70, "dmg_pct": 100, "recoil": 18, "spread": 10, "move_pct": 100, "len": 22, "height": 9, "colour": "#8D9A93", "trim": "#5E6B66", "rarity": 0 },
-    { "id": "smg", "cat": "frame", "auto": true, "cooldown": 5, "mag": 32, "reload": 100, "dmg_pct": 70, "recoil": 9, "spread": 22, "move_pct": 100, "len": 30, "height": 11, "colour": "#5E6B66", "trim": "#E0A82E", "rarity": 1 },
-    { "id": "ak", "cat": "frame", "auto": true, "cooldown": 7, "mag": 30, "reload": 120, "dmg_pct": 100, "recoil": 16, "spread": 16, "move_pct": 95, "len": 42, "height": 12, "colour": "#6E5C68", "trim": "#B9835A", "rarity": 2 },
-    { "id": "pump", "cat": "frame", "auto": false, "cooldown": 38, "mag": 8, "reload": 150, "dmg_pct": 140, "recoil": 40, "spread": 12, "move_pct": 95, "len": 40, "height": 11, "colour": "#8C5A3C", "trim": "#D9A66F", "rarity": 1 },
-    { "id": "heavy", "cat": "frame", "auto": true, "cooldown": 6, "mag": 90, "reload": 220, "dmg_pct": 100, "recoil": 12, "spread": 26, "move_pct": 78, "len": 52, "height": 16, "colour": "#4A3A4A", "trim": "#E47A7E", "rarity": 3 },
-
-    { "id": "short", "cat": "barrel", "basic": true, "kind": "bullet", "bores": 1, "pellets": 1, "damage": 14, "speed": 160, "spread": 8, "min_cd": 0, "len": 14, "width": 4, "colour": "#5E6B66", "rarity": 0 },
-    { "id": "rifle", "cat": "barrel", "kind": "bullet", "bores": 1, "pellets": 1, "damage": 30, "speed": 240, "spread": 2, "min_cd": 10, "pierce": 1, "len": 48, "width": 4, "colour": "#3B2340", "rarity": 2 },
-    { "id": "double", "cat": "barrel", "kind": "bullet", "bores": 2, "pellets": 6, "damage": 6, "speed": 140, "spread": 55, "min_cd": 22, "len": 38, "width": 9, "colour": "#8C5A3C", "rarity": 1 },
-    { "id": "rocket", "cat": "barrel", "kind": "rocket", "bores": 1, "pellets": 1, "damage": 55, "speed": 34, "spread": 4, "min_cd": 34, "splash": 45, "len": 56, "width": 12, "colour": "#6FA77A", "rarity": 3 },
-    { "id": "lobber", "cat": "barrel", "kind": "grenade", "bores": 1, "pellets": 1, "damage": 40, "speed": 24, "spread": 10, "min_cd": 28, "splash": 35, "len": 24, "width": 11, "colour": "#E0A82E", "rarity": 2 },
-
-    { "id": "single", "cat": "mount", "basic": true, "slots": [[0, 0]], "colour": "#8D9A93", "rarity": 0 },
-    { "id": "pair", "cat": "mount", "slots": [[-7, 0], [7, 0]], "colour": "#9DB98A", "rarity": 1 },
-    { "id": "stack", "cat": "mount", "slots": [[0, 6], [0, -6]], "colour": "#9DB98A", "rarity": 1 },
-    { "id": "square", "cat": "mount", "slots": [[-7, 6], [7, 6], [-7, -6], [7, -6]], "colour": "#6F8F66", "rarity": 3 },
-    { "id": "gatling", "cat": "mount", "gatling": true, "slots": [[0, 8], [7, 4], [7, -4], [0, -8], [-7, -4], [-7, 4]], "colour": "#4FA3A0", "rarity": 3 },
-
-    { "id": "slug", "cat": "payload", "basic": true, "dmg_pct": 100, "effect": "none", "colour": "#E0A82E", "rarity": 0 },
-    { "id": "blast", "cat": "payload", "dmg_pct": 70, "effect": "none", "splash": 25, "colour": "#E0483E", "rarity": 2 },
-    { "id": "goo", "cat": "payload", "dmg_pct": 0, "effect": "goo", "power": 100, "colour": "#B6E35A", "rarity": 2 },
-    { "id": "shock", "cat": "payload", "dmg_pct": 55, "effect": "shock", "power": 50, "colour": "#13CFE3", "rarity": 2 },
-    { "id": "ember", "cat": "payload", "dmg_pct": 50, "effect": "ember", "power": 120, "colour": "#F2803A", "rarity": 1 },
-
-    { "id": "iron", "cat": "sight", "basic": true, "zoom_pct": 85, "aim_spread_pct": 60, "colour": "#3B2340", "rarity": 0 },
-    { "id": "dot", "cat": "sight", "zoom_pct": 72, "aim_spread_pct": 40, "colour": "#E0483E", "rarity": 1 },
-    { "id": "scope", "cat": "sight", "zoom_pct": 38, "aim_spread_pct": 15, "colour": "#3C8582", "rarity": 2 },
-    { "id": "laser", "cat": "sight", "zoom_pct": 85, "aim_spread_pct": 50, "hip_spread_pct": 55, "colour": "#E0483E", "rarity": 1 },
-    { "id": "scanner", "cat": "sight", "zoom_pct": 80, "aim_spread_pct": 55, "scanner": true, "colour": "#4FE6E0", "rarity": 3 },
-
-    { "id": "wood", "cat": "grip", "basic": true, "recoil_pct": 100, "spread_pct": 100, "move_pct": 100, "colour": "#B9835A", "rarity": 0 },
-    { "id": "fore", "cat": "grip", "recoil_pct": 65, "spread_pct": 95, "move_pct": 100, "colour": "#5E6B66", "rarity": 1 },
-    { "id": "stock", "cat": "grip", "recoil_pct": 70, "spread_pct": 70, "move_pct": 96, "colour": "#8C5A3C", "rarity": 1 },
-    { "id": "skeleton", "cat": "grip", "recoil_pct": 90, "spread_pct": 90, "move_pct": 110, "colour": "#8D9A93", "rarity": 2 },
-    { "id": "brace", "cat": "grip", "recoil_pct": 40, "spread_pct": 75, "move_pct": 88, "colour": "#4A3A4A", "rarity": 2 }
-  ]
+ "_doc": "Weapon parts. Six categories of five. Distances in cm, spreads in tenths of a degree, times in ticks (60 a second), percentages as whole numbers. A basic part is never used up and never dropped; the stash holds counts of the rest.",
+ "parts": [
+  {
+   "id": "pistol",
+   "cat": "frame",
+   "basic": true,
+   "auto": false,
+   "cooldown": 10,
+   "mag": 12,
+   "reload": 70,
+   "dmg_pct": 100,
+   "recoil": 18,
+   "spread": 10,
+   "move_pct": 100,
+   "len": 22,
+   "height": 9,
+   "colour": "#8D9A93",
+   "trim": "#5E6B66",
+   "rarity": 0
+  },
+  {
+   "id": "smg",
+   "cat": "frame",
+   "auto": true,
+   "cooldown": 5,
+   "mag": 32,
+   "reload": 100,
+   "dmg_pct": 70,
+   "recoil": 9,
+   "spread": 22,
+   "move_pct": 100,
+   "len": 30,
+   "height": 11,
+   "colour": "#5E6B66",
+   "trim": "#E0A82E",
+   "rarity": 1
+  },
+  {
+   "id": "ak",
+   "cat": "frame",
+   "auto": true,
+   "cooldown": 7,
+   "mag": 30,
+   "reload": 120,
+   "dmg_pct": 100,
+   "recoil": 16,
+   "spread": 16,
+   "move_pct": 95,
+   "len": 42,
+   "height": 12,
+   "colour": "#6E5C68",
+   "trim": "#B9835A",
+   "rarity": 2
+  },
+  {
+   "id": "pump",
+   "cat": "frame",
+   "auto": false,
+   "cooldown": 38,
+   "mag": 8,
+   "reload": 150,
+   "dmg_pct": 140,
+   "recoil": 40,
+   "spread": 12,
+   "move_pct": 95,
+   "len": 40,
+   "height": 11,
+   "colour": "#8C5A3C",
+   "trim": "#D9A66F",
+   "rarity": 1
+  },
+  {
+   "id": "heavy",
+   "cat": "frame",
+   "auto": true,
+   "cooldown": 6,
+   "mag": 90,
+   "reload": 220,
+   "dmg_pct": 100,
+   "recoil": 12,
+   "spread": 26,
+   "move_pct": 78,
+   "len": 52,
+   "height": 16,
+   "colour": "#4A3A4A",
+   "trim": "#E47A7E",
+   "rarity": 3
+  },
+  {
+   "id": "short",
+   "cat": "barrel",
+   "basic": true,
+   "kind": "bullet",
+   "bores": 1,
+   "pellets": 1,
+   "damage": 14,
+   "speed": 160,
+   "spread": 8,
+   "min_cd": 0,
+   "len": 14,
+   "width": 4,
+   "colour": "#5E6B66",
+   "rarity": 0,
+   "ammo": "light"
+  },
+  {
+   "id": "rifle",
+   "cat": "barrel",
+   "kind": "bullet",
+   "bores": 1,
+   "pellets": 1,
+   "damage": 30,
+   "speed": 240,
+   "spread": 2,
+   "min_cd": 10,
+   "pierce": 1,
+   "len": 48,
+   "width": 4,
+   "colour": "#3B2340",
+   "rarity": 2,
+   "ammo": "heavy"
+  },
+  {
+   "id": "double",
+   "cat": "barrel",
+   "kind": "bullet",
+   "bores": 2,
+   "pellets": 6,
+   "damage": 6,
+   "speed": 140,
+   "spread": 55,
+   "min_cd": 22,
+   "len": 38,
+   "width": 9,
+   "colour": "#8C5A3C",
+   "rarity": 1,
+   "ammo": "shells"
+  },
+  {
+   "id": "rocket",
+   "cat": "barrel",
+   "kind": "rocket",
+   "bores": 1,
+   "pellets": 1,
+   "damage": 55,
+   "speed": 34,
+   "spread": 4,
+   "min_cd": 34,
+   "splash": 45,
+   "len": 56,
+   "width": 12,
+   "colour": "#6FA77A",
+   "rarity": 3,
+   "ammo": "rockets"
+  },
+  {
+   "id": "lobber",
+   "cat": "barrel",
+   "kind": "grenade",
+   "bores": 1,
+   "pellets": 1,
+   "damage": 40,
+   "speed": 24,
+   "spread": 10,
+   "min_cd": 28,
+   "splash": 35,
+   "len": 24,
+   "width": 11,
+   "colour": "#E0A82E",
+   "rarity": 2,
+   "ammo": "grenades"
+  },
+  {
+   "id": "single",
+   "cat": "mount",
+   "basic": true,
+   "slots": [
+    [
+     0,
+     0
+    ]
+   ],
+   "colour": "#8D9A93",
+   "rarity": 0
+  },
+  {
+   "id": "pair",
+   "cat": "mount",
+   "slots": [
+    [
+     -7,
+     0
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "colour": "#9DB98A",
+   "rarity": 1
+  },
+  {
+   "id": "stack",
+   "cat": "mount",
+   "slots": [
+    [
+     0,
+     6
+    ],
+    [
+     0,
+     -6
+    ]
+   ],
+   "colour": "#9DB98A",
+   "rarity": 1
+  },
+  {
+   "id": "square",
+   "cat": "mount",
+   "slots": [
+    [
+     -7,
+     6
+    ],
+    [
+     7,
+     6
+    ],
+    [
+     -7,
+     -6
+    ],
+    [
+     7,
+     -6
+    ]
+   ],
+   "colour": "#6F8F66",
+   "rarity": 3
+  },
+  {
+   "id": "gatling",
+   "cat": "mount",
+   "gatling": true,
+   "slots": [
+    [
+     0,
+     8
+    ],
+    [
+     7,
+     4
+    ],
+    [
+     7,
+     -4
+    ],
+    [
+     0,
+     -8
+    ],
+    [
+     -7,
+     -4
+    ],
+    [
+     -7,
+     4
+    ]
+   ],
+   "colour": "#4FA3A0",
+   "rarity": 3
+  },
+  {
+   "id": "slug",
+   "cat": "payload",
+   "basic": true,
+   "dmg_pct": 100,
+   "effect": "none",
+   "colour": "#E0A82E",
+   "rarity": 0
+  },
+  {
+   "id": "blast",
+   "cat": "payload",
+   "dmg_pct": 70,
+   "effect": "none",
+   "splash": 25,
+   "colour": "#E0483E",
+   "rarity": 2
+  },
+  {
+   "id": "goo",
+   "cat": "payload",
+   "dmg_pct": 0,
+   "effect": "goo",
+   "power": 100,
+   "colour": "#B6E35A",
+   "rarity": 2
+  },
+  {
+   "id": "shock",
+   "cat": "payload",
+   "dmg_pct": 55,
+   "effect": "shock",
+   "power": 50,
+   "colour": "#13CFE3",
+   "rarity": 2
+  },
+  {
+   "id": "ember",
+   "cat": "payload",
+   "dmg_pct": 50,
+   "effect": "ember",
+   "power": 120,
+   "colour": "#F2803A",
+   "rarity": 1
+  },
+  {
+   "id": "iron",
+   "cat": "sight",
+   "basic": true,
+   "zoom_pct": 85,
+   "aim_spread_pct": 60,
+   "colour": "#3B2340",
+   "rarity": 0
+  },
+  {
+   "id": "dot",
+   "cat": "sight",
+   "zoom_pct": 72,
+   "aim_spread_pct": 40,
+   "colour": "#E0483E",
+   "rarity": 1
+  },
+  {
+   "id": "scope",
+   "cat": "sight",
+   "zoom_pct": 38,
+   "aim_spread_pct": 15,
+   "colour": "#3C8582",
+   "rarity": 2
+  },
+  {
+   "id": "laser",
+   "cat": "sight",
+   "zoom_pct": 85,
+   "aim_spread_pct": 50,
+   "hip_spread_pct": 55,
+   "colour": "#E0483E",
+   "rarity": 1
+  },
+  {
+   "id": "scanner",
+   "cat": "sight",
+   "zoom_pct": 80,
+   "aim_spread_pct": 55,
+   "scanner": true,
+   "colour": "#4FE6E0",
+   "rarity": 3
+  },
+  {
+   "id": "wood",
+   "cat": "grip",
+   "basic": true,
+   "recoil_pct": 100,
+   "spread_pct": 100,
+   "move_pct": 100,
+   "colour": "#B9835A",
+   "rarity": 0
+  },
+  {
+   "id": "fore",
+   "cat": "grip",
+   "recoil_pct": 65,
+   "spread_pct": 95,
+   "move_pct": 100,
+   "colour": "#5E6B66",
+   "rarity": 1
+  },
+  {
+   "id": "stock",
+   "cat": "grip",
+   "recoil_pct": 70,
+   "spread_pct": 70,
+   "move_pct": 96,
+   "colour": "#8C5A3C",
+   "rarity": 1
+  },
+  {
+   "id": "skeleton",
+   "cat": "grip",
+   "recoil_pct": 90,
+   "spread_pct": 90,
+   "move_pct": 110,
+   "colour": "#8D9A93",
+   "rarity": 2
+  },
+  {
+   "id": "brace",
+   "cat": "grip",
+   "recoil_pct": 40,
+   "spread_pct": 75,
+   "move_pct": 88,
+   "colour": "#4A3A4A",
+   "rarity": 2
+  }
+ ]
 }
