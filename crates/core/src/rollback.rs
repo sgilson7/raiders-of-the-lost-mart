@@ -461,7 +461,11 @@ mod tests {
         let c = content();
         let m = map();
         let s = setup(&c, "cudi", 2);
-        let r = Ref { content: &c, map: &m, setup: &s };
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
         let mut runs = [Run::new(&r), Run::new(&r)];
         let mut sess = [Session::new(2, 0), Session::new(2, 1)];
         for f in 0..120u32 {

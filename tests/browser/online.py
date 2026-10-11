@@ -90,6 +90,7 @@ def run(p, engine, origin):
         try:
             joiner.wait_for_selector("body[data-mode='lobby']", state="attached", timeout=15000)
             joiner.locator("#l-status", has_text=COPY["online_waiting"]).wait_for(timeout=15000)
+            joiner.wait_for_selector("#l-seats .seat.you", state="attached", timeout=15000)
             ok = True
         except Exception:
             ok = False

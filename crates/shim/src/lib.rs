@@ -125,6 +125,10 @@ impl Game {
         self.inner.quit_run()
     }
 
+    pub fn dev_place(&mut self, at: &str) {
+        self.inner.dev_place(at)
+    }
+
     pub fn nudge_sens(&mut self, up: bool) {
         self.inner.nudge_sens(up)
     }

@@ -547,6 +547,31 @@ impl Game {
         self.finish(false);
     }
 
+    /// A developer's shortcut for looking at the map: `x,z` in metres puts a
+    /// solo raider there with the van doors open. Online runs ignore it, so
+    /// no copy can disagree because of it.
+    pub fn dev_place(&mut self, at: &str) {
+        if self.session.is_some() || self.mode != Mode::Play {
+            return;
+        }
+        let nums: Vec<i32> = at
+            .split(',')
+            .filter_map(|t| t.trim().parse::<i32>().ok())
+            .collect();
+        let (Some(run), [x, z]) = (&mut self.run, nums.as_slice()) else {
+            return;
+        };
+        let p = v3(int(*x), 0, int(*z));
+        let floor = self.map.floor_under(
+            &crate::world::Aabb::standing(v3(p.x, ONE, p.z), ONE / 3, ONE),
+            ONE,
+            &run.extra,
+        );
+        run.raiders[self.me].pos = v3(p.x, floor, p.z);
+        run.van.doors_open = true;
+        run.extra = run.van.boxes();
+    }
+
     pub fn set_sens(&mut self, pct: i32) {
         self.save.sens = pct.clamp(20, 300);
     }
@@ -686,7 +711,8 @@ impl Game {
                         gun,
                     };
                     o.send(peer, &m);
-                    o.status = "online_waiting";
+                    // "waiting" once the host's lobby, with my seat in it, arrives
+                    o.status = "online_joining";
                 }
             }
             Role::Host => {}

@@ -103,8 +103,11 @@ async function start() {
   });
   on("b-back", () => game.back());
   on("b-workshop", () => game.workshop());
+  // ?at=x,z: a developer's shortcut into the map (the core ignores it online)
+  const devAt = new URLSearchParams(location.search).get("at");
   on("b-go", () => {
     game.start_solo();
+    if (devAt) game.dev_place(devAt);
     input.capture();
   });
   on("l-start", () => {
