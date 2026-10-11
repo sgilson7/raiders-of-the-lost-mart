@@ -29,8 +29,10 @@ pub const PASS_INK: u32 = 2;
 pub const PASS_GLOW: u32 = 3;
 pub const PASSES: usize = 4;
 
-pub const NEAR: i32 = ONE / 5;
-pub const FAR: i32 = fx::int(1400);
+/// The near plane sits as far out as the camera allows: depth precision
+/// is spent near it, and walls far off flickered with it at 0.2 m.
+pub const NEAR: i32 = ONE * 3 / 10;
+pub const FAR: i32 = fx::int(900);
 
 /// The ink line is this thick on a small shape, and grows with a shape's
 /// size so a tower far off still has one.

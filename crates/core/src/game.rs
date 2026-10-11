@@ -58,6 +58,8 @@ const STARTER: &[(&str, i32)] = &[
     ("ember", 1),
 ];
 const RESULTS_AFTER: i32 = secs(2500);
+/// Frames a joiner looks for its host before saying it has not found one.
+const JOIN_PATIENCE: i32 = 60 * 20;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Mode {
@@ -135,6 +137,8 @@ pub struct Online {
     pub started: bool,
     pub sums_sent: u32,
     pub desync: Option<u32>,
+    /// ticks a joiner has looked for its host
+    pub waited: i32,
 }
 
 impl Online {
@@ -157,6 +161,7 @@ impl Online {
             started: false,
             sums_sent: 0,
             desync: None,
+            waited: 0,
         }
     }
 
@@ -1003,6 +1008,15 @@ impl Game {
         self.prev_bits = bits;
         self.pending |= edges;
         let mut due = 0u32;
+        // a joiner that finds no host says why that might be
+        if let Some(o) = &mut self.online {
+            if o.role == Role::Joiner && o.host.is_none() && o.status == "online_joining" {
+                o.waited += 1;
+                if o.waited > JOIN_PATIENCE {
+                    o.status = "online_no_host";
+                }
+            }
+        }
         while self.acc >= TICK_US {
             self.acc -= TICK_US;
             due += 1;
@@ -2295,6 +2309,28 @@ mod tests {
         assert_eq!(r.lost.len(), 1);
         assert_eq!(g.content.parts[g.build[0]].id, "pistol", "the frame is gone");
         assert_eq!(g.save.stash.get("smg"), None);
+    }
+
+    #[test]
+    fn a_joiner_on_another_build_is_told_to_reload_and_one_with_no_host_is_told_why() {
+        let mut host = game();
+        let mut join = game();
+        host.host_online("new", 5);
+        join.join_online("old", &host.room());
+        join.net_peer(9);
+        let out: Vec<(u32, String)> = serde_json::from_str(&join.net_outbox()).unwrap();
+        for (_, t) in out {
+            host.net_message(1, &t);
+        }
+        let out: Vec<(u32, String)> = serde_json::from_str(&host.net_outbox()).unwrap();
+        for (_, t) in out {
+            join.net_message(9, &t);
+        }
+        assert_eq!(join.online.as_ref().unwrap().status, "online_version");
+        let mut lonely = game();
+        lonely.join_online("b", "ABCDE");
+        frames(&mut lonely, JOIN_PATIENCE + 2, 0);
+        assert_eq!(lonely.online.as_ref().unwrap().status, "online_no_host");
     }
 
     #[test]

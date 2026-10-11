@@ -233,6 +233,46 @@ impl Map {
         self.solids.push(s);
     }
 
+    /// Removes every solid that another solid already holds entirely: two
+    /// stores side by side each build the wall between them, and two boxes
+    /// in one plane drawn in different colours flicker as the camera moves.
+    /// The first of two identical boxes stays.
+    pub fn drop_hidden_solids(&mut self) {
+        let n = self.solids.len();
+        let inside = |a: &Aabb, b: &Aabb| {
+            a.min.x >= b.min.x
+                && a.min.y >= b.min.y
+                && a.min.z >= b.min.z
+                && a.max.x <= b.max.x
+                && a.max.y <= b.max.y
+                && a.max.z <= b.max.z
+        };
+        let mut keep = vec![true; n];
+        for i in 0..n {
+            for j in 0..n {
+                if i == j || !keep[j] {
+                    continue;
+                }
+                let (a, b) = (&self.solids[i].b, &self.solids[j].b);
+                if inside(a, b) && (a != b || j < i) {
+                    keep[i] = false;
+                    break;
+                }
+            }
+        }
+        let solids: Vec<Solid> = self
+            .solids
+            .drain(..)
+            .zip(keep)
+            .filter(|(_, k)| *k)
+            .map(|(s, _)| s)
+            .collect();
+        self.cells.iter_mut().for_each(|c| c.clear());
+        for s in solids {
+            self.add(s);
+        }
+    }
+
     /// The indices of solids whose cells overlap a box (may repeat).
     fn near(&self, b: &Aabb, out: &mut Vec<u16>) {
         out.clear();
@@ -570,6 +610,31 @@ mod tests {
             ),
             int(4)
         );
+    }
+
+    #[test]
+    fn a_wall_built_twice_or_inside_another_is_dropped() {
+        let mut m = boxy();
+        let wall = Solid {
+            b: Aabb::new(v3(int(5), 0, -int(5)), v3(int(6), int(4), int(5))),
+            rgb: [ONE; 3],
+            look: Look::Plain,
+            open: false,
+        };
+        m.add(wall);
+        let small = Solid {
+            b: Aabb::new(v3(int(5), 0, 0), v3(int(6), int(2), int(1))),
+            ..wall
+        };
+        m.add(small);
+        m.add(Solid {
+            b: Aabb::new(v3(int(20), 0, 0), v3(int(21), int(2), int(1))),
+            ..wall
+        });
+        m.drop_hidden_solids();
+        assert_eq!(m.solids.len(), 2, "the first copy and the separate box stay");
+        assert_eq!(m.solids[0].rgb, [0; 3], "the first of two identical boxes stays");
+        assert!(m.blocked(&Aabb::standing(v3(int(5) + ONE / 2, 0, 0), ONE / 4, ONE), &[]));
     }
 
     #[test]

@@ -9,6 +9,8 @@ export const CONFIG = {
   // public relays. The room name adds the build hash and the room code, so
   // two builds of the game cannot meet.
   appId: "raiders-lost-mart-p2p",
+  // Part of every room's name; bumped only when online play changes shape.
+  protocol: "rlm1",
   // Encrypts the session descriptions as they cross a relay this project
   // does not run. Not a secret: it ships in this file. Game traffic is
   // DTLS-encrypted end to end regardless.

@@ -75,7 +75,7 @@
  "online_waiting": "In the lobby. The host starts the run.",
  "online_playing": "In a run.",
  "online_full": "That room is full or already riding out.",
- "online_version": "The host is on a different build. Reload both pages.",
+ "online_version": "You and the host have different versions of the game. Both of you reload the page (Ctrl+Shift+R, or Cmd+Shift+R on a Mac), then try again.",
  "online_host_left": "The host has gone.",
  "online_left": "Left.",
  "online_no_relay": "Could not reach the public relays. Try joining by pasted invitation.",
@@ -339,5 +339,6 @@
  "piece_wing": "wing",
  "state_disarmed": "disarmed",
  "state_lame": "can't walk",
- "state_crippled": "crippled"
+ "state_crippled": "crippled",
+ "online_no_host": "No host found with that code yet. Check the code with the host, and make sure everyone has reloaded the page recently so you all have the same version. It keeps looking."
 }

@@ -177,7 +177,11 @@ export function open({ isHost, mode, room, build, onPeer, onLeft, onMessage, onE
       return;
     }
     if (s.closed) return;
-    const name = `${build}-${room}`;
+    // The room is named by the protocol, not the build: two builds a deploy
+    // apart still meet, and the host's hello check turns a mismatched one
+    // away with a sentence. (Named by build, a friend with a page cached
+    // from an earlier deploy looked for another room and waited for ever.)
+    const name = `${CONFIG.protocol}-${room}`;
     let r;
     try {
       r = lib.joinRoom({ appId: CONFIG.appId, password: CONFIG.password, rtcConfig: rtcConfig(), relayConfig: CONFIG.relayConfig }, name, {

@@ -91,7 +91,8 @@ pub fn map_scene(map: &Map, b: &mut Batch) {
 fn facades(b: &mut Batch, lo: V3, hi: V3, rgb: Rgb) {
     let h = hi.y - lo.y;
     let mid_y = (lo.y + hi.y) / 2;
-    let out = cm(3);
+    // far enough off the wall that the windows do not flicker against it
+    let out = cm(7);
     let lit = mix(rgb, [ONE, ONE * 9 / 10, ONE * 6 / 10], ONE / 2);
     let faces = [
         (

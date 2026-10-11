@@ -32,6 +32,12 @@ const fn m(whole: i32, tenths: i32) -> i32 {
     whole * ONE + tenths * ONE / 10
 }
 
+/// A roof's thickness: a wall that stands on a roof starts at its top.
+const ROOF_T: i32 = ONE * 6 / 10;
+
+/// The height every indoor floor is drawn at, clear of the ground under it.
+const FLOOR_Y: i32 = ONE * 4 / 100;
+
 /// Centimetres.
 const fn cm(n: i32) -> i32 {
     n * ONE / 100
@@ -249,9 +255,15 @@ impl<'a> B<'a> {
         self.wall_z(zf0, xa, xb, 0, mm(STORE_H), &[], 0, wall_c, Look::Plain);
         self.wall_z(zf1, xa, xb, 0, mm(STORE_H), &[], 0, wall_c, Look::Plain);
         self.wall_x(back, zf0, zf1, 0, mm(STORE_H), &[], 0, "stucco_dark", Look::Plain);
+        // the roof stops at the front wall rather than running into it
+        let (ra, rb) = if side > 0 {
+            (xa + WALL_T / 2, xb)
+        } else {
+            (xa, xb - WALL_T / 2)
+        };
         self.solid(
-            v3(xa, mm(STORE_H), zf0),
-            v3(xb, mm(STORE_H) + m(0, 6), zf1),
+            v3(ra, mm(STORE_H), zf0),
+            v3(rb, mm(STORE_H) + m(0, 6), zf1),
             "roof",
             Look::Flat,
         );
@@ -268,7 +280,8 @@ impl<'a> B<'a> {
             wall_c,
             Look::Plain,
         );
-        let sx = front - side * m(0, 3);
+        // a hand's breadth off the lintel's face, so the two do not flicker
+        let sx = front - side * cm(36);
         self.solid(
             v3(sx - m(0, 1), DOOR_H + m(0, 2), cz - int(4)),
             v3(sx + m(0, 1), DOOR_H + m(1, 0), cz + int(4)),
@@ -281,7 +294,7 @@ impl<'a> B<'a> {
         } else {
             "carpet"
         };
-        self.patch(xa, zf0, xb, zf1, ONE / 50, floor);
+        self.patch(xa, zf0, xb, zf1, FLOOR_Y, floor);
         self.zone(
             key,
             (HALL * side).min(STORE_BACK * side),
@@ -493,7 +506,9 @@ impl<'a> B<'a> {
 
     fn concourse(&mut self) {
         // floor and the upper storefronts above the stores' roofs
-        self.patch(-mm(HALL), -int(120), mm(HALL), int(120), ONE / 50, "tile");
+        // the court has its own floor: two floors in one plane flicker
+        self.patch(-mm(HALL), -int(120), mm(HALL), -int(16), FLOOR_Y, "tile");
+        self.patch(-mm(HALL), int(16), mm(HALL), int(120), FLOOR_Y, "tile");
         for side in [-1, 1] {
             let x = mm(HALL) * side;
             for (z0, z1) in [(-120, -16), (16, 120)] {
@@ -505,9 +520,11 @@ impl<'a> B<'a> {
                 );
                 // the balcony and its railing
                 let xi = mm(BALC_IN) * side;
+                // the balcony stops at the face of the wall behind it
+                let xw = (mm(HALL) - WALL_T / 2) * side;
                 self.solid(
-                    v3(xi.min(x), BALC_Y - BALC_T, mm(z0)),
-                    v3(xi.max(x), BALC_Y, mm(z1)),
+                    v3(xi.min(xw), BALC_Y - BALC_T, mm(z0)),
+                    v3(xi.max(xw), BALC_Y, mm(z1)),
                     "stucco_trim",
                     Look::Plain,
                 );
@@ -604,18 +621,20 @@ impl<'a> B<'a> {
 
     fn centre_court(&mut self) {
         let (x0, x1, z0, z1) = (-24, 24, -16, 16);
-        self.patch(mm(x0), mm(z0), mm(x1), mm(z1), ONE / 50, "court");
+        self.patch(mm(x0), mm(z0), mm(x1), mm(z1), FLOOR_Y, "court");
         // north and south walls beside the concourse mouth, and the west wall
         // with the wing corridor's mouth
+        // (the stores' own side walls stand below the stores' roofs: two walls
+        // in one plane in different colours flicker, so these start above them)
         for z in [z0, z1] {
             self.wall_z(
                 mm(z),
                 mm(x0),
                 mm(x1),
-                0,
+                mm(STORE_H) + ROOF_T,
                 mm(14),
                 &[(-mm(HALL), mm(HALL))],
-                mm(HALL_H),
+                mm(HALL_H) + ROOF_T,
                 "stucco",
                 Look::Plain,
             );
@@ -627,7 +646,7 @@ impl<'a> B<'a> {
             0,
             mm(14),
             &[(-int(6), int(6))],
-            int(8),
+            int(8) + ROOF_T,
             "stucco",
             Look::Plain,
         );
@@ -636,7 +655,7 @@ impl<'a> B<'a> {
             mm(x1),
             mm(z0),
             mm(z1),
-            int(9),
+            int(9) + ROOF_T,
             mm(14),
             &[],
             0,
@@ -784,9 +803,22 @@ impl<'a> B<'a> {
 
     fn food_court(&mut self) {
         let (x0, x1, z0, z1) = (24, 64, -16, 16);
-        self.patch(mm(x0), mm(z0), mm(x1), mm(z1), ONE / 50, "tile_dark");
-        self.wall_z(mm(z0), mm(x0), mm(x1), 0, int(9), &[], 0, "stucco", Look::Plain);
-        self.wall_z(mm(z1), mm(x0), mm(x1), 0, int(9), &[], 0, "stucco", Look::Plain);
+        self.patch(mm(x0), mm(z0), mm(x1), mm(z1), FLOOR_Y, "tile_dark");
+        // west of x 33 the east stores' side walls stand to their roofs
+        for z in [z0, z1] {
+            self.wall_z(mm(z), int(33), mm(x1), 0, int(9), &[], 0, "stucco", Look::Plain);
+            self.wall_z(
+                mm(z),
+                mm(x0),
+                int(33),
+                mm(STORE_H) + ROOF_T,
+                int(9),
+                &[],
+                0,
+                "stucco",
+                Look::Plain,
+            );
+        }
         self.wall_x(
             mm(x1),
             mm(z0),
@@ -880,7 +912,7 @@ impl<'a> B<'a> {
 
     fn west_wing(&mut self) {
         let (x0, x1) = (-60, -24);
-        self.patch(mm(x0), -int(6), mm(x1), int(6), ONE / 50, "tile");
+        self.patch(mm(x0), -int(6), mm(x1), int(6), FLOOR_Y, "tile");
         self.wall_z(-int(6), mm(x0), mm(x1), 0, int(8), &[], 0, "stucco", Look::Plain);
         self.wall_z(int(6), mm(x0), mm(x1), 0, int(8), &[], 0, "stucco", Look::Plain);
         self.solid(
@@ -907,10 +939,11 @@ impl<'a> B<'a> {
         z1: i32,
         band: &str,
         doors: &[(char, i32, i32)],
+        inner: char,
     ) {
         let h = int(10);
         let (fx0, fz0, fx1, fz1) = (mm(x0), mm(z0), mm(x1), mm(z1));
-        self.patch(fx0, fz0, fx1, fz1, ONE / 50, "tile_dark");
+        self.patch(fx0, fz0, fx1, fz1, FLOOR_Y, "tile_dark");
         let gaps = |side: char| -> Vec<(i32, i32)> {
             doors
                 .iter()
@@ -923,8 +956,9 @@ impl<'a> B<'a> {
         self.wall_x(fx0, fz0, fz1, 0, h, &gaps('w'), int(5), "stucco", Look::Plain);
         self.wall_x(fx1, fz0, fz1, 0, h, &gaps('e'), int(5), "stucco", Look::Plain);
         self.solid(v3(fx0, h, fz0), v3(fx1, h + m(0, 8), fz1), "roof", Look::Flat);
-        // the store's colour band round the top of the outside
-        for (a, b) in [
+        // the store's colour band round the top of the outside: not on the
+        // side that faces into the mall
+        for (side, (a, b)) in ['n', 's', 'w', 'e'].into_iter().zip([
             (
                 v3(fx0 - m(0, 3), h - int(2), fz0 - m(0, 3)),
                 v3(fx1 + m(0, 3), h - int(1), fz0),
@@ -935,8 +969,10 @@ impl<'a> B<'a> {
             ),
             (v3(fx0 - m(0, 3), h - int(2), fz0), v3(fx0, h - int(1), fz1)),
             (v3(fx1, h - int(2), fz0), v3(fx1 + m(0, 3), h - int(1), fz1)),
-        ] {
-            self.solid(a, b, band, Look::Plain);
+        ]) {
+            if side != inner {
+                self.solid(a, b, band, Look::Plain);
+            }
         }
         // racks and counters in a grid, every other one a container
         let mut rng = Rng::new((x0 * 7 + z0 * 13) as u64);
@@ -1020,29 +1056,22 @@ impl<'a> B<'a> {
 
     fn main_street(&mut self) {
         // the corridor from the concourse out to the street
-        self.patch(mm(HALL), int(80), int(40), int(96), ONE / 50, "tile");
-        self.wall_z(
-            int(80),
-            mm(HALL),
-            int(40),
-            0,
-            int(7),
-            &[],
-            0,
-            "stucco",
-            Look::Plain,
-        );
-        self.wall_z(
-            int(96),
-            mm(HALL),
-            int(40),
-            0,
-            int(7),
-            &[],
-            0,
-            "stucco",
-            Look::Plain,
-        );
+        self.patch(mm(HALL), int(80), int(40), int(96), FLOOR_Y, "tile");
+        // the stores beside it give its walls up to their roofs
+        for z in [int(80), int(96)] {
+            self.wall_z(z, int(33), int(40), 0, int(7), &[], 0, "stucco", Look::Plain);
+            self.wall_z(
+                z,
+                mm(HALL),
+                int(33),
+                mm(STORE_H) + ROOF_T,
+                int(7),
+                &[],
+                0,
+                "stucco",
+                Look::Plain,
+            );
+        }
         self.wall_x(
             mm(HALL),
             int(80),
@@ -1078,15 +1107,17 @@ impl<'a> B<'a> {
             (134, 180, "wallF", 14),
         ];
         for (row, x0, x1) in [(&west, 40, 58), (&east, 82, 100)] {
+            // the west row stands a little off the department store beside it
+            let off = if x0 == 40 { m(0, 6) } else { 0 };
             for (z0, z1, c, h) in row.iter() {
                 self.solid(
-                    v3(mm(x0), 0, mm(*z0)),
+                    v3(mm(x0) + off, 0, mm(*z0)),
                     v3(mm(x1), mm(*h), mm(*z1)),
                     c,
                     Look::Facade,
                 );
                 self.solid(
-                    v3(mm(x0) - m(0, 3), mm(*h), mm(*z0) - m(0, 3)),
+                    v3(mm(x0) + off - m(0, 3), mm(*h), mm(*z0) - m(0, 3)),
                     v3(mm(x1) + m(0, 3), mm(*h) + m(0, 6), mm(*z1) + m(0, 3)),
                     "stucco_trim",
                     Look::Plain,
@@ -1470,6 +1501,7 @@ pub fn build(pal: &Palette) -> Map {
         -120,
         "sign_e",
         &[('n', -6, 6), ('s', -7, 7)],
+        's',
     );
     b.anchor(
         "southanchor",
@@ -1479,6 +1511,7 @@ pub fn build(pal: &Palette) -> Map {
         170,
         "sign_b",
         &[('s', -6, 6), ('n', -7, 7)],
+        'n',
     );
     b.anchor(
         "westanchor",
@@ -1488,6 +1521,7 @@ pub fn build(pal: &Palette) -> Map {
         40,
         "sign_d",
         &[('w', -5, 5), ('e', -6, 6)],
+        'e',
     );
     b.mission_spot("hive", v3(-int(85), 0, 0), "westanchor");
     b.main_street();
@@ -1495,6 +1529,7 @@ pub fn build(pal: &Palette) -> Map {
     b.entrances();
     let mut rng = std::mem::replace(&mut b.rng, Rng::new(0));
     b.lots(&mut rng);
+    b.map.drop_hidden_solids();
     b.map.link_nodes(int(26));
     b.map
 }
@@ -1538,6 +1573,59 @@ pub(crate) mod tests {
             // the van's spot is far out: the mall is a walk away
             assert!(e.van.dist(e.door) > int(90), "{}", e.key);
         }
+    }
+
+    /// Pairs of visible faces in one plane, facing the same way, overlapping,
+    /// in different colours: what flickers as the camera moves.
+    pub fn flickering(m: &Map) -> Vec<String> {
+        use crate::world::Look;
+        let shown: Vec<_> = m.solids.iter().filter(|s| s.look != Look::Hidden).collect();
+        let mut out = Vec::new();
+        let lo = |b: &crate::world::Aabb, a: usize| [b.min.x, b.min.y, b.min.z][a];
+        let hi = |b: &crate::world::Aabb, a: usize| [b.max.x, b.max.y, b.max.z][a];
+        for i in 0..shown.len() {
+            for j in i + 1..shown.len() {
+                let (a, b) = (&shown[i].b, &shown[j].b);
+                if shown[i].rgb == shown[j].rgb {
+                    continue;
+                }
+                for axis in 0..3 {
+                    let (u, v) = ((axis + 1) % 3, (axis + 2) % 3);
+                    let overlap = |k: usize| hi(a, k).min(hi(b, k)) - lo(a, k).max(lo(b, k));
+                    if overlap(u) <= 0 || overlap(v) <= 0 {
+                        continue;
+                    }
+                    // big enough to see, and not the undersides on the ground
+                    let area = (overlap(u) as i64 * overlap(v) as i64) >> 16;
+                    let on_ground = axis == 1 && lo(a, 1) <= 0 && lo(b, 1) <= 0 && hi(a, 1) != hi(b, 1);
+                    if area < (ONE / 4) as i64 || on_ground {
+                        continue;
+                    }
+                    if lo(a, axis) == lo(b, axis) || hi(a, axis) == hi(b, axis) {
+                        let f = |b: &crate::world::Aabb| {
+                            format!(
+                                "[{},{},{}..{},{},{}]",
+                                (b.min.x * 10) >> 16,
+                                (b.min.y * 10) >> 16,
+                                (b.min.z * 10) >> 16,
+                                (b.max.x * 10) >> 16,
+                                (b.max.y * 10) >> 16,
+                                (b.max.z * 10) >> 16
+                            )
+                        };
+                        out.push(format!("axis {axis} {} {}", f(a), f(b)));
+                    }
+                }
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn no_two_walls_share_a_face_in_different_colours() {
+        let m = map();
+        let f = flickering(&m);
+        assert!(f.is_empty(), "{} faces fight: {:?}", f.len(), f);
     }
 
     #[test]
