@@ -22,6 +22,37 @@ function partIcon(id, copy) {
 }
 
 export function makeHud(copy) {
+  // A drone's health bar: its name, how much health it has left, a pip for
+  // each breakable part (dark once torn off), and what losing them did.
+  function healthBar(d, m) {
+    if (m.low) d.classList.add("low");
+    if (m.aimed) d.classList.add("aimed");
+    const name = document.createElement("div");
+    name.className = "bar-name";
+    name.textContent = copy[m.name] || "";
+    const bar = document.createElement("div");
+    bar.className = "bar thin";
+    const fillBar = document.createElement("span");
+    fillBar.style.width = m.hp;
+    bar.append(fillBar);
+    const pips = document.createElement("div");
+    pips.className = "pips";
+    for (const [kind, on] of m.parts) {
+      const pip = document.createElement("span");
+      pip.className = "pip " + kind + (on ? "" : " gone");
+      pip.title = copy["piece_" + kind] || kind;
+      pips.append(pip);
+    }
+    d.append(name, bar, pips);
+    if (m.state.length) {
+      const state = document.createElement("div");
+      state.className = "bar-state";
+      state.textContent = m.state.map((k) => copy[k]).join(" · ");
+      d.append(state);
+    }
+    return d;
+  }
+
   const markers = el("markers");
   let shownPack = "";
   let shownTeam = "";
@@ -109,6 +140,13 @@ export function makeHud(copy) {
         d.className = "marker " + m.kind + (m.off ? " off" : "");
         d.style.left = m.x;
         d.style.top = m.y;
+        if (m.kind === "health") return healthBar(d, m);
+        if (m.kind === "pop") {
+          d.classList.add(m.cls);
+          d.textContent = m.text.startsWith("off_") ? copy[m.text] : m.text;
+          d.style.opacity = m.fade;
+          return d;
+        }
         const label = copy["marker_" + m.kind];
         if (m.kind !== "weak") d.textContent = (label ? label + " · " : "") + m.dist;
         return d;

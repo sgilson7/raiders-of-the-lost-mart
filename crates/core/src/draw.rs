@@ -360,9 +360,10 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
     let sz = |x: i32, y: i32, z: i32| v3(cm(x), cm(y), cm(z));
     let spin = (tick as i32 * deg(47)) & (fx::TURN - 1);
     let weak_pulse = ONE / 2 + fx::sin((tick as i32 * deg(9)) & (fx::TURN - 1)) / 4;
+    let has = |i: usize| d.pieces[i] > 0;
     b.bold = true;
     let rotor = |b: &mut Batch, i: usize, x: i32, y: i32, z: i32, r: i32| {
-        if d.rotors[i] <= 0 {
+        if d.pieces[i] <= 0 {
             // a stump where it was
             put(
                 b,
@@ -409,16 +410,18 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
             for k in [-20, 0, 20] {
                 put(b, Mesh::Cube, &base, at(0, 6, k), sz(64, 6, 7), c.dark, 0, false);
             }
-            put(
-                b,
-                Mesh::Wedge,
-                &base,
-                at(0, 0, -30),
-                sz(50, 38, 20),
-                c.armour,
-                0,
-                true,
-            );
+            if has(4) {
+                put(
+                    b,
+                    Mesh::Wedge,
+                    &base,
+                    at(0, 0, -30),
+                    sz(50, 38, 20),
+                    c.armour,
+                    0,
+                    true,
+                );
+            }
             put(
                 b,
                 Mesh::Sphere,
@@ -440,16 +443,18 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
                 true,
             );
             for x in [-8, 8] {
-                segment(
-                    b,
-                    Mesh::Cube,
-                    base.apply(at(x, -22, -20)),
-                    base.apply(at(x, -22, -50)),
-                    cm(5),
-                    c.dark,
-                    0,
-                    true,
-                );
+                if has(5) {
+                    segment(
+                        b,
+                        Mesh::Cube,
+                        base.apply(at(x, -22, -20)),
+                        base.apply(at(x, -22, -50)),
+                        cm(5),
+                        c.dark,
+                        0,
+                        true,
+                    );
+                }
             }
             for (i, (x, z)) in [(-44, -44), (44, -44), (-44, 44), (44, 44)]
                 .into_iter()
@@ -471,27 +476,31 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
         Kind::Moth => {
             put(b, Mesh::Sphere, &base, at(0, 0, 0), sz(54, 40, 70), body, 0, true);
             for side in [-1, 1] {
-                put(
-                    b,
-                    Mesh::Cube,
-                    &base,
-                    at(side * 78, 6, 0),
-                    sz(92, 5, 66),
-                    c.dark,
-                    0,
-                    true,
-                );
-                for k in [-20, 0, 20] {
+                if has(if side < 0 { 4 } else { 5 }) {
                     put(
                         b,
                         Mesh::Cube,
                         &base,
-                        at(side * 78, 9, k),
-                        sz(84, 2, 3),
-                        shade(c.dark, 70),
+                        at(side * 78, 6, 0),
+                        sz(92, 5, 66),
+                        c.dark,
                         0,
-                        false,
+                        true,
                     );
+                }
+                for k in [-20, 0, 20] {
+                    if has(if side < 0 { 4 } else { 5 }) {
+                        put(
+                            b,
+                            Mesh::Cube,
+                            &base,
+                            at(side * 78, 9, k),
+                            sz(84, 2, 3),
+                            shade(c.dark, 70),
+                            0,
+                            false,
+                        );
+                    }
                 }
             }
             put(
@@ -505,17 +514,19 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
                 true,
             );
             let blink = if tick % 40 < 20 { ONE } else { ONE / 5 };
-            put(
-                b,
-                Mesh::Sphere,
-                &base,
-                at(0, 32, -10),
-                sz(14, 14, 14),
-                c.beacon,
-                blink,
-                true,
-            );
-            if tick % 40 < 20 {
+            if has(6) {
+                put(
+                    b,
+                    Mesh::Sphere,
+                    &base,
+                    at(0, 32, -10),
+                    sz(14, 14, 14),
+                    c.beacon,
+                    blink,
+                    true,
+                );
+            }
+            if tick % 40 < 20 && has(6) {
                 glow_ball(b, base.apply(at(0, 32, -10)), cm(40), c.beacon, ONE / 2);
             }
             for (i, (x, z)) in [(-60, -30), (60, -30), (-60, 30), (60, 30)]
@@ -558,16 +569,18 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
                 0,
                 true,
             );
-            put(
-                b,
-                Mesh::Wedge,
-                &base,
-                at(0, 6, -40),
-                sz(36, 30, 24),
-                c.armour,
-                0,
-                true,
-            );
+            if has(2) {
+                put(
+                    b,
+                    Mesh::Wedge,
+                    &base,
+                    at(0, 6, -40),
+                    sz(36, 30, 24),
+                    c.armour,
+                    0,
+                    true,
+                );
+            }
             for side in [-1, 1] {
                 put(
                     b,
@@ -580,38 +593,44 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
                     true,
                 );
             }
-            segment(
-                b,
-                Mesh::Cyl,
-                base.apply(at(0, -8, -30)),
-                base.apply(at(0, -8, -95)),
-                cm(8),
-                c.dark,
-                0,
-                true,
-            );
+            if has(3) {
+                segment(
+                    b,
+                    Mesh::Cyl,
+                    base.apply(at(0, -8, -30)),
+                    base.apply(at(0, -8, -95)),
+                    cm(8),
+                    c.dark,
+                    0,
+                    true,
+                );
+            }
             let charging = d.brain.charge > 0;
             let lens = if charging { ONE } else { ONE / 3 };
-            put(
-                b,
-                Mesh::Sphere,
-                &base,
-                at(0, -8, -98),
-                sz(16, 16, 10),
-                c.laser,
-                lens,
-                true,
-            );
-            put(
-                b,
-                Mesh::Ring,
-                &base,
-                at(0, -8, -96),
-                sz(22, 8, 22),
-                c.weak,
-                weak_pulse,
-                false,
-            );
+            if has(3) {
+                put(
+                    b,
+                    Mesh::Sphere,
+                    &base,
+                    at(0, -8, -98),
+                    sz(16, 16, 10),
+                    c.laser,
+                    lens,
+                    true,
+                );
+            }
+            if has(3) {
+                put(
+                    b,
+                    Mesh::Ring,
+                    &base,
+                    at(0, -8, -96),
+                    sz(22, 8, 22),
+                    c.weak,
+                    weak_pulse,
+                    false,
+                );
+            }
             rotor(b, 0, 0, 28, -40, 30);
             rotor(b, 1, 0, 28, 85, 30);
             if charging {
@@ -635,27 +654,55 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
                 0,
                 true,
             );
-            put(
-                b,
-                Mesh::Cube,
-                &base,
-                at(0, 30, -70),
-                sz(120, 30, 30),
-                c.armour,
-                0,
-                true,
-            );
-            for k in [-30, 0, 30] {
+            if has(4) {
                 put(
                     b,
                     Mesh::Cube,
                     &base,
-                    at(k, -40, 0),
-                    sz(18, 30, 140),
+                    at(0, 30, -70),
+                    sz(120, 30, 30),
                     c.armour,
                     0,
                     true,
                 );
+            }
+            for k in [-30, 0, 30] {
+                if has(5) {
+                    put(
+                        b,
+                        Mesh::Cube,
+                        &base,
+                        at(k, -40, 0),
+                        sz(18, 30, 140),
+                        c.armour,
+                        0,
+                        true,
+                    );
+                }
+            }
+            if has(6) {
+                put(
+                    b,
+                    Mesh::Cube,
+                    &base,
+                    at(0, -30, -92),
+                    sz(36, 22, 30),
+                    c.dark,
+                    0,
+                    true,
+                );
+                for x in [-10, 10] {
+                    segment(
+                        b,
+                        Mesh::Cyl,
+                        base.apply(at(x, -32, -100)),
+                        base.apply(at(x, -32, -135)),
+                        cm(8),
+                        c.dark,
+                        0,
+                        true,
+                    );
+                }
             }
             put(
                 b,
@@ -703,7 +750,7 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
                     0,
                     true,
                 );
-                if d.rotors[i] > 0 {
+                if d.pieces[i] > 0 {
                     put(
                         b,
                         Mesh::Ring,
@@ -724,7 +771,10 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
             let s = |n: i32| n * k / 100;
             let ride = if big { 150 } else { 45 };
             let bob = fx::sin(d.gait * 2) * cm(s(4)) / ONE;
-            let core = base.then(&Affine::translate(v3(0, cm(ride) + bob, 0)));
+            // a walker short of legs on one side sits tilted toward it
+            let core = base
+                .then(&Affine::translate(v3(0, cm(ride) + bob, 0)))
+                .then(&Affine::rot_z(-d.lean.1));
             if big {
                 put(
                     b,
@@ -736,16 +786,18 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
                     0,
                     true,
                 );
-                put(
-                    b,
-                    Mesh::Cube,
-                    &core,
-                    at(0, 50, -30),
-                    sz(130, 20, 130),
-                    c.armour,
-                    0,
-                    true,
-                );
+                if has(7) {
+                    put(
+                        b,
+                        Mesh::Cube,
+                        &core,
+                        at(0, 50, -30),
+                        sz(130, 20, 130),
+                        c.armour,
+                        0,
+                        true,
+                    );
+                }
                 put(
                     b,
                     Mesh::Sphere,
@@ -756,17 +808,19 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
                     weak_pulse,
                     true,
                 );
-                put(
-                    b,
-                    Mesh::Cyl,
-                    &core,
-                    at(0, 85, -25),
-                    sz(64, 40, 64),
-                    c.armour,
-                    0,
-                    true,
-                );
-                for x in [-12, 12] {
+                if has(6) {
+                    put(
+                        b,
+                        Mesh::Cyl,
+                        &core,
+                        at(0, 85, -25),
+                        sz(64, 40, 64),
+                        c.armour,
+                        0,
+                        true,
+                    );
+                }
+                for x in [-12, 12].into_iter().filter(|_| has(6)) {
                     segment(
                         b,
                         Mesh::Cyl,
@@ -801,16 +855,18 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
                     0,
                     true,
                 );
-                put(
-                    b,
-                    Mesh::Cyl,
-                    &core,
-                    at(0, -12, 0),
-                    sz(86, 14, 86),
-                    c.armour,
-                    0,
-                    true,
-                );
+                if has(6) {
+                    put(
+                        b,
+                        Mesh::Cyl,
+                        &core,
+                        at(0, -12, 0),
+                        sz(86, 14, 86),
+                        c.armour,
+                        0,
+                        true,
+                    );
+                }
                 put(
                     b,
                     Mesh::Sphere,
@@ -857,6 +913,12 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
                     cm(row * s(70)) + stride / 2,
                 ));
                 let w = cm(s(12)).max(cm(4));
+                if !has(leg as usize) {
+                    // a stump at the hip where the leg was torn off
+                    let stub = hip.lerp(knee, ONE / 5);
+                    segment(b, Mesh::Cube, hip, stub, w, c.dark, 0, true);
+                    continue;
+                }
                 segment(b, Mesh::Cube, hip, knee, w, c.dark, 0, true);
                 segment(b, Mesh::Cube, knee, foot, w * 8 / 10, c.armour, 0, true);
             }

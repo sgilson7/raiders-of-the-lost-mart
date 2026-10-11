@@ -186,7 +186,7 @@
    "sound on / off"
   ]
  ],
- "help_text": "Every gun is built from six parts. The barrels you see on screen are where the shots come from. Shoot drones in their glowing cyan weak spots; grey armour soaks up most of a hit. Goo eats armour. Shoot a rotor off and a drone drops. Whatever you carry back to the van is yours.",
+ "help_text": "Every gun is built from six parts. The barrels you see on screen are where the shots come from. Shoot drones in their glowing cyan weak spots; grey armour soaks up most of a hit. Every drone has parts you can tear off: rotors, armour plates, guns, legs, wings. A drone changes when it loses them: shoot its guns off and a wasp or warden rams you and a hornet runs; shoot a rotor off and a flyer sags and drifts; take a strider's legs and it limps, then plants itself as a turret. Goo eats armour. Whatever you carry back to the van is yours.",
  "help_drones": "The drones",
  "drone_wasp": "Wasp",
  "drone_wasp_about": "Fast. Circles you and fires in bursts. Battery on its back.",
@@ -324,5 +324,20 @@
  "part_skeleton_about": "Light: you run faster.",
  "part_brace": "Brace",
  "part_brace_about": "Barely kicks. Heavy.",
- "btn_host_code": "Host by pasted invitations"
+ "btn_host_code": "Host by pasted invitations",
+ "off_rotor": "ROTOR OFF",
+ "off_plate": "PLATE OFF",
+ "off_gun": "DISARMED",
+ "off_leg": "LEG OFF",
+ "off_beacon": "BEACON OFF",
+ "off_wing": "WING OFF",
+ "piece_rotor": "rotor",
+ "piece_plate": "armour plate",
+ "piece_gun": "gun",
+ "piece_leg": "leg",
+ "piece_beacon": "beacon",
+ "piece_wing": "wing",
+ "state_disarmed": "disarmed",
+ "state_lame": "can't walk",
+ "state_crippled": "crippled"
 }

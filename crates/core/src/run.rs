@@ -9,7 +9,7 @@
 use crate::ai::{self, Ctx, Order, Seen};
 use crate::balance::*;
 use crate::content::{Cat, Content, Effect, Goal, ShotKind};
-use crate::drone::{self, Drone, Kind, State, Zone};
+use crate::drone::{self, Drone, Kind, PieceKind, State, Zone};
 use crate::fx::{self, deg, int, ONE};
 use crate::geom::{facing, right_of, v3, yaw_pitch_of, V3};
 use crate::gun::{Build, Gun};
@@ -182,14 +182,21 @@ pub enum Event {
     Spark {
         at: V3,
     },
+    /// a shot landed on a drone (or the hive, drone `u16::MAX`), doing `dealt`
     Hit {
         at: V3,
         weak: bool,
         armour: bool,
         by: u8,
+        dealt: i32,
+        drone: u16,
     },
-    RotorOff {
+    /// a part was torn off a drone and falls away
+    PieceOff {
         at: V3,
+        kind: PieceKind,
+        drone: u16,
+        by: u8,
     },
     Boom {
         at: V3,
@@ -1141,6 +1148,24 @@ impl Run {
                     self.drop_loot(r, k);
                 }
             }
+            Order::Ram => {
+                let d = &self.drones[k];
+                let at = d.centre();
+                let Some(t) = d.brain.target.map(|t| t as usize) else {
+                    return;
+                };
+                if t < self.raiders.len() && self.raiders[t].life.active() {
+                    let away = self.raiders[t].pos.sub(at).norm();
+                    self.raiders[t].vel = self.raiders[t].vel.add(v3(away.x, ONE / 3, away.z).scale(int(5)));
+                    self.hurt_raider(t, def.damage * 4 + 6);
+                }
+                // it bounces back off, shaken
+                let d = &mut self.drones[k];
+                d.vel = d.vel.neg().scale(ONE / 2).add(v3(0, int(2), 0));
+                d.spin += deg(90);
+                d.lean_v.0 -= deg(10);
+                self.events.push(Event::Stomp { at });
+            }
             Order::Stomp => {
                 let at = self.drones[k].pos;
                 for j in 0..self.raiders.len() {
@@ -1343,14 +1368,22 @@ impl Run {
         let def = &c.drones[self.drones[j].def];
         let s = self.drones[j].strike(def, z, dmg, dir, at, who);
         self.drones[j].apply_effect(e, power, who);
+        let plated = matches!(z, Zone::Piece(i) if matches!(drone::pieces(self.drones[j].kind)[i].kind, PieceKind::Plate | PieceKind::Wing));
         self.events.push(Event::Hit {
             at,
             weak: z == Zone::Weak,
-            armour: z == Zone::Armour,
+            armour: z == Zone::Armour || plated,
             by: who,
+            dealt: s.dealt,
+            drone: j as u16,
         });
-        if s.rotor_lost {
-            self.events.push(Event::RotorOff { at });
+        if let Some((_, kind)) = s.lost {
+            self.events.push(Event::PieceOff {
+                at,
+                kind,
+                drone: j as u16,
+                by: who,
+            });
         }
         if s.killed {
             self.kill(j, who);
@@ -1410,16 +1443,21 @@ impl Run {
                     weak: true,
                     armour: false,
                     by: who,
+                    dealt: dmg,
+                    drone: u16::MAX,
                 });
             }
             None => {
                 let open = h.pods.iter().all(|p| *p <= 0);
-                h.hp -= if open { dmg } else { dmg / 10 };
+                let dealt = if open { dmg } else { dmg / 10 };
+                h.hp -= dealt;
                 self.events.push(Event::Hit {
                     at,
                     weak: open,
                     armour: !open,
                     by: who,
+                    dealt,
+                    drone: u16::MAX,
                 });
             }
         }
@@ -1464,6 +1502,23 @@ impl Run {
                     let def = &c.drones[d.def];
                     let s = self.drones[j].strike(def, Zone::Body, fx::mul(dmg, fall), dir, centre, who);
                     self.drones[j].apply_effect(e, power, who);
+                    self.events.push(Event::Hit {
+                        at: centre,
+                        weak: false,
+                        armour: false,
+                        by: who,
+                        dealt: s.dealt,
+                        drone: j as u16,
+                    });
+                    // a blast tears at every part near it, not only the one it hit
+                    for (part_at, kind) in self.drones[j].blast(at, radius, dmg) {
+                        self.events.push(Event::PieceOff {
+                            at: part_at,
+                            kind,
+                            drone: j as u16,
+                            by: who,
+                        });
+                    }
                     if s.killed {
                         self.kill(j, who);
                     }

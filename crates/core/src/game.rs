@@ -7,6 +7,7 @@
 use crate::balance::*;
 use crate::content::{Cat, Content, Goal, Rgb};
 use crate::draw::{self, DroneColours, Particle};
+use crate::drone::PieceKind;
 use crate::fx::{self, deg, int, ONE};
 use crate::geom::{facing, right_of, v3, yaw_pitch_of, Affine, V3};
 use crate::gun::{self, Build, Gun};
@@ -177,6 +178,22 @@ impl Online {
     }
 }
 
+/// A number or a word rising off something hit, then fading.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Popup {
+    pub at: V3,
+    /// the damage, or a copy key (`off_rotor`)
+    pub text: String,
+    pub cls: &'static str,
+    pub life: i32,
+}
+
+const POPUP_LIFE: i32 = secs(900);
+/// A drone's bar shows this long after you hit it, and this long after you
+/// last aimed at it.
+const WATCH_HIT: i32 = secs(5000);
+const WATCH_AIM: i32 = secs(600);
+
 pub struct Game {
     pub content: Content,
     pub map: Map,
@@ -221,6 +238,12 @@ pub struct Game {
     dyn_draws: Vec<Vec<u32>>,
     scene_version: u32,
     preview: Option<Gun>,
+    /// numbers and words rising off what was hit
+    popups: Vec<Popup>,
+    /// drones whose health bar shows, and for how many more ticks
+    watched_drones: BTreeMap<u16, i32>,
+    /// the drone under the crosshair now
+    aimed: Option<u16>,
     /// sounds already in a HUD the page has read
     sounds_heard: usize,
     /// goodbyes still to send after leaving
@@ -321,6 +344,9 @@ impl Game {
             preview: None,
             parting: Vec::new(),
             sounds_heard: 0,
+            popups: Vec::new(),
+            watched_drones: BTreeMap::new(),
+            aimed: None,
         };
         g.load_saved(saved);
         Ok(g)
@@ -1095,6 +1121,36 @@ impl Game {
             }
         }
         self.kick = self.kick * 80 / 100;
+        self.watch_aimed();
+    }
+
+    /// The drone under the crosshair keeps its health bar showing.
+    fn watch_aimed(&mut self) {
+        let Some(run) = &self.run else { return };
+        let (eye, fwd) = (self.eye, self.fwd);
+        let wall = self
+            .map
+            .ray(eye, fwd, AIM_RANGE, &run.extra, true)
+            .map(|h| h.t)
+            .unwrap_or(AIM_RANGE);
+        let mut best: Option<(i32, u16)> = None;
+        for (k, d) in run.drones.iter().enumerate() {
+            if !d.active() || d.pos.dist(eye) > wall + int(3) {
+                continue;
+            }
+            if let Some((t, _)) = d.ray(eye, fwd, wall) {
+                if best.is_none_or(|b| t < b.0) {
+                    best = Some((t, k as u16));
+                }
+            }
+        }
+        if let Some((_, k)) = best {
+            let t = self.watched_drones.entry(k).or_insert(0);
+            *t = (*t).max(WATCH_AIM);
+            self.aimed = Some(k);
+        } else {
+            self.aimed = None;
+        }
     }
 
     fn present_tick(&mut self) {
@@ -1106,6 +1162,15 @@ impl Game {
             b.2 -= 1;
         }
         self.beams.retain(|b| b.2 > 0);
+        for p in self.popups.iter_mut() {
+            p.life -= 1;
+            p.at.y += ONE / 70;
+        }
+        self.popups.retain(|p| p.life > 0);
+        for t in self.watched_drones.values_mut() {
+            *t -= 1;
+        }
+        self.watched_drones.retain(|_, t| *t > 0);
         self.hit_t = (self.hit_t - 1).max(0);
         self.kill_t = (self.kill_t - 1).max(0);
         self.hurt_t = (self.hurt_t - 1).max(0);
@@ -1205,8 +1270,38 @@ impl Game {
             Event::Spark { at } => {
                 self.burst(at, 3, &["spark"], int(3), ONE / 12, ONE, secs(200), Mesh::Sphere);
             }
-            Event::Hit { at, weak, armour, by } => {
+            Event::Hit {
+                at,
+                weak,
+                armour,
+                by,
+                dealt,
+                drone,
+            } => {
                 if by == me {
+                    if drone != u16::MAX {
+                        self.watched_drones.insert(drone, WATCH_HIT);
+                    }
+                    if dealt > 0 {
+                        let cls = if weak {
+                            "weak"
+                        } else if armour {
+                            "armour"
+                        } else {
+                            "hit"
+                        };
+                        let jitter = v3(
+                            self.prng.range(-ONE / 4, ONE / 4),
+                            ONE / 3,
+                            self.prng.range(-ONE / 4, ONE / 4),
+                        );
+                        self.popups.push(Popup {
+                            at: at.add(jitter),
+                            text: dealt.to_string(),
+                            cls,
+                            life: POPUP_LIFE,
+                        });
+                    }
                     self.hit_t = secs(200);
                     self.hit_weak = weak;
                     self.sounds.push(if weak {
@@ -1235,18 +1330,48 @@ impl Game {
                     Mesh::Sphere,
                 );
             }
-            Event::RotorOff { at } => {
-                self.sounds.push("rotor");
+            Event::PieceOff { at, kind, drone, by } => {
+                self.sounds
+                    .push(if kind == PieceKind::Rotor { "rotor" } else { "rip" });
+                // the part itself, tumbling away, and a spray of bits
+                let (colour, size) = match kind {
+                    PieceKind::Rotor => ("rotor", ONE * 4 / 10),
+                    PieceKind::Plate => ("armour", ONE * 6 / 10),
+                    PieceKind::Gun => ("metal_dark", ONE * 4 / 10),
+                    PieceKind::Leg => ("metal_dark", ONE * 7 / 10),
+                    PieceKind::Beacon => ("beacon", ONE * 3 / 10),
+                    PieceKind::Wing => ("teal_dark", ONE * 9 / 10),
+                };
+                self.burst(at, 1, &[colour], int(3), size, 0, secs(4000), Mesh::Cube);
+                self.burst(
+                    at,
+                    3,
+                    &[colour, "metal"],
+                    int(4),
+                    size / 3,
+                    0,
+                    secs(2500),
+                    Mesh::Cube,
+                );
                 self.burst(
                     at,
                     8,
-                    &["rotor", "metal_dark"],
+                    &["spark", "ember"],
                     int(5),
-                    ONE / 6,
-                    0,
-                    secs(1200),
-                    Mesh::Cube,
+                    ONE / 10,
+                    ONE,
+                    secs(300),
+                    Mesh::Sphere,
                 );
+                if by == me {
+                    self.watched_drones.insert(drone, WATCH_HIT);
+                }
+                self.popups.push(Popup {
+                    at: at.add(v3(0, ONE * 7 / 10, 0)),
+                    text: format!("off_{}", kind.name()),
+                    cls: "off",
+                    life: POPUP_LIFE * 3 / 2,
+                });
             }
             Event::Boom { at, radius, effect } => {
                 let c = match effect {
@@ -1740,6 +1865,64 @@ impl Game {
             {
                 if let Some(w) = draw::weak_spot(d) {
                     markers.push(self.marker(&cam, w, "weak", from));
+                }
+            }
+        }
+        // health bars over drones that were hit or are aimed at, with a pip
+        // for every breakable part, lit while it holds
+        for &k in self.watched_drones.keys() {
+            let Some(d) = run.drones.get(k as usize) else {
+                continue;
+            };
+            if !d.active() {
+                continue;
+            }
+            let def = &self.content.drones[d.def];
+            let top = d.centre().add(v3(0, d.radius(def) + ONE * 6 / 10, 0));
+            if let Some((x, y)) = cam.screen(self.aspect, top) {
+                if x > 0 && x < 100 * ONE && y > 0 && y < 100 * ONE {
+                    let parts: Vec<Value> = crate::drone::pieces(d.kind)
+                        .iter()
+                        .enumerate()
+                        .map(|(i, p)| json!([p.kind.name(), d.pieces[i] > 0]))
+                        .collect();
+                    let hp = d.health_pct();
+                    let mut state = Vec::new();
+                    if d.disarmed() {
+                        state.push("state_disarmed");
+                    }
+                    if d.lame() {
+                        state.push("state_lame");
+                    }
+                    if d.kind.rotors() > 0 && d.lost_count(PieceKind::Rotor) > 0 {
+                        state.push("state_crippled");
+                    }
+                    markers.push(json!({
+                        "kind": "health",
+                        "x": pct_q16(x),
+                        "y": pct_q16(y),
+                        "hp": format!("{hp}%"),
+                        "low": hp <= 30,
+                        "name": format!("drone_{}", def.id),
+                        "parts": parts,
+                        "state": state,
+                        "aimed": self.aimed == Some(k),
+                    }));
+                }
+            }
+        }
+        // damage numbers and torn-off parts
+        for p in &self.popups {
+            if let Some((x, y)) = cam.screen(self.aspect, p.at) {
+                if x > 0 && x < 100 * ONE && y > 0 && y < 100 * ONE {
+                    markers.push(json!({
+                        "kind": "pop",
+                        "x": pct_q16(x),
+                        "y": pct_q16(y),
+                        "text": p.text,
+                        "cls": p.cls,
+                        "fade": format!("0.{}", (p.life * 9 / POPUP_LIFE).clamp(1, 9)),
+                    }));
                 }
             }
         }

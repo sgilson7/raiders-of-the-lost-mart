@@ -667,6 +667,38 @@
     "dur": 0.7,
     "gain": 0.3
    }
+  ],
+  "rip": [
+   {
+    "type": "noise",
+    "filter": "bandpass",
+    "freq": 1400,
+    "q": 1.2,
+    "at": 0,
+    "attack": 0.002,
+    "dur": 0.35,
+    "gain": 0.45
+   },
+   {
+    "type": "osc",
+    "wave": "square",
+    "from": 420,
+    "to": 90,
+    "at": 0,
+    "attack": 0.002,
+    "dur": 0.3,
+    "gain": 0.15
+   },
+   {
+    "type": "noise",
+    "filter": "bandpass",
+    "freq": 3800,
+    "q": 5,
+    "at": 0.12,
+    "attack": 0.002,
+    "dur": 0.15,
+    "gain": 0.25
+   }
   ]
  }
 }

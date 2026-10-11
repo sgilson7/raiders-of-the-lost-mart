@@ -187,6 +187,32 @@ kbd { border: 2px solid var(--ink); border-radius: 6px; padding: 0.05em 0.4em; b
 .marker.weak::after { display: none; }
 .marker.off { opacity: 0.7; }
 
+/* a drone's health bar and its parts */
+.marker.health { background: rgba(255, 244, 220, 0.88); padding: 0.15em 0.4em 0.25em; min-width: 7.5em; font-size: 0.7em; transform: translate(-50%, -100%); }
+.marker.health::after { display: none; }
+.marker.health .bar { height: 0.55em; margin: 0.1em 0; }
+.marker.health .bar > span { background: #e0483e; }
+.marker.health.low .bar > span { background: #ff2e40; }
+.marker.health.low { border-color: #e0483e; }
+.marker.health.aimed { font-size: 0.85em; z-index: 2; }
+.bar-name { font-weight: 800; }
+.bar-state { font-size: 0.85em; color: #d9654f; font-weight: 800; }
+.pips { display: flex; gap: 2px; flex-wrap: wrap; }
+.pip { width: 0.7em; height: 0.7em; border: 1.5px solid var(--ink); border-radius: 2px; background: #8d9a93; }
+.pip.rotor { border-radius: 50%; background: #4fa3a0; }
+.pip.gun { background: #e0483e; }
+.pip.leg { width: 0.4em; height: 0.9em; background: #5e6b66; }
+.pip.beacon { border-radius: 50%; background: #ff8fc0; }
+.pip.wing { width: 1em; background: #3c8582; }
+.pip.gone { background: transparent; border-style: dashed; opacity: 0.55; }
+
+/* damage numbers */
+.marker.pop { background: none; border: none; padding: 0; font-size: 1em; color: #fff4dc; text-shadow: 2px 2px 0 var(--ink), -1px -1px 0 var(--ink); transform: translate(-50%, -50%); }
+.marker.pop::after { display: none; }
+.marker.pop.weak { color: var(--glow); font-size: 1.35em; }
+.marker.pop.armour { color: #b9b0c0; font-size: 0.85em; }
+.marker.pop.off { color: var(--gold); font-size: 1.15em; letter-spacing: 0.04em; }
+
 #message { position: fixed; left: 50%; top: 40%; transform: translateX(-50%); font-weight: 800; z-index: 30; margin: 0; }
 
 @media (max-width: 760px) {

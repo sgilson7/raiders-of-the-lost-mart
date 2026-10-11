@@ -55,6 +55,10 @@ pub enum C {
     Baiting,
     /// the drone's target is out of its sight (in cover)
     TargetHidden,
+    /// its guns have been shot off
+    Disarmed,
+    /// a walker down to two legs or fewer
+    Lame,
 }
 
 /// Actions: each sets the drone's goal, heading or orders and says how it went.
@@ -80,6 +84,10 @@ pub enum A {
     Rush,
     Arm,
     Stomp,
+    /// fly or run straight into the target, and bounce off
+    Ram,
+    /// stay put and turn to face the target (a walker that cannot walk)
+    Anchor,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -95,6 +103,8 @@ use Bt::*;
 
 pub const WASP: Bt = Sel(&[
     Seq(&[If(C::Stunned), Do(A::Wobble)]),
+    // its guns shot off, a wasp throws itself at you
+    Seq(&[If(C::HasTarget), If(C::Disarmed), Do(A::Ram)]),
     Seq(&[If(C::Ambushing), Not(C::Sees), Do(A::Ambush)]),
     Seq(&[
         If(C::HasTarget),
@@ -124,6 +134,8 @@ pub const MOTH: Bt = Sel(&[
 
 pub const HORNET: Bt = Sel(&[
     Seq(&[If(C::Stunned), Do(A::Wobble)]),
+    // a hornet without its barrel has nothing left to do but keep away
+    Seq(&[If(C::HasTarget), If(C::Disarmed), Do(A::Flee)]),
     Seq(&[
         If(C::HasTarget),
         Sel(&[
@@ -140,6 +152,7 @@ pub const HORNET: Bt = Sel(&[
 
 pub const WARDEN: Bt = Sel(&[
     Seq(&[If(C::Stunned), Do(A::Wobble)]),
+    Seq(&[If(C::HasTarget), If(C::Disarmed), Do(A::Ram)]),
     Seq(&[
         If(C::HasTarget),
         If(C::Sees),
@@ -164,6 +177,14 @@ pub const TICK: Bt = Sel(&[
 
 pub const STRIDER: Bt = Sel(&[
     Seq(&[If(C::Stunned), Do(A::Wobble)]),
+    // on two legs or fewer it plants itself and becomes a turret
+    Seq(&[If(C::HasTarget), If(C::Lame), Do(A::Anchor), Do(A::Shoot)]),
+    // its turret gone, it charges and stomps
+    Seq(&[
+        If(C::HasTarget),
+        If(C::Disarmed),
+        Sel(&[Seq(&[If(C::Near(5)), Do(A::Stomp)]), Do(A::Rush)]),
+    ]),
     Seq(&[
         If(C::HasTarget),
         If(C::Sees),
@@ -279,6 +300,8 @@ pub enum Order {
     Call(u8, V3),
     Detonate,
     Stomp,
+    /// it hit the target body first
+    Ram,
 }
 
 pub struct Ctx<'a> {
@@ -368,6 +391,8 @@ fn cond(c: C, d: &Drone, cx: &Ctx) -> bool {
         C::Ambushing => b.ambush.is_some(),
         C::Baiting => b.bait > 0,
         C::TargetHidden => !b.sees,
+        C::Disarmed => d.disarmed(),
+        C::Lame => d.lame(),
     }
 }
 
@@ -492,6 +517,9 @@ fn act(a: A, d: &mut Drone, cx: &mut Ctx) -> Status {
         }
         A::Shoot => {
             let Some(t) = target else { return Status::Failure };
+            if d.disarmed() {
+                return Status::Failure;
+            }
             if !d.brain.sees || cx.def.burst == 0 {
                 return Status::Running;
             }
@@ -585,7 +613,8 @@ fn act(a: A, d: &mut Drone, cx: &mut Ctx) -> Status {
             Status::Running
         }
         A::Call => {
-            if d.brain.called > 0 {
+            // no beacon, no call
+            if d.brain.called > 0 || d.alive_count(crate::drone::PieceKind::Beacon) == 0 {
                 return Status::Success;
             }
             d.brain.called = secs(6000);
@@ -670,6 +699,23 @@ fn act(a: A, d: &mut Drone, cx: &mut Ctx) -> Status {
                 return Status::Success;
             }
             Status::Running
+        }
+        A::Ram => {
+            let Some(t) = target else { return Status::Failure };
+            d.brain.goal = t.chest;
+            d.brain.face = aim_at(d.pos, t.chest);
+            if d.brain.stomp <= 0 && d.centre().dist(t.chest) < ONE * 16 / 10 {
+                d.brain.stomp = secs(1500);
+                cx.orders.push(Order::Ram);
+            }
+            Status::Running
+        }
+        A::Anchor => {
+            d.brain.goal = d.pos;
+            if let Some(t) = target {
+                d.brain.face = aim_at(d.pos, t.chest);
+            }
+            Status::Success
         }
         A::Stomp => {
             let Some(t) = target else { return Status::Failure };
@@ -977,6 +1023,87 @@ mod tests {
             m.clear(raiders[0].head, show, &[]),
             "it shows itself where the raider can see it"
         );
+    }
+
+    #[test]
+    fn a_disarmed_wasp_rams_and_a_lame_strider_plants_and_fires() {
+        let m = room();
+        let (mut w, def) = drone("wasp", v3(0, int(2), ONE / 2));
+        w.brain.target = Some(0);
+        w.brain.seen_t = 0;
+        w.brain.sees = true;
+        w.pieces[5] = 0;
+        let raiders = [seen(V3::ZERO, 0)];
+        let mut rng = Rng::new(4);
+        let mut cx = Ctx {
+            map: &m,
+            extra: &[],
+            def: &def,
+            raiders: &raiders,
+            rng: &mut rng,
+            tick: 0,
+            id: 0,
+            orders: Vec::new(),
+            outdoors: false,
+        };
+        think(&mut w, &mut cx);
+        assert_eq!(w.brain.doing, A::Ram);
+        assert!(
+            cx.orders.contains(&Order::Ram),
+            "close enough to hit: {:?}",
+            cx.orders
+        );
+        assert!(
+            !cx.orders.iter().any(|o| matches!(o, Order::Bolt(_))),
+            "no guns, no bolts"
+        );
+
+        let (mut s, sdef) = drone("strider", v3(int(12), 0, 0));
+        s.brain.target = Some(0);
+        s.brain.seen_t = 0;
+        s.brain.sees = true;
+        s.yaw = yaw_pitch_of(v3(-ONE, 0, 0)).0;
+        for k in 0..4 {
+            s.pieces[k] = 0;
+        }
+        let mut cx = Ctx {
+            map: &m,
+            extra: &[],
+            def: &sdef,
+            raiders: &raiders,
+            rng: &mut rng,
+            tick: 0,
+            id: 0,
+            orders: Vec::new(),
+            outdoors: false,
+        };
+        think(&mut s, &mut cx);
+        assert_eq!(s.brain.doing, A::Shoot, "it stays put and shoots");
+        assert_eq!(s.brain.goal, s.pos);
+    }
+
+    #[test]
+    fn a_moth_without_its_beacon_cannot_call() {
+        let m = room();
+        let (mut moth, def) = drone("moth", v3(0, int(5), -int(30)));
+        moth.brain.target = Some(0);
+        moth.brain.seen_t = 0;
+        moth.pieces[6] = 0;
+        let raiders = [seen(v3(0, 0, -int(3)), 0)];
+        let mut rng = Rng::new(9);
+        let mut cx = Ctx {
+            map: &m,
+            extra: &[],
+            def: &def,
+            raiders: &raiders,
+            rng: &mut rng,
+            tick: 0,
+            id: 0,
+            orders: Vec::new(),
+            outdoors: false,
+        };
+        think(&mut moth, &mut cx);
+        assert!(!cx.orders.iter().any(|o| matches!(o, Order::Call(..))));
     }
 
     #[test]
