@@ -1,0 +1,17 @@
+# Second-order notebook
+
+Assumptions, surprises, divergences from the plan, and things for Sam, as they came up.
+
+| # | Kind | Note |
+| --- | --- | --- |
+| 1 | assumption | The pasted request is Sam's standing request (it is word for word the one in Ribbit King's BRIEF.md, whose approvals were acted on). Its approvals are taken as given: public repo, Pages, website listing. |
+| 2 | divergence | Ribbit King's online scheme (the host decides every tick, joiners replay) is replaced by rollback, as the design asked. The transport (`web/net/`) is unchanged but for the channel label and the Trystero app id. |
+| 3 | surprise | The boundary test bans the identifier `net` in the core (it reads as input/output). The rollback module does no I/O, so it is named `rollback.rs` rather than loosening the rule. |
+| 4 | surprise | The first browser run of four copies froze at tick 17: a frame that ran two ticks recorded one local input, leaving a gap that held the confirmed tick back for good. The Rust test had advanced one tick a frame and missed it. `Session::local` now fills every tick to the horizon; `frames_that_run_several_ticks_leave_no_gap_in_the_inputs` failed on the old code ("assertion failed: sess[0].confirmed() > 150") and passes now. |
+| 5 | surprise | `mall.rs`'s `m(whole, tenths)` was called with hundredths in five places (tyres 2.5 m wide floating at 3.5 m, 7.5 m tables). A `cm()` helper replaced them. |
+| 6 | surprise | A camera pressed against a wall sits inside the wall's ink hull (the outline is the box drawn larger with its front faces culled) and the view floods plum. The fragment shader drops ink within 0.7 m of the eye, and the camera keeps a 0.25 m box clear. |
+| 7 | assumption | Mouse look needs pointer lock, which a headless test browser cannot grant; arrow keys (and Q) also turn, and Enter also fires, so the tests can steer and a trackpad player can play. |
+| 8 | divergence | A joiner always plays with their own gun: the Start message carries every gun, but each copy uses the joiner's own build for its own seat. The builds agree in practice because the lobby showed them; a joiner who changed their gun after joining would desync. There is no gun change in the lobby UI, so this cannot happen yet. |
+| 9 | for Sam | Real names: Southpoint, Hot Topic and Kid Cudi appear in words only (the design names them). No logo is drawn. |
+| 10 | for Sam | The working title, and whether to credit the friend by name. |
+| 11 | assumption | The stash is per browser. Online, each browser keeps its own raider's finds; the run decides who came back, deterministically, so every copy agrees on it. |

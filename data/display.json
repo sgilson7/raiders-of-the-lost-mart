@@ -1,0 +1,5 @@
+{
+  "_about": "How the page draws on a machine without a graphics card. A renderer whose name contains one of `software` is a CPU drawing in place of a GPU (as on CI runners and some school machines); there the canvas is drawn at `software_scale` of its size, which costs far fewer pixels and is stretched to fill the window.",
+  "software": ["SwiftShader", "llvmpipe", "Software", "softpipe"],
+  "software_scale": 0.4
+}

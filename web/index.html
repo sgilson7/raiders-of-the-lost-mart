@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Reference default, widened by one word as in Ribbit King: connect-src
+       adds wss: so the room-code path can reach the public Nostr relays that
+       introduce two browsers (web/net/). Nothing opens one until a person
+       hosts or joins by room code. 'wasm-unsafe-eval' lets the page compile
+       its own WebAssembly module; form-action 'none' blocks form posts. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self' wss:; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Raiders of the Lost Mart</title>
+  <meta name="description" content="A four-player co-op extraction shooter in the browser. Hired raiders ride a van to an abandoned Southpoint mall full of drones, fill client orders, and build guns from the parts they carry out.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-ready="false" data-mode="loading">
+  <canvas id="view"></canvas>
+
+  <!-- play -->
+  <div id="hud" hidden>
+    <div id="markers"></div>
+    <div id="crosshair"><span></span><span></span><span></span><span></span></div>
+    <div id="hitmark" hidden></div>
+    <div id="scope" hidden></div>
+    <div id="hurt" hidden></div>
+    <div id="order" class="panel">
+      <div class="label" data-copy="hud_order"></div>
+      <div id="o-name" class="o-name"></div>
+      <div id="o-goal" class="o-goal"></div>
+      <div id="o-zone" class="o-zone"></div>
+    </div>
+    <div id="team" class="panel"></div>
+    <div id="vitals" class="panel">
+      <div class="bar"><div id="hp-bar"></div></div>
+      <div class="vit-row"><span class="label" data-copy="hud_health"></span><span id="hp-n"></span></div>
+    </div>
+    <div id="ammo" class="panel">
+      <div id="ammo-n" class="ammo-n"></div>
+      <div id="ammo-sub" class="label"></div>
+      <div class="bar thin" id="reload-wrap" hidden><div id="reload-bar"></div></div>
+    </div>
+    <div id="pack" class="panel">
+      <div class="label"><span data-copy="hud_pack"></span> <span id="pack-n"></span></div>
+      <div id="pack-items"></div>
+    </div>
+    <div id="prompt" class="panel" hidden>
+      <div id="prompt-text"></div>
+      <div class="bar thin"><div id="prompt-bar"></div></div>
+    </div>
+    <div id="toast" class="panel" hidden></div>
+    <div id="down" class="panel" hidden>
+      <div class="big" data-copy="hud_downed"></div>
+      <div class="bar"><div id="bleed-bar"></div></div>
+      <div class="fine" data-copy="hud_downed_hint"></div>
+    </div>
+    <div id="watching" class="panel" hidden></div>
+    <div id="leaving" class="panel" hidden><span data-copy="hud_leaving"></span> <span id="leave-n"></span></div>
+    <div id="netline" hidden></div>
+    <div id="clock"></div>
+  </div>
+
+  <!-- title -->
+  <div id="title" class="overlay art-bg" hidden>
+    <img class="backdrop" src="art/title.png" alt="">
+    <div class="title-box">
+      <div class="kicker" data-copy="kicker"></div>
+      <h1 data-copy="title"></h1>
+      <p class="tagline" data-copy="tagline"></p>
+      <div class="buttons">
+        <button id="t-solo" class="primary" type="button" data-copy="btn_solo"></button>
+        <button id="t-host" type="button" data-copy="btn_host"></button>
+        <button id="t-host-code" class="small" type="button" data-copy="btn_host_code"></button>
+        <button id="t-join" type="button" data-copy="btn_join"></button>
+        <button id="t-workshop" type="button" data-copy="btn_workshop"></button>
+        <button class="open-help" type="button" data-copy="btn_help"></button>
+      </div>
+      <p class="fine" id="t-record"></p>
+      <p class="fine" data-copy="credit"></p>
+      <p class="fine build">build <span id="build"></span></p>
+    </div>
+  </div>
+
+  <!-- join by code -->
+  <div id="join" class="overlay sheet-bg" hidden>
+    <div class="sheet">
+      <h2 data-copy="join_title"></h2>
+      <p class="hint" data-copy="join_hint"></p>
+      <div class="row-input">
+        <input id="room-code" type="text" maxlength="12" autocomplete="off" spellcheck="false" aria-label="Room code">
+        <button id="join-room" class="primary" type="button" data-copy="btn_join_room"></button>
+      </div>
+      <details>
+        <summary data-copy="join_paste"></summary>
+        <p class="fine" data-copy="join_paste_hint"></p>
+        <textarea id="invite-in" rows="3" aria-label="Invitation"></textarea>
+        <button id="make-reply" type="button" data-copy="btn_make_reply"></button>
+        <div id="reply-box" hidden>
+          <p class="fine" data-copy="join_reply_hint"></p>
+          <textarea id="reply-out" rows="3" readonly aria-label="Reply"></textarea>
+        </div>
+      </details>
+      <p class="error" id="join-error"></p>
+      <div class="buttons"><button id="join-back" type="button" data-copy="btn_back"></button></div>
+    </div>
+  </div>
+
+  <!-- the workshop -->
+  <div id="workshop" class="overlay side-bg" hidden>
+    <div class="sheet side">
+      <h2 data-copy="ws_title"></h2>
+      <p class="hint" data-copy="ws_hint"></p>
+      <div id="ws-build" class="ws-build"></div>
+      <div id="ws-stats" class="ws-stats"></div>
+      <div id="ws-cats"></div>
+      <div class="buttons"><button id="ws-board" class="primary" type="button" data-copy="btn_to_board"></button><button id="ws-back" type="button" data-copy="btn_back"></button></div>
+    </div>
+  </div>
+
+  <!-- the client board -->
+  <div id="board" class="overlay sheet-bg" hidden>
+    <div class="sheet wide">
+      <h2 data-copy="board_title"></h2>
+      <p class="hint" data-copy="board_hint"></p>
+      <div id="b-list" class="missions"></div>
+      <div id="b-detail" class="m-detail">
+        <img id="b-art" alt="">
+        <div class="m-text">
+          <div class="kicker" id="b-client"></div>
+          <h3 id="b-name"></h3>
+          <p id="b-brief"></p>
+          <p class="fine" id="b-entrance"></p>
+          <p class="fine" id="b-pay"></p>
+        </div>
+      </div>
+      <div class="buttons">
+        <button id="b-go" class="primary" type="button" data-copy="btn_go"></button>
+        <button id="b-workshop" type="button" data-copy="btn_workshop"></button>
+        <button id="b-back" type="button" data-copy="btn_back"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- the lobby -->
+  <div id="lobby" class="overlay sheet-bg" hidden>
+    <div class="sheet wide">
+      <h2 data-copy="lobby_title"></h2>
+      <div class="room-line"><span class="label" data-copy="lobby_room"></span> <strong id="l-room"></strong> <button id="l-copy" class="small" type="button" data-copy="btn_copy_link"></button></div>
+      <p class="fine" id="l-status"></p>
+      <div id="l-seats" class="seats"></div>
+      <div id="l-mission" class="m-detail small">
+        <img id="l-art" alt="">
+        <div class="m-text"><div class="kicker" id="l-client"></div><h3 id="l-name"></h3><p class="fine" id="l-brief"></p></div>
+      </div>
+      <div id="l-picker" class="missions compact"></div>
+      <details id="invite-box">
+        <summary data-copy="lobby_paste"></summary>
+        <p class="fine" data-copy="lobby_paste_hint"></p>
+        <button id="new-invite" type="button" data-copy="btn_new_invite"></button>
+        <textarea id="invite-out" rows="3" readonly aria-label="Invitation"></textarea>
+        <textarea id="reply-in" rows="3" aria-label="Reply"></textarea>
+        <button id="accept-reply" type="button" data-copy="btn_accept_reply"></button>
+      </details>
+      <div class="buttons">
+        <button id="l-start" class="primary" type="button" data-copy="btn_start"></button>
+        <button id="l-leave" type="button" data-copy="btn_leave"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- paused (alone) or the menu (online, the run goes on) -->
+  <div id="paused" class="overlay sheet-bg" hidden>
+    <div class="sheet">
+      <h2 id="p-title" data-copy="paused"></h2>
+      <p class="fine" data-copy="paused_hint"></p>
+      <div class="sens"><span class="label" data-copy="sens"></span> <button id="sens-down" class="small" type="button">−</button> <span id="sens-n"></span> <button id="sens-up" class="small" type="button">+</button></div>
+      <div class="buttons column">
+        <button id="resume" class="primary" type="button" data-copy="btn_resume"></button>
+        <button class="open-help" type="button" data-copy="btn_help"></button>
+        <button id="mute" type="button" data-copy="btn_mute"></button>
+        <button id="quit" type="button" data-copy="btn_quit"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- results -->
+  <div id="results" class="overlay sheet-bg" hidden>
+    <div class="sheet wide">
+      <div class="kicker" id="r-kicker"></div>
+      <h2 id="r-title"></h2>
+      <p id="r-text"></p>
+      <div id="r-team" class="seats"></div>
+      <div class="r-cols">
+        <div><div class="label" data-copy="r_found"></div><div id="r-found" class="parts-row"></div></div>
+        <div><div class="label" data-copy="r_pay"></div><div id="r-pay" class="parts-row"></div></div>
+        <div><div class="label" data-copy="r_lost"></div><div id="r-lost" class="parts-row"></div></div>
+      </div>
+      <div class="buttons"><button id="r-next" class="primary" type="button" data-copy="btn_continue"></button></div>
+    </div>
+  </div>
+
+  <!-- help -->
+  <div id="help" class="overlay sheet-bg" hidden>
+    <div class="sheet wide">
+      <h2 data-copy="help_title"></h2>
+      <div id="help-rows" class="help-rows"></div>
+      <div id="help-drones" class="drones"></div>
+      <div class="buttons"><button id="help-close" class="primary" type="button" data-copy="btn_close"></button></div>
+    </div>
+  </div>
+
+  <p id="message" role="status"></p>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

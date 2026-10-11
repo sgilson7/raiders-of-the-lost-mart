@@ -1,0 +1,277 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{xcolor}
+\usetikzlibrary{calc}
+% Palette: Sam_Comm_final.png by eye, and the drones and raiders.
+\definecolor{ink}{HTML}{3B2340}
+\definecolor{sky}{HTML}{EFC46A}
+\definecolor{skyhi}{HTML}{F5DA92}
+\definecolor{skylow}{HTML}{E9B060}
+\definecolor{cloud}{HTML}{F2D58A}
+\definecolor{paper}{HTML}{FBEFD0}
+\definecolor{cream}{HTML}{FFF6E0}
+\definecolor{white}{HTML}{FFFFFF}
+\definecolor{wallA}{HTML}{E88A73}
+\definecolor{wallB}{HTML}{EE9F7E}
+\definecolor{wallC}{HTML}{E47A7E}
+\definecolor{wallD}{HTML}{F0B07E}
+\definecolor{wallE}{HTML}{D9765F}
+\definecolor{wallF}{HTML}{E99A8A}
+\definecolor{greenA}{HTML}{8DBB7E}
+\definecolor{greenB}{HTML}{6FA77A}
+\definecolor{greenC}{HTML}{A9C97F}
+\definecolor{greenD}{HTML}{5E9C6A}
+\definecolor{greenE}{HTML}{4A8060}
+\definecolor{sage}{HTML}{9DB98A}
+\definecolor{sagedark}{HTML}{6F8F66}
+\definecolor{sagelight}{HTML}{C2D6A6}
+\definecolor{window}{HTML}{F6E7A0}
+\definecolor{windark}{HTML}{8C5A64}
+\definecolor{metal}{HTML}{8D9A93}
+\definecolor{metaldark}{HTML}{5E6B66}
+\definecolor{metallight}{HTML}{B9C4BC}
+\definecolor{wood}{HTML}{B9835A}
+\definecolor{wooddark}{HTML}{8C5A3C}
+\definecolor{woodlight}{HTML}{D9A66F}
+\definecolor{stone}{HTML}{E7C9A0}
+\definecolor{stonedark}{HTML}{C9A47E}
+\definecolor{concrete}{HTML}{D8C3A4}
+\definecolor{concretedark}{HTML}{B8A084}
+\definecolor{asphalt}{HTML}{8E7A86}
+\definecolor{asphaltdark}{HTML}{6E5C68}
+\definecolor{roadline}{HTML}{F6E7A0}
+\definecolor{kerb}{HTML}{D8B48C}
+\definecolor{red}{HTML}{E0483E}
+\definecolor{redlight}{HTML}{F27A6A}
+\definecolor{gold}{HTML}{FFB000}
+\definecolor{goldlight}{HTML}{FFD54F}
+\definecolor{teal}{HTML}{4FA3A0}
+\definecolor{tealdark}{HTML}{3C8582}
+\definecolor{magenta}{HTML}{FF2E88}
+\definecolor{cyan}{HTML}{13CFE3}
+\definecolor{violet}{HTML}{8A5BD6}
+\definecolor{orange}{HTML}{F2803A}
+\definecolor{pink}{HTML}{F48FB1}
+\definecolor{glow}{HTML}{4FE6E0}
+\definecolor{glowhi}{HTML}{C8FFF9}
+\definecolor{hot}{HTML}{FF6A1A}
+\definecolor{hothi}{HTML}{FFD07A}
+\definecolor{armour}{HTML}{7E7A86}
+\definecolor{armourdark}{HTML}{5A5466}
+\definecolor{armourlight}{HTML}{A8A2B0}
+\definecolor{wasp}{HTML}{E0A82E}
+\definecolor{waspdark}{HTML}{B07E1A}
+\definecolor{moth}{HTML}{F2E6C8}
+\definecolor{mothdark}{HTML}{D2C09A}
+\definecolor{hornet}{HTML}{3C8582}
+\definecolor{hornetdark}{HTML}{2C6260}
+\definecolor{warden}{HTML}{E47A7E}
+\definecolor{wardendark}{HTML}{B85A62}
+\definecolor{tick}{HTML}{8DBB7E}
+\definecolor{tickdark}{HTML}{5E8A5A}
+\definecolor{strider}{HTML}{D9765F}
+\definecolor{striderdark}{HTML}{A8543F}
+\definecolor{jacket}{HTML}{6FA77A}
+\definecolor{jacketb}{HTML}{4FA3A0}
+\definecolor{jacketc}{HTML}{E88A73}
+\definecolor{jacketd}{HTML}{F0B07E}
+\definecolor{skin}{HTML}{F2C49A}
+\definecolor{skinb}{HTML}{C98C6A}
+\definecolor{skinc}{HTML}{8C5A3C}
+\definecolor{hair}{HTML}{3B2340}
+\definecolor{goo}{HTML}{B6E35A}
+\definecolor{goodark}{HTML}{7FB23A}
+\newcommand{\Ink}{1.6pt}
+\tikzset{inked/.style={draw=ink, line width=\Ink, line join=round, line cap=round}}
+\begin{document}
+\begin{tikzpicture}
+\clip (0,0) rectangle (10,10);
+\begin{scope}[shift={(0.25,0.6)}, scale=0.95]
+\fill[ink, opacity=0.10] (5,1.35) ellipse (4.256 and 0.855);
+\fill[ink, opacity=0.14] (5,1.35) ellipse (3.8 and 0.684);
+\draw[ink, line width=18.067pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(3.6,6.4) (2.35,8.1)};
+\draw[wardendark, line width=14.867pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(3.6,6.4) (2.35,8.1)};
+\filldraw[inked, fill=wardendark] (1.23,8.1) -- (1.23,7.72) arc[start angle=180, end angle=360, x radius=1.12, y radius=0.47] -- (3.47,8.1) arc[start angle=0, end angle=-180, x radius=1.12, y radius=0.47] -- cycle;
+\fill[ink] (1.734,7.517) circle (0.055);
+\fill[white, opacity=0.55] (1.715,7.536) circle (0.022);
+\fill[ink] (2.35,7.44) circle (0.055);
+\fill[white, opacity=0.55] (2.331,7.459) circle (0.022);
+\fill[ink] (2.966,7.517) circle (0.055);
+\fill[white, opacity=0.55] (2.947,7.536) circle (0.022);
+\filldraw[inked,fill=warden] (2.35,8.1) ellipse (1.12 and 0.47);
+\fill[ink!80!wardendark]  (2.35,8.1) ellipse (0.851 and 0.358);
+\begin{scope}\clip  (2.35,8.1) ellipse (0.851 and 0.358);
+\filldraw[inked,fill=armour,line width=0.6pt] (2.35,8.1) .. controls (2.657,8.36) .. (3.048,8.269) .. controls (2.704,8.165) .. (2.35,8.1) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (2.35,8.1) .. controls (2.106,8.184) .. (2.182,8.431) .. controls (2.284,8.275) .. (2.35,8.1) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (2.35,8.1) .. controls (1.941,7.938) .. (1.548,8.135) .. controls (1.95,8.138) .. (2.35,8.1) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (2.35,8.1) .. controls (2.31,7.814) .. (2.022,7.791) .. controls (2.172,7.96) .. (2.35,8.1) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (2.35,8.1) .. controls (2.713,8.155) .. (2.949,7.873) .. controls (2.643,7.968) .. (2.35,8.1) -- cycle;
+\fill[white, opacity=0.18] (2.35,8.1) ellipse (0.784 and 0.329);
+\end{scope}
+\filldraw[inked,fill=metal] (2.35,8.1) circle (0.14);
+\draw[inked]  (2.35,8.1) ellipse (0.851 and 0.358);
+\draw[white, opacity=0.45, line width=2.08pt, line cap=round] ([shift={(150:0.986 and 0.414)}]2.35,8.1) arc[start angle=150, end angle=95, x radius=0.986, y radius=0.414];
+\draw[ink, line width=18.067pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(6.4,6.4) (7.65,8.1)};
+\draw[wardendark, line width=14.867pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(6.4,6.4) (7.65,8.1)};
+\filldraw[inked, fill=wardendark] (6.53,8.1) -- (6.53,7.72) arc[start angle=180, end angle=360, x radius=1.12, y radius=0.47] -- (8.77,8.1) arc[start angle=0, end angle=-180, x radius=1.12, y radius=0.47] -- cycle;
+\fill[ink] (7.034,7.517) circle (0.055);
+\fill[white, opacity=0.55] (7.015,7.536) circle (0.022);
+\fill[ink] (7.65,7.44) circle (0.055);
+\fill[white, opacity=0.55] (7.631,7.459) circle (0.022);
+\fill[ink] (8.266,7.517) circle (0.055);
+\fill[white, opacity=0.55] (8.247,7.536) circle (0.022);
+\filldraw[inked,fill=warden] (7.65,8.1) ellipse (1.12 and 0.47);
+\fill[ink!80!wardendark]  (7.65,8.1) ellipse (0.851 and 0.358);
+\begin{scope}\clip  (7.65,8.1) ellipse (0.851 and 0.358);
+\filldraw[inked,fill=armour,line width=0.6pt] (7.65,8.1) .. controls (7.957,8.36) .. (8.348,8.269) .. controls (8.004,8.165) .. (7.65,8.1) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (7.65,8.1) .. controls (7.406,8.184) .. (7.482,8.431) .. controls (7.584,8.275) .. (7.65,8.1) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (7.65,8.1) .. controls (7.241,7.938) .. (6.848,8.135) .. controls (7.25,8.138) .. (7.65,8.1) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (7.65,8.1) .. controls (7.61,7.814) .. (7.322,7.791) .. controls (7.472,7.96) .. (7.65,8.1) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (7.65,8.1) .. controls (8.013,8.155) .. (8.249,7.873) .. controls (7.943,7.968) .. (7.65,8.1) -- cycle;
+\fill[white, opacity=0.18] (7.65,8.1) ellipse (0.784 and 0.329);
+\end{scope}
+\filldraw[inked,fill=metal] (7.65,8.1) circle (0.14);
+\draw[inked]  (7.65,8.1) ellipse (0.851 and 0.358);
+\draw[white, opacity=0.45, line width=2.08pt, line cap=round] ([shift={(150:0.986 and 0.414)}]7.65,8.1) arc[start angle=150, end angle=95, x radius=0.986, y radius=0.414];
+\fill[wardendark] plot[smooth cycle, tension=0.45] coordinates {(1.9,4.6) (2.25,6.3) (3.4,7.3) (5,7.6) (6.6,7.3) (7.75,6.3) (8.1,4.6) (7.2,3.3) (5,2.85) (2.8,3.3)};
+\begin{scope}\clip plot[smooth cycle, tension=0.45] coordinates {(1.9,4.6) (2.25,6.3) (3.4,7.3) (5,7.6) (6.6,7.3) (7.75,6.3) (8.1,4.6) (7.2,3.3) (5,2.85) (2.8,3.3)};
+\begin{scope}[shift={(-0.18,0.25)}]\fill[warden] plot[smooth cycle, tension=0.45] coordinates {(1.9,4.6) (2.25,6.3) (3.4,7.3) (5,7.6) (6.6,7.3) (7.75,6.3) (8.1,4.6) (7.2,3.3) (5,2.85) (2.8,3.3)};\end{scope}
+\end{scope}
+\draw[inked] plot[smooth cycle, tension=0.45] coordinates {(1.9,4.6) (2.25,6.3) (3.4,7.3) (5,7.6) (6.6,7.3) (7.75,6.3) (8.1,4.6) (7.2,3.3) (5,2.85) (2.8,3.3)};
+\begin{scope}\clip plot[smooth cycle, tension=0.45] coordinates {(1.9,4.6) (2.25,6.3) (3.4,7.3) (5,7.6) (6.6,7.3) (7.75,6.3) (8.1,4.6) (7.2,3.3) (5,2.85) (2.8,3.3)};
+\begin{scope}\clip plot[smooth cycle, tension=0.45] coordinates {(1.9,4.6) (2.25,6.3) (3.4,7.3) (5,7.6) (6.6,7.3) (7.75,6.3) (8.1,4.6) (7.2,3.3) (5,2.85) (2.8,3.3)};
+\fill[wardendark, opacity=0.5] (4.334,4.277) ellipse (0.062 and 0.067);
+\fill[wardendark, opacity=0.5] (5.436,6.023) ellipse (0.089 and 0.045);
+\fill[wardendark, opacity=0.5] (6.297,5.59) ellipse (0.105 and 0.056);
+\fill[wardendark, opacity=0.5] (6.9,5.07) ellipse (0.061 and 0.036);
+\fill[wardendark, opacity=0.5] (6.25,4.037) ellipse (0.096 and 0.055);
+\fill[wardendark, opacity=0.5] (2.533,6.38) ellipse (0.052 and 0.065);
+\fill[wardendark, opacity=0.5] (6.91,4.22) ellipse (0.101 and 0.059);
+\fill[wardendark, opacity=0.5] (2.9,5.946) ellipse (0.059 and 0.067);
+\fill[wardendark, opacity=0.5] (6.058,7.124) ellipse (0.054 and 0.043);
+\fill[wardendark, opacity=0.5] (5.671,5.711) ellipse (0.063 and 0.066);
+\fill[wardendark, opacity=0.5] (6.941,4.545) ellipse (0.06 and 0.057);
+\fill[wardendark, opacity=0.5] (4.48,5.921) ellipse (0.085 and 0.046);
+\fill[wardendark, opacity=0.5] (2.321,3.913) ellipse (0.082 and 0.059);
+\fill[wardendark, opacity=0.5] (4.584,6.229) ellipse (0.088 and 0.065);
+\end{scope}
+\end{scope}
+\draw[ink, line width=0.7pt, line cap=round, line join=round, opacity=0.8] plot[smooth, tension=0.5] coordinates {(2,5.25) (3.5,5.6) (5,5.7) (6.5,5.6) (8,5.25)};
+\draw[ink, line width=0.7pt, line cap=round, line join=round, opacity=0.8] plot[smooth, tension=0.5] coordinates {(3.6,7.25) (3.75,6.4) (3.55,5.6)};
+\draw[ink, line width=0.7pt, line cap=round, line join=round, opacity=0.8] plot[smooth, tension=0.5] coordinates {(6.4,7.25) (6.25,6.4) (6.45,5.6)};
+\fill[ink] (2.6,5.15) circle (0.075);
+\fill[white, opacity=0.55] (2.574,5.176) circle (0.03);
+\fill[ink] (3.9,5.45) circle (0.075);
+\fill[white, opacity=0.55] (3.874,5.476) circle (0.03);
+\fill[ink] (6.1,5.45) circle (0.075);
+\fill[white, opacity=0.55] (6.074,5.476) circle (0.03);
+\fill[ink] (7.4,5.15) circle (0.075);
+\fill[white, opacity=0.55] (7.374,5.176) circle (0.03);
+\fill[ink] (3.95,7.05) circle (0.075);
+\fill[white, opacity=0.55] (3.924,7.076) circle (0.03);
+\fill[ink] (6.05,7.05) circle (0.075);
+\fill[white, opacity=0.55] (6.024,7.076) circle (0.03);
+\fill[ink] (2.75,6.35) circle (0.075);
+\fill[white, opacity=0.55] (2.724,6.376) circle (0.03);
+\fill[ink] (7.25,6.35) circle (0.075);
+\fill[white, opacity=0.55] (7.224,6.376) circle (0.03);
+\fill[white, opacity=0.35] (4.3,7.15) ellipse (0.9 and 0.15);
+\filldraw[inked,fill=ink!85!wardendark,rounded corners=0.35cm] (3.6,5.95) rectangle (6.4,6.85);
+\fill[goldlight, opacity=0.22] (4.15,6.4) circle (0.36);
+\filldraw[inked,fill=goldlight] (4.15,6.4) circle (0.2);
+\fill[white, opacity=0.9] (4.09,6.46) circle (0.06);
+\fill[goldlight, opacity=0.22] (4.72,6.4) circle (0.36);
+\filldraw[inked,fill=goldlight] (4.72,6.4) circle (0.2);
+\fill[white, opacity=0.9] (4.66,6.46) circle (0.06);
+\fill[goldlight, opacity=0.22] (5.28,6.4) circle (0.36);
+\filldraw[inked,fill=goldlight] (5.28,6.4) circle (0.2);
+\fill[white, opacity=0.9] (5.22,6.46) circle (0.06);
+\fill[goldlight, opacity=0.22] (5.85,6.4) circle (0.36);
+\filldraw[inked,fill=goldlight] (5.85,6.4) circle (0.2);
+\fill[white, opacity=0.9] (5.79,6.46) circle (0.06);
+\filldraw[inked,fill=armour] (3.3,7.05) -- (5,6.72) -- (6.7,7.05) -- (6.55,6.8) -- (5,6.52) -- (3.45,6.8) -- cycle;
+\fill[hot] plot[smooth cycle, tension=0.3] coordinates {(2.45,4.65) (7.55,4.65) (6.9,3.4) (5,2.95) (3.1,3.4)};
+\fill[hothi, opacity=0.7] (5.0,3.85) ellipse (2.0 and 0.6);
+\draw[inked] plot[smooth cycle, tension=0.3] coordinates {(2.45,4.65) (7.55,4.65) (6.9,3.4) (5,2.95) (3.1,3.4)};
+\begin{scope}\clip plot[smooth cycle, tension=0.3] coordinates {(2.45,4.65) (7.55,4.65) (6.9,3.4) (5,2.95) (3.1,3.4)};
+\filldraw[inked,fill=armour] (2.2,2.8) -- (3.35,2.8) -- (3.35,4.75) -- (2.2,4.75) -- cycle;
+\filldraw[inked,fill=armour] (6.65,2.8) -- (7.8,2.8) -- (7.8,4.75) -- (6.65,4.75) -- cycle;
+\filldraw[inked,fill=armour] (2.2,3.95) -- (7.8,3.95) -- (7.8,4.4) -- (2.2,4.4) -- cycle;
+\end{scope}
+\draw[inked] plot[smooth cycle, tension=0.3] coordinates {(2.45,4.65) (7.55,4.65) (6.9,3.4) (5,2.95) (3.1,3.4)};
+\fill[ink] (2.85,4.18) circle (0.065);
+\fill[white, opacity=0.55] (2.827,4.203) circle (0.026);
+\fill[ink] (7.15,4.18) circle (0.065);
+\fill[white, opacity=0.55] (7.127,4.203) circle (0.026);
+\fill[ink] (2.95,3.55) circle (0.065);
+\fill[white, opacity=0.55] (2.927,3.573) circle (0.026);
+\fill[ink] (7.05,3.55) circle (0.065);
+\fill[white, opacity=0.55] (7.027,3.573) circle (0.026);
+\fill[glow, opacity=0.1] (5,3.45) ellipse (2 and 1.24);
+\fill[glow, opacity=0.14] (5,3.45) ellipse (1.6 and 0.992);
+\fill[glow, opacity=0.2] (5,3.45) ellipse (1.28 and 0.794);
+\filldraw[inked,fill=glow] (5,3.45) ellipse (1 and 0.62);
+\fill[glowhi]  (4.88,3.524) ellipse (0.55 and 0.341);
+\fill[white, opacity=0.9] (4.6,3.698) circle (0.112);
+\filldraw[inked,fill=hot] (5,3.45) ellipse (0.78 and 0.46);
+\fill[hothi] (4.95,3.48) ellipse (0.45 and 0.25);
+\fill[white, opacity=0.7] (4.85,3.53) ellipse (0.16 and 0.08);
+\draw[inked] (5,3.45) ellipse (0.78 and 0.46);
+\draw[ink, line width=6.984pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(2.5,3.6) (1.8,3.3) (1.55,3.85)};
+\draw[armourdark, line width=3.784pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(2.5,3.6) (1.8,3.3) (1.55,3.85)};
+\draw[ink, line width=6.984pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(7.5,3.6) (8.2,3.3) (8.45,3.85)};
+\draw[armourdark, line width=3.784pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(7.5,3.6) (8.2,3.3) (8.45,3.85)};
+\draw[ink, line width=19.959pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(2.6,4.9) (1.45,4.55)};
+\draw[wardendark, line width=16.759pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(2.6,4.9) (1.45,4.55)};
+\filldraw[inked,fill=armour] (2.6,4.9) circle (0.42);
+\fill[ink] (2.6,4.9) circle (0.08);
+\fill[white, opacity=0.55] (2.572,4.928) circle (0.032);
+\draw[ink, line width=19.959pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(7.4,4.9) (8.55,4.55)};
+\draw[wardendark, line width=16.759pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(7.4,4.9) (8.55,4.55)};
+\filldraw[inked,fill=armour] (7.4,4.9) circle (0.42);
+\fill[ink] (7.4,4.9) circle (0.08);
+\fill[white, opacity=0.55] (7.372,4.928) circle (0.032);
+\filldraw[inked, fill=wardendark] (0.15,4.55) -- (0.15,4.17) arc[start angle=180, end angle=360, x radius=1.3, y radius=0.546] -- (2.75,4.55) arc[start angle=0, end angle=-180, x radius=1.3, y radius=0.546] -- cycle;
+\fill[ink] (0.735,3.904) circle (0.055);
+\fill[white, opacity=0.55] (0.716,3.923) circle (0.022);
+\fill[ink] (1.45,3.814) circle (0.055);
+\fill[white, opacity=0.55] (1.431,3.833) circle (0.022);
+\fill[ink] (2.165,3.904) circle (0.055);
+\fill[white, opacity=0.55] (2.146,3.923) circle (0.022);
+\filldraw[inked,fill=warden] (1.45,4.55) ellipse (1.3 and 0.546);
+\fill[ink!80!wardendark]  (1.45,4.55) ellipse (0.988 and 0.415);
+\begin{scope}\clip  (1.45,4.55) ellipse (0.988 and 0.415);
+\filldraw[inked,fill=armour,line width=0.6pt] (1.45,4.55) .. controls (1.898,4.764) .. (2.372,4.618) .. controls (1.912,4.564) .. (1.45,4.55) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (1.45,4.55) .. controls (1.344,4.802) .. (1.58,4.939) .. controls (1.534,4.738) .. (1.45,4.55) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (1.45,4.55) .. controls (0.993,4.46) .. (0.609,4.722) .. controls (1.033,4.656) .. (1.45,4.55) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (1.45,4.55) .. controls (1.197,4.244) .. (0.8,4.267) .. controls (1.117,4.427) .. (1.45,4.55) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (1.45,4.55) .. controls (1.781,4.518) .. (1.889,4.203) .. controls (1.657,4.361) .. (1.45,4.55) -- cycle;
+\fill[white, opacity=0.18] (1.45,4.55) ellipse (0.91 and 0.382);
+\end{scope}
+\filldraw[inked,fill=metal] (1.45,4.55) circle (0.14);
+\draw[inked]  (1.45,4.55) ellipse (0.988 and 0.415);
+\draw[white, opacity=0.45, line width=2.08pt, line cap=round] ([shift={(150:1.144 and 0.48)}]1.45,4.55) arc[start angle=150, end angle=95, x radius=1.144, y radius=0.48];
+\filldraw[inked, fill=wardendark] (7.25,4.55) -- (7.25,4.17) arc[start angle=180, end angle=360, x radius=1.3, y radius=0.546] -- (9.85,4.55) arc[start angle=0, end angle=-180, x radius=1.3, y radius=0.546] -- cycle;
+\fill[ink] (7.835,3.904) circle (0.055);
+\fill[white, opacity=0.55] (7.816,3.923) circle (0.022);
+\fill[ink] (8.55,3.814) circle (0.055);
+\fill[white, opacity=0.55] (8.531,3.833) circle (0.022);
+\fill[ink] (9.265,3.904) circle (0.055);
+\fill[white, opacity=0.55] (9.246,3.923) circle (0.022);
+\filldraw[inked,fill=warden] (8.55,4.55) ellipse (1.3 and 0.546);
+\fill[ink!80!wardendark]  (8.55,4.55) ellipse (0.988 and 0.415);
+\begin{scope}\clip  (8.55,4.55) ellipse (0.988 and 0.415);
+\filldraw[inked,fill=armour,line width=0.6pt] (8.55,4.55) .. controls (8.998,4.764) .. (9.472,4.618) .. controls (9.012,4.564) .. (8.55,4.55) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (8.55,4.55) .. controls (8.444,4.802) .. (8.68,4.939) .. controls (8.634,4.738) .. (8.55,4.55) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (8.55,4.55) .. controls (8.093,4.46) .. (7.709,4.722) .. controls (8.133,4.656) .. (8.55,4.55) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (8.55,4.55) .. controls (8.297,4.244) .. (7.9,4.267) .. controls (8.217,4.427) .. (8.55,4.55) -- cycle;
+\filldraw[inked,fill=armour,line width=0.6pt] (8.55,4.55) .. controls (8.881,4.518) .. (8.989,4.203) .. controls (8.757,4.361) .. (8.55,4.55) -- cycle;
+\fill[white, opacity=0.18] (8.55,4.55) ellipse (0.91 and 0.382);
+\end{scope}
+\filldraw[inked,fill=metal] (8.55,4.55) circle (0.14);
+\draw[inked]  (8.55,4.55) ellipse (0.988 and 0.415);
+\draw[white, opacity=0.45, line width=2.08pt, line cap=round] ([shift={(150:1.144 and 0.48)}]8.55,4.55) arc[start angle=150, end angle=95, x radius=1.144, y radius=0.48];
+\draw[ink, line width=7.525pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(4.2,7.55) (5,8.05) (5.8,7.55)};
+\draw[armourdark, line width=4.325pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(4.2,7.55) (5,8.05) (5.8,7.55)};
+\end{scope}
+\end{tikzpicture}
+\end{document}

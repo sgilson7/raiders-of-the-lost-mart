@@ -1,0 +1,253 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{xcolor}
+\usetikzlibrary{calc}
+% Palette: Sam_Comm_final.png by eye, and the drones and raiders.
+\definecolor{ink}{HTML}{3B2340}
+\definecolor{sky}{HTML}{EFC46A}
+\definecolor{skyhi}{HTML}{F5DA92}
+\definecolor{skylow}{HTML}{E9B060}
+\definecolor{cloud}{HTML}{F2D58A}
+\definecolor{paper}{HTML}{FBEFD0}
+\definecolor{cream}{HTML}{FFF6E0}
+\definecolor{white}{HTML}{FFFFFF}
+\definecolor{wallA}{HTML}{E88A73}
+\definecolor{wallB}{HTML}{EE9F7E}
+\definecolor{wallC}{HTML}{E47A7E}
+\definecolor{wallD}{HTML}{F0B07E}
+\definecolor{wallE}{HTML}{D9765F}
+\definecolor{wallF}{HTML}{E99A8A}
+\definecolor{greenA}{HTML}{8DBB7E}
+\definecolor{greenB}{HTML}{6FA77A}
+\definecolor{greenC}{HTML}{A9C97F}
+\definecolor{greenD}{HTML}{5E9C6A}
+\definecolor{greenE}{HTML}{4A8060}
+\definecolor{sage}{HTML}{9DB98A}
+\definecolor{sagedark}{HTML}{6F8F66}
+\definecolor{sagelight}{HTML}{C2D6A6}
+\definecolor{window}{HTML}{F6E7A0}
+\definecolor{windark}{HTML}{8C5A64}
+\definecolor{metal}{HTML}{8D9A93}
+\definecolor{metaldark}{HTML}{5E6B66}
+\definecolor{metallight}{HTML}{B9C4BC}
+\definecolor{wood}{HTML}{B9835A}
+\definecolor{wooddark}{HTML}{8C5A3C}
+\definecolor{woodlight}{HTML}{D9A66F}
+\definecolor{stone}{HTML}{E7C9A0}
+\definecolor{stonedark}{HTML}{C9A47E}
+\definecolor{concrete}{HTML}{D8C3A4}
+\definecolor{concretedark}{HTML}{B8A084}
+\definecolor{asphalt}{HTML}{8E7A86}
+\definecolor{asphaltdark}{HTML}{6E5C68}
+\definecolor{roadline}{HTML}{F6E7A0}
+\definecolor{kerb}{HTML}{D8B48C}
+\definecolor{red}{HTML}{E0483E}
+\definecolor{redlight}{HTML}{F27A6A}
+\definecolor{gold}{HTML}{FFB000}
+\definecolor{goldlight}{HTML}{FFD54F}
+\definecolor{teal}{HTML}{4FA3A0}
+\definecolor{tealdark}{HTML}{3C8582}
+\definecolor{magenta}{HTML}{FF2E88}
+\definecolor{cyan}{HTML}{13CFE3}
+\definecolor{violet}{HTML}{8A5BD6}
+\definecolor{orange}{HTML}{F2803A}
+\definecolor{pink}{HTML}{F48FB1}
+\definecolor{glow}{HTML}{4FE6E0}
+\definecolor{glowhi}{HTML}{C8FFF9}
+\definecolor{hot}{HTML}{FF6A1A}
+\definecolor{hothi}{HTML}{FFD07A}
+\definecolor{armour}{HTML}{7E7A86}
+\definecolor{armourdark}{HTML}{5A5466}
+\definecolor{armourlight}{HTML}{A8A2B0}
+\definecolor{wasp}{HTML}{E0A82E}
+\definecolor{waspdark}{HTML}{B07E1A}
+\definecolor{moth}{HTML}{F2E6C8}
+\definecolor{mothdark}{HTML}{D2C09A}
+\definecolor{hornet}{HTML}{3C8582}
+\definecolor{hornetdark}{HTML}{2C6260}
+\definecolor{warden}{HTML}{E47A7E}
+\definecolor{wardendark}{HTML}{B85A62}
+\definecolor{tick}{HTML}{8DBB7E}
+\definecolor{tickdark}{HTML}{5E8A5A}
+\definecolor{strider}{HTML}{D9765F}
+\definecolor{striderdark}{HTML}{A8543F}
+\definecolor{jacket}{HTML}{6FA77A}
+\definecolor{jacketb}{HTML}{4FA3A0}
+\definecolor{jacketc}{HTML}{E88A73}
+\definecolor{jacketd}{HTML}{F0B07E}
+\definecolor{skin}{HTML}{F2C49A}
+\definecolor{skinb}{HTML}{C98C6A}
+\definecolor{skinc}{HTML}{8C5A3C}
+\definecolor{hair}{HTML}{3B2340}
+\definecolor{goo}{HTML}{B6E35A}
+\definecolor{goodark}{HTML}{7FB23A}
+\newcommand{\Ink}{1.6pt}
+\tikzset{inked/.style={draw=ink, line width=\Ink, line join=round, line cap=round}}
+\begin{document}
+\begin{tikzpicture}
+\clip (0,0) rectangle (10,10);
+\begin{scope}[shift={(0,0)}, scale=1]
+\fill[ink, opacity=0.10] (5,1.15) ellipse (5.152 and 0.688);
+\fill[ink, opacity=0.14] (5,1.15) ellipse (4.6 and 0.55);
+\draw[ink, line width=8.891pt, line cap=round, line join=round] (3.4,5.6) -- (2.6,8.4) -- (1.6,2.1);
+\draw[striderdark, line width=5.691pt, line cap=round, line join=round] (3.4,5.6) -- (2.6,8.4) -- (1.6,2.1);
+\draw[white, opacity=0.3, line width=1.423pt, line cap=round] (3.37,5.63) -- (2.57,8.43);
+\filldraw[inked,fill=armourdark] (2.6,8.4) circle (0.17);
+\fill[ink] (2.6,8.4) circle (0.05);
+\filldraw[inked,fill=armourdark] (1.791,2.155) -- (1.534,1.685) -- (1.435,2.211) -- cycle;
+\draw[ink, line width=8.891pt, line cap=round, line join=round] (5,5.75) -- (5.6,8.8) -- (6.1,2.35);
+\draw[striderdark, line width=5.691pt, line cap=round, line join=round] (5,5.75) -- (5.6,8.8) -- (6.1,2.35);
+\draw[white, opacity=0.3, line width=1.423pt, line cap=round] (4.97,5.78) -- (5.57,8.83);
+\filldraw[inked,fill=armourdark] (5.6,8.8) circle (0.17);
+\fill[ink] (5.6,8.8) circle (0.05);
+\filldraw[inked,fill=armourdark] (6.273,2.448) -- (6.132,1.931) -- (5.914,2.42) -- cycle;
+\draw[ink, line width=8.891pt, line cap=round, line join=round] (6.3,5.6) -- (8.3,8.35) -- (9.15,2.15);
+\draw[striderdark, line width=5.691pt, line cap=round, line join=round] (6.3,5.6) -- (8.3,8.35) -- (9.15,2.15);
+\draw[white, opacity=0.3, line width=1.423pt, line cap=round] (6.27,5.63) -- (8.27,8.38);
+\filldraw[inked,fill=armourdark] (8.3,8.35) circle (0.17);
+\fill[ink] (8.3,8.35) circle (0.05);
+\filldraw[inked,fill=armourdark] (9.317,2.258) -- (9.207,1.734) -- (8.96,2.209) -- cycle;
+\fill[glow, opacity=0.1] (7.6,3.85) ellipse (1.8 and 1.44);
+\fill[glow, opacity=0.14] (7.6,3.85) ellipse (1.44 and 1.152);
+\fill[glow, opacity=0.2] (7.6,3.85) ellipse (1.152 and 0.922);
+\filldraw[inked,fill=glow] (7.6,3.85) ellipse (0.9 and 0.72);
+\fill[glowhi]  (7.492,3.936) ellipse (0.495 and 0.396);
+\fill[white, opacity=0.9] (7.24,4.138) circle (0.13);
+\draw[glowhi, line width=1pt, line cap=round] (7.1,3.4) .. controls (7.35,3.95) .. (7.95,4.2);
+\fill[striderdark] plot[smooth cycle, tension=0.55] coordinates {(5.4,4.6) (6.4,6) (8,6.3) (9,5.4) (8.75,4.3) (7.6,4) (6.3,4)};
+\begin{scope}\clip plot[smooth cycle, tension=0.55] coordinates {(5.4,4.6) (6.4,6) (8,6.3) (9,5.4) (8.75,4.3) (7.6,4) (6.3,4)};
+\begin{scope}[shift={(-0.15,0.22)}]\fill[strider] plot[smooth cycle, tension=0.55] coordinates {(5.4,4.6) (6.4,6) (8,6.3) (9,5.4) (8.75,4.3) (7.6,4) (6.3,4)};\end{scope}
+\end{scope}
+\draw[inked] plot[smooth cycle, tension=0.55] coordinates {(5.4,4.6) (6.4,6) (8,6.3) (9,5.4) (8.75,4.3) (7.6,4) (6.3,4)};
+\begin{scope}\clip plot[smooth cycle, tension=0.55] coordinates {(5.4,4.6) (6.4,6) (8,6.3) (9,5.4) (8.75,4.3) (7.6,4) (6.3,4)};
+\begin{scope}\clip plot[smooth cycle, tension=0.55] coordinates {(5.4,4.6) (6.4,6) (8,6.3) (9,5.4) (8.75,4.3) (7.6,4) (6.3,4)};
+\fill[striderdark, opacity=0.5] (8.197,4.819) ellipse (0.067 and 0.063);
+\fill[striderdark, opacity=0.5] (6.145,5.105) ellipse (0.089 and 0.054);
+\fill[striderdark, opacity=0.5] (6.236,5.398) ellipse (0.085 and 0.064);
+\fill[striderdark, opacity=0.5] (5.885,6.019) ellipse (0.062 and 0.063);
+\fill[striderdark, opacity=0.5] (7.322,5.788) ellipse (0.063 and 0.043);
+\fill[striderdark, opacity=0.5] (6.062,5.68) ellipse (0.087 and 0.038);
+\fill[striderdark, opacity=0.5] (6.375,4.354) ellipse (0.064 and 0.052);
+\fill[striderdark, opacity=0.5] (7.113,5.538) ellipse (0.055 and 0.064);
+\fill[striderdark, opacity=0.5] (8.746,5.605) ellipse (0.102 and 0.064);
+\end{scope}
+\fill[white, opacity=0.3] (7.4,6.05) ellipse (0.7 and 0.12);
+\end{scope}
+\fill[armourdark] (6.5,5.85) -- (8.1,6.1) -- (8.65,5.3) -- (7.25,5.05) -- cycle;
+\begin{scope}\clip (6.5,5.85) -- (8.1,6.1) -- (8.65,5.3) -- (7.25,5.05) -- cycle;
+\begin{scope}[shift={(-0.1,0.13)}]\fill[armour] (6.5,5.85) -- (8.1,6.1) -- (8.65,5.3) -- (7.25,5.05) -- cycle;\end{scope}
+\end{scope}
+\draw[inked] (6.5,5.85) -- (8.1,6.1) -- (8.65,5.3) -- (7.25,5.05) -- cycle;
+\draw[armourlight, line width=1.92pt, line cap=round] (6.692,5.79) -- (7.7,5.947);
+\fill[ink] (6.95,5.65) circle (0.065);
+\fill[white, opacity=0.55] (6.927,5.673) circle (0.026);
+\fill[ink] (8.1,5.7) circle (0.065);
+\fill[white, opacity=0.55] (8.077,5.723) circle (0.026);
+\fill[armourdark] (7,4.7) -- (8.5,4.95) -- (8.55,4.45) -- (7.3,4.25) -- cycle;
+\begin{scope}\clip (7,4.7) -- (8.5,4.95) -- (8.55,4.45) -- (7.3,4.25) -- cycle;
+\begin{scope}[shift={(-0.1,0.13)}]\fill[armour] (7,4.7) -- (8.5,4.95) -- (8.55,4.45) -- (7.3,4.25) -- cycle;\end{scope}
+\end{scope}
+\draw[inked] (7,4.7) -- (8.5,4.95) -- (8.55,4.45) -- (7.3,4.25) -- cycle;
+\draw[armourlight, line width=1.92pt, line cap=round] (7.18,4.64) -- (8.125,4.798);
+\fill[ink] (7.55,4.55) circle (0.065);
+\fill[white, opacity=0.55] (7.527,4.573) circle (0.026);
+\draw[ink, line width=0.7pt, line cap=round, line join=round, opacity=0.8] plot[smooth, tension=0.5] coordinates {(6,4.25) (6.35,5) (6.9,4.4)};
+\fill[striderdark] plot[smooth cycle, tension=0.5] coordinates {(1.8,5.45) (2.4,6.45) (4.2,6.65) (5.75,6) (5.85,4.7) (4.3,4) (2.45,4.45)};
+\begin{scope}\clip plot[smooth cycle, tension=0.5] coordinates {(1.8,5.45) (2.4,6.45) (4.2,6.65) (5.75,6) (5.85,4.7) (4.3,4) (2.45,4.45)};
+\begin{scope}[shift={(-0.16,0.22)}]\fill[strider] plot[smooth cycle, tension=0.5] coordinates {(1.8,5.45) (2.4,6.45) (4.2,6.65) (5.75,6) (5.85,4.7) (4.3,4) (2.45,4.45)};\end{scope}
+\end{scope}
+\draw[inked] plot[smooth cycle, tension=0.5] coordinates {(1.8,5.45) (2.4,6.45) (4.2,6.65) (5.75,6) (5.85,4.7) (4.3,4) (2.45,4.45)};
+\begin{scope}\clip plot[smooth cycle, tension=0.5] coordinates {(1.8,5.45) (2.4,6.45) (4.2,6.65) (5.75,6) (5.85,4.7) (4.3,4) (2.45,4.45)};
+\begin{scope}\clip plot[smooth cycle, tension=0.5] coordinates {(1.8,5.45) (2.4,6.45) (4.2,6.65) (5.75,6) (5.85,4.7) (4.3,4) (2.45,4.45)};
+\fill[striderdark, opacity=0.5] (2.523,5.215) ellipse (0.056 and 0.061);
+\fill[striderdark, opacity=0.5] (4.029,4.434) ellipse (0.081 and 0.061);
+\fill[striderdark, opacity=0.5] (4.077,4.467) ellipse (0.116 and 0.032);
+\fill[striderdark, opacity=0.5] (5.067,6.343) ellipse (0.103 and 0.068);
+\fill[striderdark, opacity=0.5] (4.005,4.682) ellipse (0.083 and 0.06);
+\fill[striderdark, opacity=0.5] (4.813,5.046) ellipse (0.116 and 0.031);
+\fill[striderdark, opacity=0.5] (3.886,4.287) ellipse (0.075 and 0.07);
+\fill[striderdark, opacity=0.5] (2.601,6.368) ellipse (0.113 and 0.058);
+\end{scope}
+\fill[white, opacity=0.3] (4.6,6.4) ellipse (0.6 and 0.12);
+\end{scope}
+\fill[armourdark] (3.6,4.35) -- (5.55,4.6) -- (5.6,5.4) -- (3.75,5.2) -- cycle;
+\begin{scope}\clip (3.6,4.35) -- (5.55,4.6) -- (5.6,5.4) -- (3.75,5.2) -- cycle;
+\begin{scope}[shift={(-0.1,0.13)}]\fill[armour] (3.6,4.35) -- (5.55,4.6) -- (5.6,5.4) -- (3.75,5.2) -- cycle;\end{scope}
+\end{scope}
+\draw[inked] (3.6,4.35) -- (5.55,4.6) -- (5.6,5.4) -- (3.75,5.2) -- cycle;
+\draw[armourlight, line width=1.92pt, line cap=round] (3.834,4.29) -- (5.062,4.447);
+\fill[ink] (4,4.75) circle (0.065);
+\fill[white, opacity=0.55] (3.977,4.773) circle (0.026);
+\fill[ink] (5.25,4.95) circle (0.065);
+\fill[white, opacity=0.55] (5.227,4.973) circle (0.026);
+\draw[ink, line width=0.7pt, line cap=round, line join=round, opacity=0.8] plot[smooth, tension=0.5] coordinates {(3.25,6.5) (3.05,5.4) (3.35,4.3)};
+\filldraw[inked,fill=striderdark,rounded corners=0.06cm] (4.15,5.55) rectangle (4.75,5.9);
+\draw[ink, line width=0.8pt, line cap=round] (4.23,5.667) -- (4.67,5.667);
+\draw[ink, line width=0.8pt, line cap=round] (4.23,5.783) -- (4.67,5.783);
+\filldraw[inked,fill=armourdark] (3.85,6.55) ellipse (0.95 and 0.3);
+\filldraw[inked,fill=metal,rounded corners=0.08cm] (1.1,6.85) rectangle (3.5,7.06);
+\filldraw[inked,fill=metaldark,rounded corners=0.06cm] (0.95,6.8) rectangle (1.3,7.11);
+\filldraw[inked,fill=metal,rounded corners=0.08cm] (1.1,7.15) rectangle (3.5,7.36);
+\filldraw[inked,fill=metaldark,rounded corners=0.06cm] (0.95,7.1) rectangle (1.3,7.41);
+\filldraw[inked, fill=armour] (3.0,6.55) -- (3.1,7.15) .. controls (3.35,7.75) and (4.35,7.75) .. (4.7,7.15) -- (4.75,6.55) -- cycle;
+\fill[armourlight] (3.3,7.15) .. controls (3.5,7.5) and (3.95,7.55) .. (4.15,7.45) -- (4.05,7.35) .. controls (3.75,7.4) and (3.5,7.35) .. (3.4,7.1) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round, line join=round, opacity=0.8] plot[smooth, tension=0.5] coordinates {(3.05,6.85) (4.75,6.85)};
+\fill[ink] (3.35,6.7) circle (0.065);
+\fill[white, opacity=0.55] (3.327,6.723) circle (0.026);
+\fill[ink] (4.4,6.7) circle (0.065);
+\fill[white, opacity=0.55] (4.377,6.723) circle (0.026);
+\draw[ink, line width=6.614pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(4.7,6.9) (5.5,6.7) (6.3,6)};
+\draw[armourdark, line width=3.414pt, line cap=round, line join=round] plot[smooth, tension=0.55] coordinates {(4.7,6.9) (5.5,6.7) (6.3,6)};
+\filldraw[inked,fill=armourdark] (2.2,5.65) circle (0.366);
+\filldraw[inked,fill=red] (2.2,5.65) circle (0.3);
+\fill[redlight] (2.155,5.695) circle (0.186);
+\fill[red!60!ink] (2.215,5.635) circle (0.108);
+\draw[ink, line width=1.12pt] (2.2,5.65) circle (0.108);
+\fill[white, opacity=0.9] (2.074,5.77) circle (0.06);
+\fill[white, opacity=0.9] (2.305,5.536) circle (0.027);
+\draw[inked] (2.2,5.65) circle (0.3);
+\filldraw[inked,fill=armourdark] (2.85,5.85) circle (0.293);
+\filldraw[inked,fill=red] (2.85,5.85) circle (0.24);
+\fill[redlight] (2.814,5.886) circle (0.149);
+\fill[red!60!ink] (2.862,5.838) circle (0.086);
+\draw[ink, line width=1.12pt] (2.85,5.85) circle (0.086);
+\fill[white, opacity=0.9] (2.749,5.946) circle (0.048);
+\fill[white, opacity=0.9] (2.934,5.759) circle (0.022);
+\draw[inked] (2.85,5.85) circle (0.24);
+\filldraw[inked,fill=armourdark] (2.6,5.15) circle (0.268);
+\filldraw[inked,fill=red] (2.6,5.15) circle (0.22);
+\fill[redlight] (2.567,5.183) circle (0.136);
+\fill[red!60!ink] (2.611,5.139) circle (0.079);
+\draw[ink, line width=1.12pt] (2.6,5.15) circle (0.079);
+\fill[white, opacity=0.9] (2.508,5.238) circle (0.044);
+\fill[white, opacity=0.9] (2.677,5.066) circle (0.02);
+\draw[inked] (2.6,5.15) circle (0.22);
+\filldraw[inked,fill=armourdark] (3.5,4.35) circle (0.3);
+\fill[ink] (3.5,4.35) circle (0.08);
+\fill[white, opacity=0.55] (3.472,4.378) circle (0.032);
+\draw[ink, line width=9.744pt, line cap=round, line join=round] (3.5,4.35) -- (1,5) -- (0.4,0.9);
+\draw[strider, line width=6.544pt, line cap=round, line join=round] (3.5,4.35) -- (1,5) -- (0.4,0.9);
+\draw[white, opacity=0.3, line width=1.636pt, line cap=round] (3.466,4.385) -- (0.966,5.035);
+\filldraw[inked,fill=armourdark] (1,5) circle (0.196);
+\fill[ink] (1,5) circle (0.058);
+\filldraw[inked,fill=armourdark] (0.619,0.965) -- (0.33,0.425) -- (0.209,1.025) -- cycle;
+\filldraw[inked,fill=armourdark] (5.3,4.05) circle (0.3);
+\fill[ink] (5.3,4.05) circle (0.08);
+\fill[white, opacity=0.55] (5.272,4.078) circle (0.032);
+\draw[ink, line width=9.744pt, line cap=round, line join=round] (5.3,4.05) -- (4.85,5) -- (3.85,0.6);
+\draw[strider, line width=6.544pt, line cap=round, line join=round] (5.3,4.05) -- (4.85,5) -- (3.85,0.6);
+\draw[white, opacity=0.3, line width=1.636pt, line cap=round] (5.265,4.085) -- (4.815,5.035);
+\filldraw[inked,fill=armourdark] (4.85,5) circle (0.196);
+\fill[ink] (4.85,5) circle (0.058);
+\filldraw[inked,fill=armourdark] (4.073,0.648) -- (3.744,0.132) -- (3.669,0.739) -- cycle;
+\filldraw[inked,fill=armourdark] (7,4.15) circle (0.3);
+\fill[ink] (7,4.15) circle (0.08);
+\fill[white, opacity=0.55] (6.972,4.178) circle (0.032);
+\draw[ink, line width=9.744pt, line cap=round, line join=round] (7,4.15) -- (9.25,6.2) -- (9.65,0.85);
+\draw[strider, line width=6.544pt, line cap=round, line join=round] (7,4.15) -- (9.25,6.2) -- (9.65,0.85);
+\draw[white, opacity=0.3, line width=1.636pt, line cap=round] (6.965,4.185) -- (9.216,6.235);
+\filldraw[inked,fill=armourdark] (9.25,6.2) circle (0.196);
+\fill[ink] (9.25,6.2) circle (0.058);
+\filldraw[inked,fill=armourdark] (9.849,0.961) -- (9.686,0.371) -- (9.436,0.93) -- cycle;
+\end{scope}
+\end{tikzpicture}
+\end{document}

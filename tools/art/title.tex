@@ -1,0 +1,1686 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{xcolor}
+\usetikzlibrary{calc}
+% Palette: Sam_Comm_final.png by eye, and the drones and raiders.
+\definecolor{ink}{HTML}{3B2340}
+\definecolor{sky}{HTML}{EFC46A}
+\definecolor{skyhi}{HTML}{F5DA92}
+\definecolor{skylow}{HTML}{E9B060}
+\definecolor{cloud}{HTML}{F2D58A}
+\definecolor{paper}{HTML}{FBEFD0}
+\definecolor{cream}{HTML}{FFF6E0}
+\definecolor{white}{HTML}{FFFFFF}
+\definecolor{wallA}{HTML}{E88A73}
+\definecolor{wallB}{HTML}{EE9F7E}
+\definecolor{wallC}{HTML}{E47A7E}
+\definecolor{wallD}{HTML}{F0B07E}
+\definecolor{wallE}{HTML}{D9765F}
+\definecolor{wallF}{HTML}{E99A8A}
+\definecolor{greenA}{HTML}{8DBB7E}
+\definecolor{greenB}{HTML}{6FA77A}
+\definecolor{greenC}{HTML}{A9C97F}
+\definecolor{greenD}{HTML}{5E9C6A}
+\definecolor{greenE}{HTML}{4A8060}
+\definecolor{sage}{HTML}{9DB98A}
+\definecolor{sagedark}{HTML}{6F8F66}
+\definecolor{sagelight}{HTML}{C2D6A6}
+\definecolor{window}{HTML}{F6E7A0}
+\definecolor{windark}{HTML}{8C5A64}
+\definecolor{metal}{HTML}{8D9A93}
+\definecolor{metaldark}{HTML}{5E6B66}
+\definecolor{metallight}{HTML}{B9C4BC}
+\definecolor{wood}{HTML}{B9835A}
+\definecolor{wooddark}{HTML}{8C5A3C}
+\definecolor{woodlight}{HTML}{D9A66F}
+\definecolor{stone}{HTML}{E7C9A0}
+\definecolor{stonedark}{HTML}{C9A47E}
+\definecolor{concrete}{HTML}{D8C3A4}
+\definecolor{concretedark}{HTML}{B8A084}
+\definecolor{asphalt}{HTML}{8E7A86}
+\definecolor{asphaltdark}{HTML}{6E5C68}
+\definecolor{roadline}{HTML}{F6E7A0}
+\definecolor{kerb}{HTML}{D8B48C}
+\definecolor{red}{HTML}{E0483E}
+\definecolor{redlight}{HTML}{F27A6A}
+\definecolor{gold}{HTML}{FFB000}
+\definecolor{goldlight}{HTML}{FFD54F}
+\definecolor{teal}{HTML}{4FA3A0}
+\definecolor{tealdark}{HTML}{3C8582}
+\definecolor{magenta}{HTML}{FF2E88}
+\definecolor{cyan}{HTML}{13CFE3}
+\definecolor{violet}{HTML}{8A5BD6}
+\definecolor{orange}{HTML}{F2803A}
+\definecolor{pink}{HTML}{F48FB1}
+\definecolor{glow}{HTML}{4FE6E0}
+\definecolor{glowhi}{HTML}{C8FFF9}
+\definecolor{hot}{HTML}{FF6A1A}
+\definecolor{hothi}{HTML}{FFD07A}
+\definecolor{armour}{HTML}{7E7A86}
+\definecolor{armourdark}{HTML}{5A5466}
+\definecolor{armourlight}{HTML}{A8A2B0}
+\definecolor{wasp}{HTML}{E0A82E}
+\definecolor{waspdark}{HTML}{B07E1A}
+\definecolor{moth}{HTML}{F2E6C8}
+\definecolor{mothdark}{HTML}{D2C09A}
+\definecolor{hornet}{HTML}{3C8582}
+\definecolor{hornetdark}{HTML}{2C6260}
+\definecolor{warden}{HTML}{E47A7E}
+\definecolor{wardendark}{HTML}{B85A62}
+\definecolor{tick}{HTML}{8DBB7E}
+\definecolor{tickdark}{HTML}{5E8A5A}
+\definecolor{strider}{HTML}{D9765F}
+\definecolor{striderdark}{HTML}{A8543F}
+\definecolor{jacket}{HTML}{6FA77A}
+\definecolor{jacketb}{HTML}{4FA3A0}
+\definecolor{jacketc}{HTML}{E88A73}
+\definecolor{jacketd}{HTML}{F0B07E}
+\definecolor{skin}{HTML}{F2C49A}
+\definecolor{skinb}{HTML}{C98C6A}
+\definecolor{skinc}{HTML}{8C5A3C}
+\definecolor{hair}{HTML}{3B2340}
+\definecolor{goo}{HTML}{B6E35A}
+\definecolor{goodark}{HTML}{7FB23A}
+\newcommand{\Ink}{1.15pt}
+\tikzset{inked/.style={draw=ink, line width=\Ink, line join=round, line cap=round}}
+\begin{document}
+\begin{tikzpicture}
+\clip (0,0) rectangle (25.6,14.4);
+\fill[sky] (0,0) rectangle (25.6,14.4);
+\fill[skyhi] (0,11.232) rectangle (25.6,14.4);
+\fill[skylow] (0,0) rectangle (25.6,4.32);
+\filldraw[inked,fill=cloud] (1.55,12.9) circle (0.578);
+\filldraw[inked,fill=cloud] (2.127,13.162) circle (0.735);
+\filldraw[inked,fill=cloud] (2.81,13.268) circle (0.84);
+\filldraw[inked,fill=cloud] (3.493,13.058) circle (0.63);
+\filldraw[inked,fill=cloud] (4.018,12.848) circle (0.473);
+\fill[cloud] (1.55,12.742) rectangle (4.018,12.953);
+\draw[ink, line width=1.15pt, line cap=round] (1.288,12.742) -- (4.28,12.742);
+\filldraw[inked,fill=cloud] (9.25,13.5) circle (0.413);
+\filldraw[inked,fill=cloud] (9.662,13.688) circle (0.525);
+\filldraw[inked,fill=cloud] (10.15,13.762) circle (0.6);
+\filldraw[inked,fill=cloud] (10.637,13.613) circle (0.45);
+\filldraw[inked,fill=cloud] (11.012,13.463) circle (0.338);
+\fill[cloud] (9.25,13.387) rectangle (11.012,13.537);
+\draw[ink, line width=1.15pt, line cap=round] (9.062,13.387) -- (11.2,13.387);
+\filldraw[inked,fill=cloud] (16.65,12.7) circle (0.522);
+\filldraw[inked,fill=cloud] (17.173,12.938) circle (0.665);
+\filldraw[inked,fill=cloud] (17.79,13.032) circle (0.76);
+\filldraw[inked,fill=cloud] (18.408,12.842) circle (0.57);
+\filldraw[inked,fill=cloud] (18.883,12.652) circle (0.427);
+\fill[cloud] (16.65,12.557) rectangle (18.883,12.747);
+\draw[ink, line width=1.15pt, line cap=round] (16.413,12.557) -- (19.12,12.557);
+\filldraw[inked,fill=cloud] (23,13.4) circle (0.44);
+\filldraw[inked,fill=cloud] (23.44,13.6) circle (0.56);
+\filldraw[inked,fill=cloud] (23.96,13.68) circle (0.64);
+\filldraw[inked,fill=cloud] (24.48,13.52) circle (0.48);
+\filldraw[inked,fill=cloud] (24.88,13.36) circle (0.36);
+\fill[cloud] (23,13.28) rectangle (24.88,13.44);
+\draw[ink, line width=1.15pt, line cap=round] (22.8,13.28) -- (25.08,13.28);
+\filldraw[inked,fill=cloud] (5.95,10.6) circle (0.303);
+\filldraw[inked,fill=cloud] (6.253,10.737) circle (0.385);
+\filldraw[inked,fill=cloud] (6.61,10.793) circle (0.44);
+\filldraw[inked,fill=cloud] (6.968,10.682) circle (0.33);
+\filldraw[inked,fill=cloud] (7.242,10.572) circle (0.248);
+\fill[cloud] (5.95,10.518) rectangle (7.242,10.627);
+\draw[ink, line width=1.15pt, line cap=round] (5.812,10.518) -- (7.38,10.518);
+\filldraw[inked,fill=greenD] plot[smooth, tension=0.6] coordinates {(-0.5,5.94) (1,7.04) (2.5,7.44) (4,6.84) (6,6.54)} -- (6,5.84) -- (-0.5,5.84) -- cycle;
+\filldraw[inked,fill=greenE] plot[smooth, tension=0.6] coordinates {(17,5.94) (19,8.84) (22,9.24) (26,8.54)} -- (26,5.84) -- (17,5.84) -- cycle;
+\filldraw[inked,fill=greenB] plot[smooth, tension=0.6] coordinates {(-0.5,5.94) (0.5,6.54) (2,6.74) (3,6.34)} -- (3,5.84) -- (-0.5,5.84) -- cycle;
+\filldraw[inked,fill=stone] (7.6,5.94) rectangle (25.8,8.415);
+\filldraw[inked,fill=wallE!85!stone,line width=0.8pt] (7.6,5.94) rectangle (25.8,6.952);
+\filldraw[inked,fill=concrete,line width=0.8pt] (7.54,8.295) rectangle (25.86,8.495);
+\draw[ink, line width=0.7pt, line cap=round] (7.6,7.245) -- (25.8,7.245);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (8.1,5.94) rectangle (8.24,8.325);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (9.286,5.94) rectangle (9.426,8.325);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (10.648,5.94) rectangle (10.788,8.325);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (11.789,5.94) rectangle (11.929,8.325);
+\filldraw[inked,fill=windark,line width=0.6pt] (12.139,7.425) rectangle (12.539,8.032);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (12.944,5.94) rectangle (13.084,8.325);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (14.018,5.94) rectangle (14.158,8.325);
+\filldraw[inked,fill=windark,line width=0.6pt] (14.368,7.425) rectangle (14.768,8.032);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (15.28,5.94) rectangle (15.42,8.325);
+\filldraw[inked,fill=windark,line width=0.6pt] (15.63,7.425) rectangle (16.03,8.032);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (16.515,5.94) rectangle (16.655,8.325);
+\filldraw[inked,fill=windark,line width=0.6pt] (16.865,7.425) rectangle (17.265,8.032);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (17.735,5.94) rectangle (17.875,8.325);
+\filldraw[inked,fill=windark,line width=0.6pt] (18.085,7.425) rectangle (18.485,8.032);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (18.973,5.94) rectangle (19.113,8.325);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (20.255,5.94) rectangle (20.395,8.325);
+\filldraw[inked,fill=windark,line width=0.6pt] (20.605,7.425) rectangle (21.005,8.032);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (21.523,5.94) rectangle (21.663,8.325);
+\filldraw[inked,fill=windark,line width=0.6pt] (21.873,7.425) rectangle (22.273,8.032);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (22.742,5.94) rectangle (22.882,8.325);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (24.111,5.94) rectangle (24.251,8.325);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (25.214,5.94) rectangle (25.354,8.325);
+\filldraw[inked,fill=metal,line width=0.7pt] (9.4,8.438) rectangle (9.82,8.73);
+\draw[ink, line width=0.6pt, line cap=round] (9.5,8.73) -- (9.72,8.73);
+\filldraw[inked,fill=metal,line width=0.7pt] (13.6,8.438) rectangle (14.02,8.73);
+\draw[ink, line width=0.6pt, line cap=round] (13.7,8.73) -- (13.92,8.73);
+\filldraw[inked,fill=metal,line width=0.7pt] (14.4,8.438) rectangle (14.82,8.73);
+\draw[ink, line width=0.6pt, line cap=round] (14.5,8.73) -- (14.72,8.73);
+\filldraw[inked,fill=metal,line width=0.7pt] (18.2,8.438) rectangle (18.62,8.73);
+\draw[ink, line width=0.6pt, line cap=round] (18.3,8.73) -- (18.52,8.73);
+\filldraw[inked,fill=metal,line width=0.7pt] (23.2,8.438) rectangle (23.62,8.73);
+\draw[ink, line width=0.6pt, line cap=round] (23.3,8.73) -- (23.52,8.73);
+\draw[ink, line width=0.7pt, line cap=round] (12.9,8.438) -- (12.9,9.203);
+\draw[ink, line width=0.6pt, line cap=round] (12.75,8.977) -- (13.05,8.977);
+\draw[ink, line width=0.7pt, line cap=round] (17.5,8.438) -- (17.5,9.203);
+\draw[ink, line width=0.6pt, line cap=round] (17.35,8.977) -- (17.65,8.977);
+\draw[ink, line width=0.7pt, line cap=round] (22,8.438) -- (22,9.203);
+\draw[ink, line width=0.6pt, line cap=round] (21.85,8.977) -- (22.15,8.977);
+\draw[metaldark, line width=0.5pt, line cap=round] (7.6,8.685) -- (25.8,8.685);
+\filldraw[inked,fill=wallD!35!stone] (2.4,5.94) rectangle (7.8,9.54);
+\filldraw[inked,fill=wallE!85!stone,line width=0.8pt] (2.4,5.94) rectangle (7.8,6.727);
+\filldraw[inked,fill=concrete,line width=0.8pt] (2.34,9.42) rectangle (7.86,9.62);
+\filldraw[inked,fill=stonedark,line width=0.6pt] (2.8,8.752) rectangle (7.4,8.865);
+\filldraw[inked,fill=teal] (5.1,7.65) -- (5.55,8.1) -- (5.1,8.55) -- (4.65,8.1) -- cycle;
+\filldraw[inked,fill=gold,line width=0.7pt] (5.1,7.852) -- (5.3,8.1) -- (5.1,8.348) -- (4.9,8.1) -- cycle;
+\filldraw[inked,fill=teal,line width=0.7pt] (3.4,7.965) rectangle (4.4,8.055);
+\filldraw[inked,fill=teal,line width=0.7pt] (5.8,7.965) rectangle (6.8,8.055);
+\filldraw[inked,fill=gold,line width=0.7pt] (3.4,8.145) rectangle (4.2,8.235);
+\filldraw[inked,fill=gold,line width=0.7pt] (6,8.145) rectangle (6.8,8.235);
+\filldraw[inked,fill=windark,line width=0.7pt] (4.4,5.94) rectangle (5.8,6.705);
+\filldraw[inked,fill=teal,line width=0.8pt] (4.2,6.705) rectangle (6,6.84);
+\draw[ink, line width=0.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(2.9,9.428) (2.825,9.017) (2.983,8.606) (2.971,8.196) (2.891,7.785)};
+\filldraw[inked,fill=greenB,line width=0.6pt] (2.957,9.245) .. controls (3.087,9.261) .. (3.177,9.165) .. controls (3.046,9.149) .. (2.957,9.245) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.931,9.063) .. controls (2.842,8.966) .. (2.711,8.983) .. controls (2.801,9.079) .. (2.931,9.063) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (2.95,8.88) .. controls (3.081,8.897) .. (3.17,8.8) .. controls (3.04,8.784) .. (2.95,8.88) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (2.946,8.698) .. controls (2.856,8.601) .. (2.726,8.618) .. controls (2.815,8.714) .. (2.946,8.698) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.905,8.515) .. controls (3.035,8.532) .. (3.125,8.435) .. controls (2.994,8.419) .. (2.905,8.515) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (2.878,8.333) .. controls (2.788,8.236) .. (2.658,8.253) .. controls (2.747,8.349) .. (2.878,8.333) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (2.863,8.15) .. controls (2.993,8.167) .. (3.083,8.07) .. controls (2.952,8.054) .. (2.863,8.15) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (2.853,7.968) .. controls (2.763,7.872) .. (2.633,7.888) .. controls (2.722,7.984) .. (2.853,7.968) -- cycle;
+\draw[ink, line width=0.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(7.1,9.428) (7.08,9.056) (7.068,8.684) (7.219,8.312) (7.009,7.94)};
+\filldraw[inked,fill=greenA,line width=0.6pt] (7.02,9.262) .. controls (7.151,9.279) .. (7.24,9.182) .. controls (7.11,9.166) .. (7.02,9.262) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (7.088,9.097) .. controls (6.998,9.001) .. (6.868,9.017) .. controls (6.957,9.113) .. (7.088,9.097) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (7.139,8.932) .. controls (7.269,8.948) .. (7.359,8.852) .. controls (7.228,8.835) .. (7.139,8.932) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (7.022,8.767) .. controls (6.932,8.67) .. (6.802,8.687) .. controls (6.891,8.783) .. (7.022,8.767) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (7.09,8.601) .. controls (7.221,8.618) .. (7.31,8.521) .. controls (7.18,8.505) .. (7.09,8.601) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (7.069,8.436) .. controls (6.979,8.34) .. (6.849,8.356) .. controls (6.938,8.453) .. (7.069,8.436) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (7.103,8.271) .. controls (7.234,8.287) .. (7.323,8.191) .. controls (7.193,8.175) .. (7.103,8.271) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (7.166,8.106) .. controls (7.076,8.009) .. (6.946,8.026) .. controls (7.035,8.122) .. (7.166,8.106) -- cycle;
+\filldraw[inked,fill=metal,line width=0.7pt] (3.2,9.562) rectangle (3.7,9.855);
+\filldraw[inked,fill=metal,line width=0.7pt] (6.2,9.562) rectangle (6.7,9.855);
+\filldraw[inked,fill=concrete] (10.4,5.94) rectangle (12.7,10.665);
+\filldraw[inked,fill=stonedark,line width=0.8pt] (10.32,10.552) rectangle (12.78,10.8);
+\filldraw[inked,fill=concrete,line width=0.8pt] (10.25,10.8) rectangle (12.85,10.935);
+\filldraw[inked,fill=window!70!skylow,line width=0.7pt] (10.7,5.94) rectangle (12.4,10.102);
+\fill[windark] (10.7,8.715) rectangle (11.125,9.409);
+\fill[windark] (11.125,8.715) rectangle (11.55,9.409);
+\fill[windark] (11.55,5.94) rectangle (11.975,6.634);
+\fill[windark] (11.55,6.634) rectangle (11.975,7.327);
+\fill[windark] (11.975,6.634) rectangle (12.4,7.327);
+\draw[ink, line width=0.56pt, line cap=round] (11.125,5.94) -- (11.125,10.102);
+\draw[ink, line width=0.56pt, line cap=round] (11.55,5.94) -- (11.55,10.102);
+\draw[ink, line width=0.56pt, line cap=round] (11.975,5.94) -- (11.975,10.102);
+\draw[ink, line width=0.56pt, line cap=round] (10.7,6.634) -- (12.4,6.634);
+\draw[ink, line width=0.56pt, line cap=round] (10.7,7.327) -- (12.4,7.327);
+\draw[ink, line width=0.56pt, line cap=round] (10.7,8.021) -- (12.4,8.021);
+\draw[ink, line width=0.56pt, line cap=round] (10.7,8.715) -- (12.4,8.715);
+\draw[ink, line width=0.56pt, line cap=round] (10.7,9.409) -- (12.4,9.409);
+\fill[white, opacity=0.35] (10.828,6.04) -- (10.955,6.04) -- (11.252,10.002) -- (11.125,10.002) -- cycle;
+\filldraw[inked,fill=tealdark,line width=0.9pt] (9.9,6.885) rectangle (13.2,7.087);
+\draw[ink, line width=1pt, line cap=round] (10.05,5.94) -- (10.05,6.885);
+\draw[ink, line width=1pt, line cap=round] (13.05,5.94) -- (13.05,6.885);
+\draw[ink, line width=0.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(10.45,10.53) (10.424,10.13) (10.374,9.73) (10.446,9.33) (10.528,8.93)};
+\filldraw[inked,fill=greenA,line width=0.6pt] (10.388,10.352) .. controls (10.518,10.369) .. (10.608,10.272) .. controls (10.477,10.256) .. (10.388,10.352) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.518,10.174) .. controls (10.429,10.078) .. (10.298,10.094) .. controls (10.388,10.191) .. (10.518,10.174) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (10.467,9.997) .. controls (10.597,10.013) .. (10.687,9.917) .. controls (10.556,9.9) .. (10.467,9.997) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (10.403,9.819) .. controls (10.314,9.723) .. (10.183,9.739) .. controls (10.273,9.835) .. (10.403,9.819) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (10.53,9.641) .. controls (10.66,9.657) .. (10.75,9.561) .. controls (10.619,9.545) .. (10.53,9.641) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.419,9.463) .. controls (10.33,9.367) .. (10.199,9.383) .. controls (10.289,9.48) .. (10.419,9.463) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (10.458,9.286) .. controls (10.588,9.302) .. (10.678,9.206) .. controls (10.547,9.189) .. (10.458,9.286) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (10.474,9.108) .. controls (10.385,9.011) .. (10.254,9.028) .. controls (10.344,9.124) .. (10.474,9.108) -- cycle;
+\draw[ink, line width=0.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(12.65,10.53) (12.647,10.305) (12.701,10.08) (12.728,9.855) (12.613,9.63)};
+\filldraw[inked,fill=greenD,line width=0.6pt] (12.62,10.43) .. controls (12.75,10.446) .. (12.84,10.35) .. controls (12.709,10.334) .. (12.62,10.43) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (12.69,10.33) .. controls (12.6,10.234) .. (12.47,10.25) .. controls (12.559,10.346) .. (12.69,10.33) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (12.722,10.23) .. controls (12.852,10.246) .. (12.942,10.15) .. controls (12.811,10.134) .. (12.722,10.23) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (12.618,10.13) .. controls (12.528,10.034) .. (12.398,10.05) .. controls (12.487,10.146) .. (12.618,10.13) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (12.671,10.03) .. controls (12.802,10.046) .. (12.891,9.95) .. controls (12.761,9.934) .. (12.671,10.03) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (12.623,9.93) .. controls (12.533,9.834) .. (12.403,9.85) .. controls (12.492,9.946) .. (12.623,9.93) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (12.639,9.83) .. controls (12.77,9.846) .. (12.859,9.75) .. controls (12.729,9.734) .. (12.639,9.83) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.683,9.73) .. controls (12.593,9.634) .. (12.463,9.65) .. controls (12.552,9.746) .. (12.683,9.73) -- cycle;
+\filldraw[inked,fill=wallA!55!stone] (14.8,5.94) rectangle (17.2,9.315);
+\filldraw[inked,fill=wallE!85!stone,line width=0.8pt] (14.8,5.94) rectangle (17.2,6.952);
+\filldraw[inked,fill=concrete,line width=0.8pt] (14.74,9.195) rectangle (17.26,9.395);
+\filldraw[inked,fill=gold,line width=0.8pt] (15,7.177) rectangle (17,7.56);
+\filldraw[inked,fill=cream,line width=0.4pt] (15.25,7.369) circle (0.06);
+\filldraw[inked,fill=cream,line width=0.4pt] (15.55,7.369) circle (0.06);
+\filldraw[inked,fill=cream,line width=0.4pt] (15.85,7.369) circle (0.06);
+\filldraw[inked,fill=cream,line width=0.4pt] (16.15,7.369) circle (0.06);
+\filldraw[inked,fill=cream,line width=0.4pt] (16.45,7.369) circle (0.06);
+\filldraw[inked,fill=cream,line width=0.4pt] (16.75,7.369) circle (0.06);
+\filldraw[inked,fill=magenta!70!wallC,line width=0.9pt] (16.65,7.74) rectangle (17.15,10.102);
+\filldraw[inked,fill=gold,line width=0.5pt] (16.75,7.875) rectangle (17.05,8.095);
+\filldraw[inked,fill=gold,line width=0.5pt] (16.75,8.185) rectangle (17.05,8.405);
+\filldraw[inked,fill=glowhi,line width=0.5pt] (16.75,8.495) rectangle (17.05,8.715);
+\filldraw[inked,fill=cream,line width=0.5pt] (16.75,8.805) rectangle (17.05,9.025);
+\filldraw[inked,fill=glowhi,line width=0.5pt] (16.75,9.115) rectangle (17.05,9.335);
+\filldraw[inked,fill=glowhi,line width=0.5pt] (16.75,9.425) rectangle (17.05,9.645);
+\filldraw[inked,fill=glowhi,line width=0.5pt] (16.75,9.735) rectangle (17.05,9.955);
+\filldraw[inked,fill=concrete] (19.4,5.94) rectangle (21.4,10.44);
+\filldraw[inked,fill=concrete,line width=0.8pt] (19.25,10.44) rectangle (21.55,10.575);
+\filldraw[inked,fill=window!70!skylow,line width=0.7pt] (19.7,5.94) rectangle (21.1,9.877);
+\fill[windark] (19.7,5.94) rectangle (20.167,6.596);
+\fill[windark] (19.7,7.909) rectangle (20.167,8.565);
+\fill[windark] (19.7,8.565) rectangle (20.167,9.221);
+\fill[windark] (20.167,9.221) rectangle (20.633,9.877);
+\fill[windark] (20.633,5.94) rectangle (21.1,6.596);
+\fill[windark] (20.633,7.909) rectangle (21.1,8.565);
+\fill[windark] (20.633,9.221) rectangle (21.1,9.877);
+\draw[ink, line width=0.56pt, line cap=round] (20.167,5.94) -- (20.167,9.877);
+\draw[ink, line width=0.56pt, line cap=round] (20.633,5.94) -- (20.633,9.877);
+\draw[ink, line width=0.56pt, line cap=round] (19.7,6.596) -- (21.1,6.596);
+\draw[ink, line width=0.56pt, line cap=round] (19.7,7.252) -- (21.1,7.252);
+\draw[ink, line width=0.56pt, line cap=round] (19.7,7.909) -- (21.1,7.909);
+\draw[ink, line width=0.56pt, line cap=round] (19.7,8.565) -- (21.1,8.565);
+\draw[ink, line width=0.56pt, line cap=round] (19.7,9.221) -- (21.1,9.221);
+\fill[white, opacity=0.35] (19.84,6.04) -- (19.98,6.04) -- (20.307,9.777) -- (20.167,9.777) -- cycle;
+\filldraw[inked,fill=tealdark,line width=0.9pt] (18.9,6.885) rectangle (21.9,7.087);
+\draw[ink, line width=0.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(21.3,10.395) (21.403,10.07) (21.208,9.745) (21.319,9.42) (21.387,9.095)};
+\filldraw[inked,fill=greenD,line width=0.6pt] (21.338,10.251) .. controls (21.469,10.267) .. (21.558,10.171) .. controls (21.428,10.154) .. (21.338,10.251) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (21.288,10.106) .. controls (21.198,10.01) .. (21.068,10.026) .. controls (21.157,10.122) .. (21.288,10.106) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (21.262,9.962) .. controls (21.392,9.978) .. (21.482,9.882) .. controls (21.351,9.865) .. (21.262,9.962) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (21.245,9.817) .. controls (21.156,9.721) .. (21.025,9.737) .. controls (21.115,9.834) .. (21.245,9.817) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (21.227,9.673) .. controls (21.357,9.689) .. (21.447,9.593) .. controls (21.316,9.576) .. (21.227,9.673) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (21.358,9.528) .. controls (21.268,9.432) .. (21.138,9.448) .. controls (21.227,9.545) .. (21.358,9.528) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (21.259,9.384) .. controls (21.39,9.4) .. (21.479,9.304) .. controls (21.349,9.288) .. (21.259,9.384) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (21.32,9.239) .. controls (21.231,9.143) .. (21.1,9.159) .. controls (21.19,9.256) .. (21.32,9.239) -- cycle;
+\filldraw[inked,fill=wallB!30!stone] (22.6,5.94) rectangle (26,9.315);
+\filldraw[inked,fill=wallE!85!stone,line width=0.8pt] (22.6,5.94) rectangle (26,6.727);
+\filldraw[inked,fill=concrete,line width=0.8pt] (22.54,9.195) rectangle (26.06,9.395);
+\filldraw[inked,fill=teal,line width=0.9pt] (23.4,8.01) -- (24.4,8.01) -- (23.9,8.415) -- cycle;
+\filldraw[inked,fill=greenB] (2.549,6.077) circle (0.192);
+\filldraw[inked,fill=greenB] (3.051,6.086) circle (0.192);
+\filldraw[inked,fill=greenB] (2.8,6.168) circle (0.251);
+\filldraw[inked,fill=greenB] (2.686,6.054) circle (0.183);
+\filldraw[inked,fill=greenB] (2.937,6.041) circle (0.174);
+\fill[greenB] (2.434,5.92) rectangle (3.166,6.077);
+\draw[ink, line width=1.15pt, line cap=round] (2.366,5.94) -- (3.234,5.94);
+\filldraw[inked,fill=greenA] (3.679,6.061) circle (0.169);
+\filldraw[inked,fill=greenA] (4.121,6.069) circle (0.169);
+\filldraw[inked,fill=greenA] (3.9,6.141) circle (0.221);
+\filldraw[inked,fill=greenA] (3.799,6.041) circle (0.161);
+\filldraw[inked,fill=greenA] (4.021,6.028) circle (0.153);
+\fill[greenA] (3.578,5.92) rectangle (4.222,6.061);
+\draw[ink, line width=1.15pt, line cap=round] (3.518,5.94) -- (4.282,5.94);
+\filldraw[inked,fill=greenA] (6.375,6.063) circle (0.172);
+\filldraw[inked,fill=greenA] (6.825,6.071) circle (0.172);
+\filldraw[inked,fill=greenA] (6.6,6.145) circle (0.225);
+\filldraw[inked,fill=greenA] (6.498,6.042) circle (0.164);
+\filldraw[inked,fill=greenA] (6.723,6.03) circle (0.156);
+\fill[greenA] (6.273,5.92) rectangle (6.927,6.063);
+\draw[ink, line width=1.15pt, line cap=round] (6.211,5.94) -- (6.989,5.94);
+\filldraw[inked,fill=sage] (8.38,6.06) circle (0.168);
+\filldraw[inked,fill=sage] (8.82,6.068) circle (0.168);
+\filldraw[inked,fill=sage] (8.6,6.14) circle (0.22);
+\filldraw[inked,fill=sage] (8.5,6.04) circle (0.16);
+\filldraw[inked,fill=sage] (8.72,6.028) circle (0.152);
+\fill[sage] (8.281,5.92) rectangle (8.919,6.06);
+\draw[ink, line width=1.15pt, line cap=round] (8.221,5.94) -- (8.979,5.94);
+\filldraw[inked,fill=greenB] (9.418,6.039) circle (0.139);
+\filldraw[inked,fill=greenB] (9.782,6.046) circle (0.139);
+\filldraw[inked,fill=greenB] (9.6,6.105) circle (0.182);
+\filldraw[inked,fill=greenB] (9.517,6.023) circle (0.132);
+\filldraw[inked,fill=greenB] (9.699,6.013) circle (0.125);
+\fill[greenB] (9.336,5.92) rectangle (9.864,6.039);
+\draw[ink, line width=1.15pt, line cap=round] (9.286,5.94) -- (9.914,5.94);
+\filldraw[inked,fill=greenD] (13.085,6.057) circle (0.164);
+\filldraw[inked,fill=greenD] (13.515,6.065) circle (0.164);
+\filldraw[inked,fill=greenD] (13.3,6.135) circle (0.215);
+\filldraw[inked,fill=greenD] (13.202,6.038) circle (0.156);
+\filldraw[inked,fill=greenD] (13.417,6.026) circle (0.148);
+\fill[greenD] (12.987,5.92) rectangle (13.613,6.057);
+\draw[ink, line width=1.15pt, line cap=round] (12.929,5.94) -- (13.671,5.94);
+\filldraw[inked,fill=sage] (13.858,6.072) circle (0.185);
+\filldraw[inked,fill=sage] (14.342,6.081) circle (0.185);
+\filldraw[inked,fill=sage] (14.1,6.16) circle (0.242);
+\filldraw[inked,fill=sage] (13.99,6.05) circle (0.176);
+\filldraw[inked,fill=sage] (14.232,6.037) circle (0.167);
+\fill[sage] (13.747,5.92) rectangle (14.453,6.072);
+\draw[ink, line width=1.15pt, line cap=round] (13.681,5.94) -- (14.519,5.94);
+\filldraw[inked,fill=greenA] (17.932,6.086) circle (0.205);
+\filldraw[inked,fill=greenA] (18.468,6.096) circle (0.205);
+\filldraw[inked,fill=greenA] (18.2,6.184) circle (0.268);
+\filldraw[inked,fill=greenA] (18.078,6.062) circle (0.195);
+\filldraw[inked,fill=greenA] (18.346,6.047) circle (0.185);
+\fill[greenA] (17.81,5.92) rectangle (18.59,6.086);
+\draw[ink, line width=1.15pt, line cap=round] (17.736,5.94) -- (18.664,5.94);
+\filldraw[inked,fill=greenA] (21.754,6.074) circle (0.188);
+\filldraw[inked,fill=greenA] (22.246,6.083) circle (0.188);
+\filldraw[inked,fill=greenA] (22,6.164) circle (0.246);
+\filldraw[inked,fill=greenA] (21.888,6.052) circle (0.179);
+\filldraw[inked,fill=greenA] (22.134,6.039) circle (0.17);
+\fill[greenA] (21.642,5.92) rectangle (22.358,6.074);
+\draw[ink, line width=1.15pt, line cap=round] (21.575,5.94) -- (22.425,5.94);
+\filldraw[inked,fill=greenD] (24.986,6.057) circle (0.163);
+\filldraw[inked,fill=greenD] (25.414,6.064) circle (0.163);
+\filldraw[inked,fill=greenD] (25.2,6.134) circle (0.214);
+\filldraw[inked,fill=greenD] (25.103,6.037) circle (0.156);
+\filldraw[inked,fill=greenD] (25.317,6.026) circle (0.148);
+\fill[greenD] (24.889,5.92) rectangle (25.511,6.057);
+\draw[ink, line width=1.15pt, line cap=round] (24.83,5.94) -- (25.57,5.94);
+\draw[ink, line width=0.6pt, dash pattern=on 2pt off 3pt, opacity=0.6] (17.1,11.2) arc[start angle=0, end angle=360, x radius=3.6, y radius=0.8];
+\begin{scope}[shift={(10.117,10.926)}, rotate=-5.075, xscale=0.36, yscale=0.36]
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.022,0.054) (-0.736,0.313) (-0.704,0.407) (0.022,0.186)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (-0.78,0.32) rectangle (-0.66,0.48);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.72,0.5) ellipse (0.32 and 0.064);
+\draw[ink, line width=1.1pt, line cap=round] (-0.992,0.46) -- (-0.448,0.54);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (-0.72,0.5) circle (0.045);
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.022,0.186) (0.704,0.407) (0.736,0.313) (0.022,0.054)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (0.66,0.32) rectangle (0.78,0.48);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.72,0.5) ellipse (0.32 and 0.064);
+\draw[ink, line width=1.1pt, line cap=round] (0.448,0.46) -- (0.992,0.54);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (0.72,0.5) circle (0.045);
+\filldraw[inked,fill=waspdark,line width=0.9pt] (-0.13,-0.36) -- (0.13,-0.36) -- (0,-0.66) -- cycle;
+\fill[wasp]  (0,0) ellipse (0.62 and 0.44);
+\begin{scope}\clip  (0,0) ellipse (0.62 and 0.44);
+\fill[waspdark] (-0.7,-0.16) rectangle (0.7,-0.04);
+\fill[waspdark] (-0.7,-0.36) rectangle (0.7,-0.26);
+\end{scope}
+\draw[inked]  (0,0) ellipse (0.62 and 0.44);
+\fill[glow, opacity=0.2] (0,0.42) circle (0.21);
+\fill[glow, opacity=0.2] (0,0.42) circle (0.155);
+\filldraw[inked,fill=glow,line width=0.8pt] (-0.17,0.38) arc[start angle=180,end angle=0,radius=0.17] -- cycle;
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.45,-0.08) (-0.98,-0.06) (-0.98,0.06) (-0.45,0.08)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (-1.04,-0.04) rectangle (-0.92,0.12);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.98,0.14) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (-1.286,0.1) -- (-0.674,0.18);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (-0.98,0.14) circle (0.045);
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(0.45,0.08) (0.98,0.06) (0.98,-0.06) (0.45,-0.08)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (0.92,-0.04) rectangle (1.04,0.12);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.98,0.14) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (0.674,0.1) -- (1.286,0.18);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (0.98,0.14) circle (0.045);
+\filldraw[inked,fill=armourdark,line width=0.9pt] (0,0.05) circle (0.22);
+\filldraw[inked,fill=red,line width=0.8pt] (0,0.05) circle (0.14);
+\fill[white, opacity=0.9] (-0.04,0.1) circle (0.045);
+\end{scope}
+\begin{scope}[shift={(12.269,10.448)}, rotate=2.127, xscale=0.4, yscale=0.4]
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.022,0.054) (-0.736,0.313) (-0.704,0.407) (0.022,0.186)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (-0.78,0.32) rectangle (-0.66,0.48);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.72,0.5) ellipse (0.32 and 0.064);
+\draw[ink, line width=1.1pt, line cap=round] (-0.992,0.46) -- (-0.448,0.54);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (-0.72,0.5) circle (0.045);
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.022,0.186) (0.704,0.407) (0.736,0.313) (0.022,0.054)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (0.66,0.32) rectangle (0.78,0.48);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.72,0.5) ellipse (0.32 and 0.064);
+\draw[ink, line width=1.1pt, line cap=round] (0.448,0.46) -- (0.992,0.54);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (0.72,0.5) circle (0.045);
+\filldraw[inked,fill=waspdark,line width=0.9pt] (-0.13,-0.36) -- (0.13,-0.36) -- (0,-0.66) -- cycle;
+\fill[wasp]  (0,0) ellipse (0.62 and 0.44);
+\begin{scope}\clip  (0,0) ellipse (0.62 and 0.44);
+\fill[waspdark] (-0.7,-0.16) rectangle (0.7,-0.04);
+\fill[waspdark] (-0.7,-0.36) rectangle (0.7,-0.26);
+\end{scope}
+\draw[inked]  (0,0) ellipse (0.62 and 0.44);
+\fill[glow, opacity=0.2] (0,0.42) circle (0.21);
+\fill[glow, opacity=0.2] (0,0.42) circle (0.155);
+\filldraw[inked,fill=glow,line width=0.8pt] (-0.17,0.38) arc[start angle=180,end angle=0,radius=0.17] -- cycle;
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.45,-0.08) (-0.98,-0.06) (-0.98,0.06) (-0.45,0.08)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (-1.04,-0.04) rectangle (-0.92,0.12);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.98,0.14) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (-1.286,0.1) -- (-0.674,0.18);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (-0.98,0.14) circle (0.045);
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(0.45,0.08) (0.98,0.06) (0.98,-0.06) (0.45,-0.08)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (0.92,-0.04) rectangle (1.04,0.12);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.98,0.14) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (0.674,0.1) -- (1.286,0.18);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (0.98,0.14) circle (0.045);
+\filldraw[inked,fill=armourdark,line width=0.9pt] (0,0.05) circle (0.22);
+\filldraw[inked,fill=red,line width=0.8pt] (0,0.05) circle (0.14);
+\fill[white, opacity=0.9] (-0.04,0.1) circle (0.045);
+\end{scope}
+\begin{scope}[shift={(16.258,10.686)}, rotate=-7.958, xscale=0.42, yscale=0.42]
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.022,0.054) (-0.736,0.313) (-0.704,0.407) (0.022,0.186)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (-0.78,0.32) rectangle (-0.66,0.48);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.72,0.5) ellipse (0.32 and 0.064);
+\draw[ink, line width=1.1pt, line cap=round] (-0.992,0.46) -- (-0.448,0.54);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (-0.72,0.5) circle (0.045);
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.022,0.186) (0.704,0.407) (0.736,0.313) (0.022,0.054)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (0.66,0.32) rectangle (0.78,0.48);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.72,0.5) ellipse (0.32 and 0.064);
+\draw[ink, line width=1.1pt, line cap=round] (0.448,0.46) -- (0.992,0.54);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (0.72,0.5) circle (0.045);
+\filldraw[inked,fill=waspdark,line width=0.9pt] (-0.13,-0.36) -- (0.13,-0.36) -- (0,-0.66) -- cycle;
+\fill[wasp]  (0,0) ellipse (0.62 and 0.44);
+\begin{scope}\clip  (0,0) ellipse (0.62 and 0.44);
+\fill[waspdark] (-0.7,-0.16) rectangle (0.7,-0.04);
+\fill[waspdark] (-0.7,-0.36) rectangle (0.7,-0.26);
+\end{scope}
+\draw[inked]  (0,0) ellipse (0.62 and 0.44);
+\fill[glow, opacity=0.2] (0,0.42) circle (0.21);
+\fill[glow, opacity=0.2] (0,0.42) circle (0.155);
+\filldraw[inked,fill=glow,line width=0.8pt] (-0.17,0.38) arc[start angle=180,end angle=0,radius=0.17] -- cycle;
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.45,-0.08) (-0.98,-0.06) (-0.98,0.06) (-0.45,0.08)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (-1.04,-0.04) rectangle (-0.92,0.12);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.98,0.14) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (-1.286,0.1) -- (-0.674,0.18);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (-0.98,0.14) circle (0.045);
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(0.45,0.08) (0.98,0.06) (0.98,-0.06) (0.45,-0.08)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (0.92,-0.04) rectangle (1.04,0.12);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.98,0.14) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (0.674,0.1) -- (1.286,0.18);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (0.98,0.14) circle (0.045);
+\filldraw[inked,fill=armourdark,line width=0.9pt] (0,0.05) circle (0.22);
+\filldraw[inked,fill=red,line width=0.8pt] (0,0.05) circle (0.14);
+\fill[white, opacity=0.9] (-0.04,0.1) circle (0.045);
+\end{scope}
+\begin{scope}[shift={(16.618,11.6)}, rotate=-7.764, xscale=0.34, yscale=0.34]
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.022,0.054) (-0.736,0.313) (-0.704,0.407) (0.022,0.186)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (-0.78,0.32) rectangle (-0.66,0.48);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.72,0.5) ellipse (0.32 and 0.064);
+\draw[ink, line width=1.1pt, line cap=round] (-0.992,0.46) -- (-0.448,0.54);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (-0.72,0.5) circle (0.045);
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.022,0.186) (0.704,0.407) (0.736,0.313) (0.022,0.054)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (0.66,0.32) rectangle (0.78,0.48);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.72,0.5) ellipse (0.32 and 0.064);
+\draw[ink, line width=1.1pt, line cap=round] (0.448,0.46) -- (0.992,0.54);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (0.72,0.5) circle (0.045);
+\filldraw[inked,fill=waspdark,line width=0.9pt] (-0.13,-0.36) -- (0.13,-0.36) -- (0,-0.66) -- cycle;
+\fill[wasp]  (0,0) ellipse (0.62 and 0.44);
+\begin{scope}\clip  (0,0) ellipse (0.62 and 0.44);
+\fill[waspdark] (-0.7,-0.16) rectangle (0.7,-0.04);
+\fill[waspdark] (-0.7,-0.36) rectangle (0.7,-0.26);
+\end{scope}
+\draw[inked]  (0,0) ellipse (0.62 and 0.44);
+\fill[glow, opacity=0.2] (0,0.42) circle (0.21);
+\fill[glow, opacity=0.2] (0,0.42) circle (0.155);
+\filldraw[inked,fill=glow,line width=0.8pt] (-0.17,0.38) arc[start angle=180,end angle=0,radius=0.17] -- cycle;
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.45,-0.08) (-0.98,-0.06) (-0.98,0.06) (-0.45,0.08)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (-1.04,-0.04) rectangle (-0.92,0.12);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.98,0.14) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (-1.286,0.1) -- (-0.674,0.18);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (-0.98,0.14) circle (0.045);
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(0.45,0.08) (0.98,0.06) (0.98,-0.06) (0.45,-0.08)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (0.92,-0.04) rectangle (1.04,0.12);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.98,0.14) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (0.674,0.1) -- (1.286,0.18);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (0.98,0.14) circle (0.045);
+\filldraw[inked,fill=armourdark,line width=0.9pt] (0,0.05) circle (0.22);
+\filldraw[inked,fill=red,line width=0.8pt] (0,0.05) circle (0.14);
+\fill[white, opacity=0.9] (-0.04,0.1) circle (0.045);
+\end{scope}
+\begin{scope}[shift={(11.7,11.893)}, rotate=1.237, xscale=0.3, yscale=0.3]
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.022,0.054) (-0.736,0.313) (-0.704,0.407) (0.022,0.186)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (-0.78,0.32) rectangle (-0.66,0.48);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.72,0.5) ellipse (0.32 and 0.064);
+\draw[ink, line width=1.1pt, line cap=round] (-0.992,0.46) -- (-0.448,0.54);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (-0.72,0.5) circle (0.045);
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.022,0.186) (0.704,0.407) (0.736,0.313) (0.022,0.054)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (0.66,0.32) rectangle (0.78,0.48);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.72,0.5) ellipse (0.32 and 0.064);
+\draw[ink, line width=1.1pt, line cap=round] (0.448,0.46) -- (0.992,0.54);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (0.72,0.5) circle (0.045);
+\filldraw[inked,fill=waspdark,line width=0.9pt] (-0.13,-0.36) -- (0.13,-0.36) -- (0,-0.66) -- cycle;
+\fill[wasp]  (0,0) ellipse (0.62 and 0.44);
+\begin{scope}\clip  (0,0) ellipse (0.62 and 0.44);
+\fill[waspdark] (-0.7,-0.16) rectangle (0.7,-0.04);
+\fill[waspdark] (-0.7,-0.36) rectangle (0.7,-0.26);
+\end{scope}
+\draw[inked]  (0,0) ellipse (0.62 and 0.44);
+\fill[glow, opacity=0.2] (0,0.42) circle (0.21);
+\fill[glow, opacity=0.2] (0,0.42) circle (0.155);
+\filldraw[inked,fill=glow,line width=0.8pt] (-0.17,0.38) arc[start angle=180,end angle=0,radius=0.17] -- cycle;
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(-0.45,-0.08) (-0.98,-0.06) (-0.98,0.06) (-0.45,0.08)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (-1.04,-0.04) rectangle (-0.92,0.12);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.98,0.14) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (-1.286,0.1) -- (-0.674,0.18);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (-0.98,0.14) circle (0.045);
+\filldraw[inked,fill=waspdark] plot[smooth cycle, tension=0.5] coordinates {(0.45,0.08) (0.98,0.06) (0.98,-0.06) (0.45,-0.08)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (0.92,-0.04) rectangle (1.04,0.12);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.98,0.14) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (0.674,0.1) -- (1.286,0.18);
+\filldraw[inked,fill=metaldark,line width=0.64pt] (0.98,0.14) circle (0.045);
+\filldraw[inked,fill=armourdark,line width=0.9pt] (0,0.05) circle (0.22);
+\filldraw[inked,fill=red,line width=0.8pt] (0,0.05) circle (0.14);
+\fill[white, opacity=0.9] (-0.04,0.1) circle (0.045);
+\end{scope}
+\begin{scope}[shift={(17.6,12.6)}, rotate=-6, xscale=0.5, yscale=0.5]
+\filldraw[inked,fill=wardendark] plot[smooth cycle, tension=0.5] coordinates {(-0.45,0.375) (-1.034,0.778) (-1.25,0.78) (-1.25,0.92) (-0.966,0.922) (-0.35,0.525)};
+\filldraw[inked,fill=wardendark,rounded corners=0.12cm,line width=0.9pt] (-1.52,0.53) rectangle (-1.08,0.97);
+\fill[ink, opacity=0.25] (-1.52,0.75) rectangle (-1.08,0.81);
+\filldraw[inked,fill=wardendark,line width=0.8pt] (-1.36,0.89) rectangle (-1.24,1.05);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-1.3,1.07) ellipse (0.45 and 0.09);
+\draw[ink, line width=1.1pt, line cap=round] (-1.683,1.03) -- (-0.917,1.11);
+\filldraw[inked,fill=wardendark,line width=0.64pt] (-1.3,1.07) circle (0.045);
+\filldraw[inked,fill=wardendark] plot[smooth cycle, tension=0.5] coordinates {(0.35,0.525) (0.966,0.922) (1.25,0.92) (1.25,0.78) (1.034,0.778) (0.45,0.375)};
+\filldraw[inked,fill=wardendark,rounded corners=0.12cm,line width=0.9pt] (1.08,0.53) rectangle (1.52,0.97);
+\fill[ink, opacity=0.25] (1.08,0.75) rectangle (1.52,0.81);
+\filldraw[inked,fill=wardendark,line width=0.8pt] (1.24,0.89) rectangle (1.36,1.05);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (1.3,1.07) ellipse (0.45 and 0.09);
+\draw[ink, line width=1.1pt, line cap=round] (0.917,1.03) -- (1.683,1.11);
+\filldraw[inked,fill=wardendark,line width=0.64pt] (1.3,1.07) circle (0.045);
+\filldraw[inked,fill=armourdark] plot[smooth cycle, tension=0.5] coordinates {(-0.284,-0.625) (-0.445,-1) (-0.316,-1.229) (-0.384,-1.271) (-0.555,-1) (-0.416,-0.575)};
+\filldraw[inked,fill=armourdark] plot[smooth cycle, tension=0.5] coordinates {(0.416,-0.575) (0.555,-1) (0.384,-1.271) (0.316,-1.229) (0.445,-1) (0.284,-0.625)};
+\filldraw[inked,fill=warden] plot[smooth cycle, tension=0.5] coordinates {(-0.95,0.1) (-0.7,0.68) (0,0.85) (0.7,0.68) (0.95,0.1) (0.75,-0.55) (0,-0.78) (-0.75,-0.55)};
+\draw[ink, line width=0.8pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-0.88,0.25) (0,0.42) (0.88,0.25)};
+\draw[ink, line width=0.8pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-0.8,-0.4) (0,-0.55) (0.8,-0.4)};
+\filldraw[inked,fill=wardendark,line width=0.6pt] (-0.62,0.12) circle (0.05);
+\fill[glow, opacity=0.25] (-0.42,0.6) circle (0.126);
+\fill[glow, opacity=0.25] (-0.42,0.6) circle (0.093);
+\filldraw[inked,fill=glow,line width=0.6pt] (-0.42,0.6) ellipse (0.12 and 0.06);
+\filldraw[inked,fill=wardendark,line width=0.6pt] (0.62,0.12) circle (0.05);
+\fill[glow, opacity=0.25] (0.42,0.6) circle (0.126);
+\fill[glow, opacity=0.25] (0.42,0.6) circle (0.093);
+\filldraw[inked,fill=glow,line width=0.6pt] (0.42,0.6) ellipse (0.12 and 0.06);
+\fill[hot, opacity=0.12] (0,-0.08) circle (1.024);
+\fill[hot, opacity=0.12] (0,-0.08) circle (0.848);
+\fill[hot, opacity=0.12] (0,-0.08) circle (0.672);
+\fill[hot, opacity=0.12] (0,-0.08) circle (0.496);
+\filldraw[inked,fill=wardendark,line width=1pt] (0,-0.08) circle (0.36);
+\filldraw[inked,fill=hot,line width=0.9pt] (0,-0.08) circle (0.27);
+\filldraw[inked,fill=hothi,line width=0.6pt] (0,-0.08) circle (0.14);
+\fill[white, opacity=0.9] (-0.07,-0.01) circle (0.05);
+\filldraw[inked,fill=wardendark] plot[smooth cycle, tension=0.5] coordinates {(-0.543,0.1) (-1.259,0.06) (-1.632,0.226) (-1.568,0.374) (-1.241,0.24) (-0.557,0.3)};
+\filldraw[inked,fill=wardendark,rounded corners=0.12cm,line width=0.9pt] (-1.9,0) rectangle (-1.46,0.44);
+\fill[ink, opacity=0.25] (-1.9,0.22) rectangle (-1.46,0.28);
+\filldraw[inked,fill=wardendark,line width=0.8pt] (-1.74,0.36) rectangle (-1.62,0.52);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-1.68,0.54) ellipse (0.55 and 0.11);
+\draw[ink, line width=1.1pt, line cap=round] (-2.147,0.5) -- (-1.212,0.58);
+\filldraw[inked,fill=wardendark,line width=0.64pt] (-1.68,0.54) circle (0.045);
+\filldraw[inked,fill=wardendark] plot[smooth cycle, tension=0.5] coordinates {(0.557,0.3) (1.241,0.24) (1.568,0.374) (1.632,0.226) (1.259,0.06) (0.543,0.1)};
+\filldraw[inked,fill=wardendark,rounded corners=0.12cm,line width=0.9pt] (1.46,0) rectangle (1.9,0.44);
+\fill[ink, opacity=0.25] (1.46,0.22) rectangle (1.9,0.28);
+\filldraw[inked,fill=wardendark,line width=0.8pt] (1.62,0.36) rectangle (1.74,0.52);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (1.68,0.54) ellipse (0.55 and 0.11);
+\draw[ink, line width=1.1pt, line cap=round] (1.212,0.5) -- (2.147,0.58);
+\filldraw[inked,fill=wardendark,line width=0.64pt] (1.68,0.54) circle (0.045);
+\end{scope}
+\begin{scope}[shift={(8.6,11.9)}, rotate=8, xscale=0.42, yscale=0.42]
+\filldraw[inked,fill=moth,line width=1pt] (-0.3,-0.16) -- (-2.05,-0.04) -- (-1.95,0.46) -- (-0.3,0.26) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (-0.404,-0.093) -- (-0.751,-0.067) -- (-0.744,0.065) -- (-0.402,0.034) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (-0.402,0.068) -- (-0.741,0.1) -- (-0.734,0.233) -- (-0.4,0.196) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (-0.812,-0.062) -- (-1.159,-0.036) -- (-1.144,0.102) -- (-0.803,0.071) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (-0.801,0.106) -- (-1.141,0.138) -- (-1.126,0.276) -- (-0.792,0.239) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (-1.22,-0.032) -- (-1.567,-0.005) -- (-1.545,0.138) -- (-1.204,0.107) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (-1.2,0.144) -- (-1.54,0.176) -- (-1.518,0.32) -- (-1.184,0.283) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (-1.628,-0.001) -- (-1.975,0.025) -- (-1.946,0.175) -- (-1.605,0.144) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (-1.599,0.182) -- (-1.939,0.214) -- (-1.91,0.364) -- (-1.576,0.326) -- cycle;
+\filldraw[inked,fill=metaldark,line width=0.7pt] (-1.292,0.171) rectangle (-1.172,0.331);
+\filldraw[draw=ink, line width=0.7pt, fill=metallight, fill opacity=0.55] (-1.232,0.351) ellipse (0.26 and 0.052);
+\draw[ink, line width=1pt, line cap=round] (-1.453,0.311) -- (-1.011,0.391);
+\filldraw[inked,fill=metaldark,line width=0.56pt] (-1.232,0.351) circle (0.045);
+\filldraw[inked,fill=metaldark,line width=0.7pt] (-1.936,0.234) rectangle (-1.816,0.394);
+\filldraw[draw=ink, line width=0.7pt, fill=metallight, fill opacity=0.55] (-1.876,0.414) ellipse (0.26 and 0.052);
+\draw[ink, line width=1pt, line cap=round] (-2.097,0.374) -- (-1.655,0.454);
+\filldraw[inked,fill=metaldark,line width=0.56pt] (-1.876,0.414) circle (0.045);
+\filldraw[inked,fill=moth,line width=1pt] (0.3,-0.16) -- (2.05,-0.04) -- (1.95,0.46) -- (0.3,0.26) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (0.404,-0.093) -- (0.751,-0.067) -- (0.744,0.065) -- (0.402,0.034) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (0.402,0.068) -- (0.741,0.1) -- (0.734,0.233) -- (0.4,0.196) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (0.812,-0.062) -- (1.159,-0.036) -- (1.144,0.102) -- (0.803,0.071) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (0.801,0.106) -- (1.141,0.138) -- (1.126,0.276) -- (0.792,0.239) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (1.22,-0.032) -- (1.567,-0.005) -- (1.545,0.138) -- (1.204,0.107) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (1.2,0.144) -- (1.54,0.176) -- (1.518,0.32) -- (1.184,0.283) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (1.628,-0.001) -- (1.975,0.025) -- (1.946,0.175) -- (1.605,0.144) -- cycle;
+\filldraw[inked,fill=mothdark,line width=0.5pt] (1.599,0.182) -- (1.939,0.214) -- (1.91,0.364) -- (1.576,0.326) -- cycle;
+\filldraw[inked,fill=metaldark,line width=0.7pt] (1.172,0.171) rectangle (1.292,0.331);
+\filldraw[draw=ink, line width=0.7pt, fill=metallight, fill opacity=0.55] (1.232,0.351) ellipse (0.26 and 0.052);
+\draw[ink, line width=1pt, line cap=round] (1.011,0.311) -- (1.453,0.391);
+\filldraw[inked,fill=metaldark,line width=0.56pt] (1.232,0.351) circle (0.045);
+\filldraw[inked,fill=metaldark,line width=0.7pt] (1.816,0.234) rectangle (1.936,0.394);
+\filldraw[draw=ink, line width=0.7pt, fill=metallight, fill opacity=0.55] (1.876,0.414) ellipse (0.26 and 0.052);
+\draw[ink, line width=1pt, line cap=round] (1.655,0.374) -- (2.097,0.454);
+\filldraw[inked,fill=metaldark,line width=0.56pt] (1.876,0.414) circle (0.045);
+\draw[ink, line width=0.9pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-0.08,0.32) (-0.25,0.62) (-0.48,0.72)};
+\draw[ink, line width=0.9pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(0.08,0.32) (0.25,0.62) (0.48,0.72)};
+\filldraw[inked,fill=mothdark,line width=0.7pt] (-0.5,0.72) ellipse (0.09 and 0.05);
+\filldraw[inked,fill=mothdark,line width=0.7pt] (0.5,0.72) ellipse (0.09 and 0.05);
+\filldraw[inked,fill=moth] (0,0.05) ellipse (0.36 and 0.3);
+\fill[mothdark] (-0.33,-0.02) rectangle (0.33,0.06);
+\filldraw[inked,fill=none] (0,0.05) ellipse (0.36 and 0.3);
+\fill[pink, opacity=0.2] (0,-0.28) circle (0.318);
+\fill[pink, opacity=0.2] (0,-0.28) circle (0.252);
+\fill[pink, opacity=0.2] (0,-0.28) circle (0.186);
+\filldraw[inked,fill=pink,line width=0.9pt] (0,-0.28) circle (0.12);
+\fill[white, opacity=0.9] (-0.035,-0.25) circle (0.04);
+\end{scope}
+\begin{scope}[shift={(21.4,11.6)}, rotate=0, xscale=-0.42, yscale=0.42]
+\draw[ink, line width=1.6pt, line cap=round] (-0.35,0.2) -- (-0.35,0.5);
+\filldraw[inked,fill=hornetdark,line width=0.8pt] (-0.41,0.46) rectangle (-0.29,0.62);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.35,0.64) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (-0.656,0.6) -- (-0.044,0.68);
+\filldraw[inked,fill=hornetdark,line width=0.64pt] (-0.35,0.64) circle (0.045);
+\draw[ink, line width=1.6pt, line cap=round] (0.85,0.2) -- (0.85,0.5);
+\filldraw[inked,fill=hornetdark,line width=0.8pt] (0.79,0.46) rectangle (0.91,0.62);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.85,0.64) ellipse (0.36 and 0.072);
+\draw[ink, line width=1.1pt, line cap=round] (0.544,0.6) -- (1.156,0.68);
+\filldraw[inked,fill=hornetdark,line width=0.64pt] (0.85,0.64) circle (0.045);
+\fill[red, opacity=0.12] (2.3,0.02) -- (9,-0.5) -- (9,0.3) -- cycle;
+\filldraw[inked,fill=hornetdark,line width=0.9pt] (-1.55,0.05) -- (-1.95,0.35) -- (-1.85,-0.05) -- (-1.6,-0.12) -- cycle;
+\filldraw[inked,fill=hornet] plot[smooth cycle, tension=0.55] coordinates {(-1.7,0) (-1,0.24) (0.3,0.3) (1.1,0.22) (1.25,-0.02) (1,-0.25) (0,-0.3) (-1,-0.16)};
+\draw[ink, line width=0.7pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-1,-0.06) (0,-0.1) (1,-0.06)};
+\draw[hornetdark, line width=0.6pt, line cap=round] (-0.6,0.27) -- (-0.55,-0.27);
+\draw[hornetdark, line width=0.6pt, line cap=round] (-0.2,0.27) -- (-0.15,-0.27);
+\draw[hornetdark, line width=0.6pt, line cap=round] (0.2,0.27) -- (0.25,-0.27);
+\fill[glow, opacity=0.25] (-0.25,0.34) circle (0.168);
+\fill[glow, opacity=0.25] (-0.25,0.34) circle (0.124);
+\filldraw[inked,fill=glow,line width=0.7pt] (-0.25,0.32) ellipse (0.17 and 0.07);
+\filldraw[inked,fill=red,rounded corners=0.08cm,line width=1pt] (1,-0.13) rectangle (2.2,0.13);
+\fill[redlight] (1.15,0.03) rectangle (2.05,0.08);
+\filldraw[inked,fill=hornetdark,line width=0.8pt] (1.95,-0.16) rectangle (2.08,0.16);
+\filldraw[inked,fill=red,line width=0.8pt] (2.25,0) ellipse (0.07 and 0.15);
+\fill[white, opacity=0.9] (2.26,0.06) circle (0.03);
+\draw[ink, line width=1.8pt, line cap=round] (-0.55,0.22) -- (-0.55,0.42);
+\filldraw[inked,fill=hornetdark,line width=0.8pt] (-0.61,0.38) rectangle (-0.49,0.54);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (-0.55,0.56) ellipse (0.42 and 0.084);
+\draw[ink, line width=1.1pt, line cap=round] (-0.907,0.52) -- (-0.193,0.6);
+\filldraw[inked,fill=hornetdark,line width=0.64pt] (-0.55,0.56) circle (0.045);
+\draw[ink, line width=1.8pt, line cap=round] (0.65,0.22) -- (0.65,0.42);
+\filldraw[inked,fill=hornetdark,line width=0.8pt] (0.59,0.38) rectangle (0.71,0.54);
+\filldraw[draw=ink, line width=0.8pt, fill=metallight, fill opacity=0.55] (0.65,0.56) ellipse (0.42 and 0.084);
+\draw[ink, line width=1.1pt, line cap=round] (0.293,0.52) -- (1.007,0.6);
+\filldraw[inked,fill=hornetdark,line width=0.64pt] (0.65,0.56) circle (0.045);
+\end{scope}
+\begin{scope}[shift={(5.4,10.2)}, rotate=0, xscale=0.5, yscale=0.5]
+\filldraw[inked,fill=striderdark] plot[smooth cycle, tension=0.5] coordinates {(-0.682,0.476) (-1.452,1.48) (-1.942,-0.415) (-2.058,-0.385) (-1.548,1.62) (-0.518,0.624)};
+\filldraw[inked,fill=striderdark] plot[smooth cycle, tension=0.5] coordinates {(0.518,0.624) (1.548,1.62) (2.058,-0.385) (1.942,-0.415) (1.452,1.48) (0.682,0.476)};
+\filldraw[inked,fill=striderdark] plot[smooth cycle, tension=0.5] coordinates {(-0.872,0.342) (-1.947,1.165) (-2.432,-0.618) (-2.568,-0.582) (-2.053,1.335) (-0.728,0.558)};
+\filldraw[inked,fill=striderdark] plot[smooth cycle, tension=0.5] coordinates {(0.728,0.558) (2.053,1.335) (2.568,-0.582) (2.432,-0.618) (1.947,1.165) (0.872,0.342)};
+\fill[glow, opacity=0.18] (0,0) circle (0.477);
+\fill[glow, opacity=0.18] (0,0) circle (0.378);
+\fill[glow, opacity=0.18] (0,0) circle (0.279);
+\filldraw[inked,fill=glow,line width=0.8pt] (0,0) ellipse (0.32 and 0.13);
+\filldraw[inked,fill=strider] plot[smooth cycle, tension=0.5] coordinates {(-1.2,0.5) (-0.8,0.95) (0,1.05) (0.8,0.95) (1.2,0.5) (0.8,0.12) (0,0.05) (-0.8,0.12)};
+\draw[ink, line width=0.8pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-1.05,0.55) (0,0.65) (1.05,0.55)};
+\filldraw[inked,fill=striderdark,line width=0.6pt] (-0.6,0.35) circle (0.05);
+\filldraw[inked,fill=striderdark,line width=0.6pt] (0,0.35) circle (0.05);
+\filldraw[inked,fill=striderdark,line width=0.6pt] (0.6,0.35) circle (0.05);
+\begin{scope}[shift={(0,1.35)}, rotate=20, xscale=1, yscale=1]
+\filldraw[inked,fill=metaldark,rounded corners=0.04cm,line width=0.9pt] (0.05,-0.1) rectangle (1.15,0.1);
+\filldraw[inked,fill=armourdark,line width=0.8pt] (1.05,-0.13) rectangle (1.2,0.13);
+\end{scope}
+\filldraw[inked,fill=striderdark] (-0.45,0.95) -- (-0.4,1.35) arc[start angle=180,end angle=0,radius=0.4] -- (0.45,0.95) -- cycle;
+\filldraw[inked,fill=armourdark,line width=0.7pt] (-0.25,1.32) rectangle (0.25,1.46);
+\filldraw[inked,fill=red,line width=0.4pt] (0.12,1.39) circle (0.04);
+\filldraw[inked,fill=striderdark] plot[smooth cycle, tension=0.5] coordinates {(-0.963,0.164) (-2.124,0.813) (-2.371,-1.06) (-2.529,-1.04) (-2.276,0.987) (-0.837,0.436)};
+\filldraw[inked,fill=striderdark] plot[smooth cycle, tension=0.5] coordinates {(0.837,0.436) (2.276,0.987) (2.529,-1.04) (2.371,-1.06) (2.124,0.813) (0.963,0.164)};
+\end{scope}
+\filldraw[inked,fill=asphalt] (-0.5,-0.5) rectangle (26.1,5.94);
+\draw[ink, line width=1.15pt, line cap=round] (-0.5,5.94) -- (26.1,5.94);
+\fill[asphaltdark, opacity=0.25] (-0.5,5.46) -- (26.1,5.46) -- (26.1,5.764) -- (-0.5,5.764) -- cycle;
+\fill[asphalt!85!paper] (-0.5,5.796) rectangle (26.1,5.94);
+\draw[ink, line width=0.7pt, line cap=round] (-0.5,5.796) -- (26.1,5.796);
+\filldraw[inked,fill=greenC,line width=0.6pt] (0.084,5.82) .. controls (0.027,5.896) .. (0.025,5.991) .. controls (0.128,5.931) .. (0.084,5.82) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (0.117,5.82) .. controls (0.06,5.975) .. (0.06,6.139) .. controls (0.165,5.993) .. (0.117,5.82) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (0.149,5.82) .. controls (0.087,6.021) .. (0.18,6.208) .. controls (0.194,6.012) .. (0.149,5.82) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (0.179,5.82) .. controls (0.143,5.974) .. (0.256,6.083) .. controls (0.245,5.944) .. (0.179,5.82) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (0.209,5.82) .. controls (0.163,5.918) .. (0.263,5.958) .. controls (0.263,5.878) .. (0.209,5.82) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (0.664,5.798) .. controls (0.619,5.858) .. (0.617,5.933) .. controls (0.699,5.886) .. (0.664,5.798) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (0.69,5.798) .. controls (0.645,5.92) .. (0.645,6.051) .. controls (0.729,5.935) .. (0.69,5.798) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (0.716,5.798) .. controls (0.667,5.957) .. (0.741,6.106) .. controls (0.751,5.95) .. (0.716,5.798) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (0.74,5.798) .. controls (0.711,5.92) .. (0.801,6.006) .. controls (0.792,5.896) .. (0.74,5.798) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (0.763,5.798) .. controls (0.727,5.875) .. (0.806,5.907) .. controls (0.806,5.844) .. (0.763,5.798) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (1.04,5.858) .. controls (0.983,5.934) .. (0.98,6.029) .. controls (1.084,5.969) .. (1.04,5.858) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (1.073,5.858) .. controls (1.016,6.013) .. (1.016,6.178) .. controls (1.122,6.032) .. (1.073,5.858) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (1.106,5.858) .. controls (1.043,6.059) .. (1.137,6.248) .. controls (1.15,6.051) .. (1.106,5.858) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (1.135,5.858) .. controls (1.099,6.012) .. (1.213,6.122) .. controls (1.202,5.982) .. (1.135,5.858) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (1.165,5.858) .. controls (1.12,5.956) .. (1.22,5.996) .. controls (1.219,5.916) .. (1.165,5.858) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (1.562,5.795) .. controls (1.515,5.858) .. (1.513,5.936) .. controls (1.599,5.886) .. (1.562,5.795) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (1.589,5.795) .. controls (1.543,5.922) .. (1.543,6.058) .. controls (1.629,5.938) .. (1.589,5.795) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (1.616,5.795) .. controls (1.565,5.96) .. (1.642,6.115) .. controls (1.653,5.953) .. (1.616,5.795) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (1.641,5.795) .. controls (1.611,5.922) .. (1.705,6.012) .. controls (1.696,5.897) .. (1.641,5.795) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (1.665,5.795) .. controls (1.628,5.876) .. (1.71,5.908) .. controls (1.71,5.843) .. (1.665,5.795) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.159,5.836) .. controls (2.11,5.901) .. (2.108,5.982) .. controls (2.196,5.931) .. (2.159,5.836) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.187,5.836) .. controls (2.138,5.968) .. (2.138,6.109) .. controls (2.228,5.984) .. (2.187,5.836) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.215,5.836) .. controls (2.162,6.008) .. (2.241,6.168) .. controls (2.253,6) .. (2.215,5.836) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.24,5.836) .. controls (2.209,5.968) .. (2.306,6.061) .. controls (2.297,5.942) .. (2.24,5.836) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.265,5.836) .. controls (2.227,5.92) .. (2.312,5.954) .. controls (2.312,5.886) .. (2.265,5.836) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.838,5.834) .. controls (2.78,5.911) .. (2.778,6.007) .. controls (2.883,5.947) .. (2.838,5.834) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.871,5.834) .. controls (2.814,5.991) .. (2.814,6.158) .. controls (2.921,6.01) .. (2.871,5.834) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.905,5.834) .. controls (2.841,6.038) .. (2.936,6.229) .. controls (2.949,6.029) .. (2.905,5.834) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.935,5.834) .. controls (2.898,5.99) .. (3.013,6.101) .. controls (3.002,5.959) .. (2.935,5.834) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (2.965,5.834) .. controls (2.919,5.933) .. (3.02,5.974) .. controls (3.02,5.893) .. (2.965,5.834) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (3.307,5.888) .. controls (3.259,5.952) .. (3.257,6.033) .. controls (3.345,5.982) .. (3.307,5.888) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (3.335,5.888) .. controls (3.287,6.019) .. (3.287,6.16) .. controls (3.377,6.035) .. (3.335,5.888) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (3.363,5.888) .. controls (3.31,6.059) .. (3.39,6.219) .. controls (3.401,6.051) .. (3.363,5.888) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (3.389,5.888) .. controls (3.358,6.019) .. (3.455,6.112) .. controls (3.445,5.993) .. (3.389,5.888) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (3.414,5.888) .. controls (3.375,5.971) .. (3.461,6.005) .. controls (3.46,5.937) .. (3.414,5.888) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (3.989,5.87) .. controls (3.945,5.929) .. (3.943,6.003) .. controls (4.023,5.957) .. (3.989,5.87) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.015,5.87) .. controls (3.97,5.991) .. (3.97,6.12) .. controls (4.053,6.006) .. (4.015,5.87) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.04,5.87) .. controls (3.992,6.027) .. (4.064,6.174) .. controls (4.075,6.02) .. (4.04,5.87) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.063,5.87) .. controls (4.035,5.99) .. (4.124,6.076) .. controls (4.115,5.967) .. (4.063,5.87) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.086,5.87) .. controls (4.051,5.947) .. (4.129,5.978) .. controls (4.129,5.916) .. (4.086,5.87) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.353,5.856) .. controls (4.297,5.931) .. (4.294,6.025) .. controls (4.397,5.966) .. (4.353,5.856) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.385,5.856) .. controls (4.329,6.009) .. (4.329,6.173) .. controls (4.434,6.028) .. (4.385,5.856) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.418,5.856) .. controls (4.356,6.055) .. (4.449,6.241) .. controls (4.462,6.046) .. (4.418,5.856) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.447,5.856) .. controls (4.412,6.008) .. (4.524,6.117) .. controls (4.513,5.978) .. (4.447,5.856) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.477,5.856) .. controls (4.432,5.953) .. (4.531,5.992) .. controls (4.531,5.914) .. (4.477,5.856) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.984,5.803) .. controls (4.929,5.877) .. (4.927,5.969) .. controls (5.027,5.911) .. (4.984,5.803) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (5.016,5.803) .. controls (4.961,5.953) .. (4.961,6.113) .. controls (5.063,5.971) .. (5.016,5.803) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (5.048,5.803) .. controls (4.987,5.998) .. (5.078,6.18) .. controls (5.091,5.99) .. (5.048,5.803) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (5.077,5.803) .. controls (5.041,5.952) .. (5.152,6.058) .. controls (5.141,5.923) .. (5.077,5.803) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (5.105,5.803) .. controls (5.061,5.898) .. (5.158,5.937) .. controls (5.158,5.86) .. (5.105,5.803) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (5.728,5.886) .. controls (5.671,5.962) .. (5.669,6.057) .. controls (5.773,5.997) .. (5.728,5.886) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (5.761,5.886) .. controls (5.704,6.041) .. (5.704,6.207) .. controls (5.81,6.06) .. (5.761,5.886) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (5.794,5.886) .. controls (5.731,6.088) .. (5.825,6.276) .. controls (5.839,6.079) .. (5.794,5.886) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (5.824,5.886) .. controls (5.788,6.04) .. (5.902,6.15) .. controls (5.891,6.01) .. (5.824,5.886) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (5.854,5.886) .. controls (5.808,5.984) .. (5.909,6.024) .. controls (5.908,5.945) .. (5.854,5.886) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (6.126,5.825) .. controls (6.072,5.898) .. (6.07,5.988) .. controls (6.168,5.931) .. (6.126,5.825) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (6.158,5.825) .. controls (6.104,5.973) .. (6.104,6.129) .. controls (6.204,5.99) .. (6.158,5.825) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (6.189,5.825) .. controls (6.13,6.016) .. (6.218,6.195) .. controls (6.231,6.008) .. (6.189,5.825) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (6.217,5.825) .. controls (6.183,5.972) .. (6.291,6.076) .. controls (6.28,5.943) .. (6.217,5.825) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (6.245,5.825) .. controls (6.202,5.918) .. (6.298,5.956) .. controls (6.297,5.881) .. (6.245,5.825) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (6.568,5.831) .. controls (6.515,5.902) .. (6.513,5.99) .. controls (6.61,5.934) .. (6.568,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (6.599,5.831) .. controls (6.546,5.975) .. (6.546,6.129) .. controls (6.644,5.992) .. (6.599,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (6.63,5.831) .. controls (6.571,6.018) .. (6.658,6.193) .. controls (6.671,6.01) .. (6.63,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (6.657,5.831) .. controls (6.623,5.974) .. (6.73,6.076) .. controls (6.719,5.946) .. (6.657,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (6.685,5.831) .. controls (6.643,5.922) .. (6.736,5.959) .. controls (6.735,5.885) .. (6.685,5.831) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (7.409,5.873) .. controls (7.363,5.935) .. (7.361,6.011) .. controls (7.445,5.963) .. (7.409,5.873) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (7.436,5.873) .. controls (7.39,5.998) .. (7.39,6.132) .. controls (7.475,6.014) .. (7.436,5.873) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (7.462,5.873) .. controls (7.412,6.036) .. (7.487,6.188) .. controls (7.498,6.029) .. (7.462,5.873) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (7.486,5.873) .. controls (7.457,5.998) .. (7.549,6.086) .. controls (7.54,5.973) .. (7.486,5.873) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (7.51,5.873) .. controls (7.473,5.952) .. (7.554,5.985) .. controls (7.554,5.92) .. (7.51,5.873) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (7.659,5.832) .. controls (7.611,5.897) .. (7.609,5.977) .. controls (7.697,5.926) .. (7.659,5.832) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (7.687,5.832) .. controls (7.639,5.963) .. (7.639,6.103) .. controls (7.729,5.979) .. (7.687,5.832) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (7.715,5.832) .. controls (7.662,6.002) .. (7.741,6.161) .. controls (7.753,5.995) .. (7.715,5.832) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (7.74,5.832) .. controls (7.71,5.962) .. (7.806,6.055) .. controls (7.797,5.937) .. (7.74,5.832) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (7.765,5.832) .. controls (7.727,5.915) .. (7.812,5.949) .. controls (7.811,5.882) .. (7.765,5.832) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (8.544,5.875) .. controls (8.487,5.951) .. (8.484,6.046) .. controls (8.588,5.986) .. (8.544,5.875) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (8.577,5.875) .. controls (8.52,6.03) .. (8.52,6.195) .. controls (8.625,6.049) .. (8.577,5.875) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (8.609,5.875) .. controls (8.547,6.076) .. (8.64,6.264) .. controls (8.654,6.068) .. (8.609,5.875) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (8.639,5.875) .. controls (8.603,6.029) .. (8.717,6.139) .. controls (8.706,5.999) .. (8.639,5.875) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (8.669,5.875) .. controls (8.623,5.973) .. (8.724,6.013) .. controls (8.723,5.934) .. (8.669,5.875) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (8.843,5.876) .. controls (8.797,5.938) .. (8.795,6.015) .. controls (8.879,5.967) .. (8.843,5.876) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (8.87,5.876) .. controls (8.824,6.002) .. (8.824,6.136) .. controls (8.91,6.017) .. (8.87,5.876) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (8.897,5.876) .. controls (8.846,6.04) .. (8.922,6.193) .. controls (8.933,6.033) .. (8.897,5.876) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (8.921,5.876) .. controls (8.891,6.001) .. (8.984,6.091) .. controls (8.975,5.977) .. (8.921,5.876) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (8.945,5.876) .. controls (8.908,5.956) .. (8.99,5.988) .. controls (8.989,5.924) .. (8.945,5.876) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (9.305,5.831) .. controls (9.248,5.907) .. (9.246,6.003) .. controls (9.35,5.943) .. (9.305,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (9.339,5.831) .. controls (9.281,5.987) .. (9.281,6.154) .. controls (9.388,6.006) .. (9.339,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (9.372,5.831) .. controls (9.309,6.034) .. (9.403,6.224) .. controls (9.417,6.025) .. (9.372,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (9.402,5.831) .. controls (9.365,5.986) .. (9.48,6.097) .. controls (9.469,5.955) .. (9.402,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (9.432,5.831) .. controls (9.386,5.929) .. (9.487,5.97) .. controls (9.487,5.889) .. (9.432,5.831) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.06,5.806) .. controls (10.012,5.869) .. (10.011,5.947) .. controls (10.096,5.898) .. (10.06,5.806) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.087,5.806) .. controls (10.04,5.934) .. (10.04,6.071) .. controls (10.127,5.949) .. (10.087,5.806) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.114,5.806) .. controls (10.062,5.972) .. (10.14,6.128) .. controls (10.151,5.965) .. (10.114,5.806) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.139,5.806) .. controls (10.109,5.933) .. (10.203,6.024) .. controls (10.194,5.908) .. (10.139,5.806) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.163,5.806) .. controls (10.126,5.887) .. (10.209,5.92) .. controls (10.208,5.854) .. (10.163,5.806) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.469,5.817) .. controls (10.414,5.891) .. (10.412,5.983) .. controls (10.512,5.925) .. (10.469,5.817) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.501,5.817) .. controls (10.446,5.967) .. (10.446,6.128) .. controls (10.549,5.986) .. (10.501,5.817) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.533,5.817) .. controls (10.473,6.012) .. (10.563,6.195) .. controls (10.576,6.004) .. (10.533,5.817) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.562,5.817) .. controls (10.527,5.967) .. (10.638,6.073) .. controls (10.627,5.937) .. (10.562,5.817) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.591,5.817) .. controls (10.547,5.912) .. (10.644,5.951) .. controls (10.643,5.874) .. (10.591,5.817) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (11.281,5.833) .. controls (11.234,5.895) .. (11.232,5.973) .. controls (11.317,5.924) .. (11.281,5.833) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (11.308,5.833) .. controls (11.261,5.96) .. (11.261,6.094) .. controls (11.347,5.975) .. (11.308,5.833) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (11.335,5.833) .. controls (11.284,5.997) .. (11.36,6.151) .. controls (11.371,5.99) .. (11.335,5.833) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (11.359,5.833) .. controls (11.329,5.959) .. (11.422,6.048) .. controls (11.413,5.934) .. (11.359,5.833) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (11.383,5.833) .. controls (11.346,5.913) .. (11.428,5.946) .. controls (11.427,5.881) .. (11.383,5.833) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.736,5.853) .. controls (11.683,5.923) .. (11.681,6.011) .. controls (11.777,5.955) .. (11.736,5.853) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.766,5.853) .. controls (11.713,5.996) .. (11.714,6.149) .. controls (11.811,6.013) .. (11.766,5.853) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.797,5.853) .. controls (11.739,6.039) .. (11.825,6.213) .. controls (11.838,6.031) .. (11.797,5.853) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.824,5.853) .. controls (11.791,5.995) .. (11.896,6.097) .. controls (11.886,5.967) .. (11.824,5.853) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.852,5.853) .. controls (11.81,5.943) .. (11.902,5.98) .. controls (11.902,5.907) .. (11.852,5.853) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.419,5.878) .. controls (12.37,5.943) .. (12.368,6.025) .. controls (12.457,5.974) .. (12.419,5.878) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.447,5.878) .. controls (12.398,6.011) .. (12.399,6.154) .. controls (12.49,6.028) .. (12.447,5.878) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.476,5.878) .. controls (12.422,6.051) .. (12.503,6.214) .. controls (12.514,6.044) .. (12.476,5.878) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.502,5.878) .. controls (12.47,6.011) .. (12.569,6.105) .. controls (12.559,5.984) .. (12.502,5.878) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.527,5.878) .. controls (12.488,5.962) .. (12.575,5.997) .. controls (12.574,5.928) .. (12.527,5.878) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (12.728,5.795) .. controls (12.683,5.855) .. (12.681,5.931) .. controls (12.763,5.883) .. (12.728,5.795) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (12.754,5.795) .. controls (12.709,5.918) .. (12.709,6.049) .. controls (12.793,5.933) .. (12.754,5.795) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (12.781,5.795) .. controls (12.731,5.954) .. (12.805,6.104) .. controls (12.816,5.948) .. (12.781,5.795) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (12.804,5.795) .. controls (12.775,5.917) .. (12.866,6.004) .. controls (12.857,5.893) .. (12.804,5.795) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (12.828,5.795) .. controls (12.792,5.873) .. (12.871,5.904) .. controls (12.871,5.841) .. (12.828,5.795) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (13.495,5.831) .. controls (13.442,5.903) .. (13.439,5.993) .. controls (13.538,5.936) .. (13.495,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (13.527,5.831) .. controls (13.473,5.978) .. (13.473,6.134) .. controls (13.573,5.996) .. (13.527,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (13.558,5.831) .. controls (13.499,6.021) .. (13.587,6.2) .. controls (13.6,6.013) .. (13.558,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (13.586,5.831) .. controls (13.552,5.977) .. (13.66,6.081) .. controls (13.649,5.948) .. (13.586,5.831) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (13.614,5.831) .. controls (13.571,5.924) .. (13.666,5.962) .. controls (13.666,5.886) .. (13.614,5.831) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.024,5.889) .. controls (13.979,5.949) .. (13.977,6.024) .. controls (14.059,5.977) .. (14.024,5.889) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.05,5.889) .. controls (14.005,6.011) .. (14.005,6.142) .. controls (14.089,6.026) .. (14.05,5.889) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.076,5.889) .. controls (14.027,6.048) .. (14.101,6.196) .. controls (14.111,6.041) .. (14.076,5.889) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.1,5.889) .. controls (14.071,6.01) .. (14.161,6.097) .. controls (14.152,5.987) .. (14.1,5.889) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.123,5.889) .. controls (14.087,5.966) .. (14.167,5.998) .. controls (14.166,5.935) .. (14.123,5.889) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (14.457,5.811) .. controls (14.413,5.871) .. (14.411,5.946) .. controls (14.492,5.899) .. (14.457,5.811) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (14.483,5.811) .. controls (14.439,5.933) .. (14.439,6.063) .. controls (14.522,5.948) .. (14.483,5.811) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (14.509,5.811) .. controls (14.46,5.969) .. (14.534,6.118) .. controls (14.544,5.963) .. (14.509,5.811) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (14.532,5.811) .. controls (14.504,5.932) .. (14.594,6.019) .. controls (14.585,5.909) .. (14.532,5.811) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (14.556,5.811) .. controls (14.52,5.888) .. (14.599,5.92) .. controls (14.599,5.857) .. (14.556,5.811) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (15.14,5.887) .. controls (15.087,5.958) .. (15.085,6.047) .. controls (15.182,5.991) .. (15.14,5.887) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (15.171,5.887) .. controls (15.118,6.032) .. (15.118,6.185) .. controls (15.216,6.049) .. (15.171,5.887) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (15.202,5.887) .. controls (15.143,6.075) .. (15.231,6.25) .. controls (15.243,6.067) .. (15.202,5.887) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (15.229,5.887) .. controls (15.196,6.031) .. (15.302,6.133) .. controls (15.291,6.003) .. (15.229,5.887) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (15.257,5.887) .. controls (15.215,5.979) .. (15.308,6.016) .. controls (15.307,5.942) .. (15.257,5.887) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (15.694,5.813) .. controls (15.639,5.886) .. (15.637,5.977) .. controls (15.736,5.92) .. (15.694,5.813) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (15.725,5.813) .. controls (15.671,5.962) .. (15.671,6.12) .. controls (15.772,5.98) .. (15.725,5.813) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (15.757,5.813) .. controls (15.697,6.006) .. (15.786,6.186) .. controls (15.799,5.998) .. (15.757,5.813) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (15.785,5.813) .. controls (15.751,5.961) .. (15.86,6.066) .. controls (15.849,5.932) .. (15.785,5.813) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (15.814,5.813) .. controls (15.77,5.907) .. (15.866,5.945) .. controls (15.866,5.869) .. (15.814,5.813) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (16.256,5.89) .. controls (16.211,5.949) .. (16.21,6.023) .. controls (16.29,5.976) .. (16.256,5.89) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (16.281,5.89) .. controls (16.237,6.011) .. (16.237,6.139) .. controls (16.319,6.025) .. (16.281,5.89) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (16.307,5.89) .. controls (16.258,6.046) .. (16.331,6.193) .. controls (16.341,6.04) .. (16.307,5.89) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (16.33,5.89) .. controls (16.302,6.01) .. (16.39,6.095) .. controls (16.382,5.986) .. (16.33,5.89) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (16.353,5.89) .. controls (16.318,5.966) .. (16.396,5.997) .. controls (16.395,5.935) .. (16.353,5.89) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (16.929,5.818) .. controls (16.885,5.876) .. (16.883,5.949) .. controls (16.963,5.903) .. (16.929,5.818) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (16.954,5.818) .. controls (16.911,5.937) .. (16.911,6.063) .. controls (16.992,5.951) .. (16.954,5.818) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (16.979,5.818) .. controls (16.931,5.972) .. (17.003,6.116) .. controls (17.013,5.965) .. (16.979,5.818) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (17.002,5.818) .. controls (16.974,5.936) .. (17.062,6.02) .. controls (17.053,5.913) .. (17.002,5.818) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (17.025,5.818) .. controls (16.99,5.893) .. (17.067,5.924) .. controls (17.066,5.863) .. (17.025,5.818) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (17.141,5.836) .. controls (17.091,5.903) .. (17.089,5.986) .. controls (17.181,5.934) .. (17.141,5.836) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (17.171,5.836) .. controls (17.121,5.972) .. (17.121,6.118) .. controls (17.213,5.989) .. (17.171,5.836) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (17.2,5.836) .. controls (17.144,6.013) .. (17.227,6.179) .. controls (17.239,6.005) .. (17.2,5.836) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (17.226,5.836) .. controls (17.194,5.972) .. (17.294,6.068) .. controls (17.284,5.945) .. (17.226,5.836) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (17.252,5.836) .. controls (17.212,5.922) .. (17.3,5.957) .. controls (17.3,5.887) .. (17.252,5.836) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (17.901,5.843) .. controls (17.856,5.903) .. (17.854,5.977) .. controls (17.936,5.93) .. (17.901,5.843) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (17.927,5.843) .. controls (17.882,5.965) .. (17.882,6.094) .. controls (17.965,5.979) .. (17.927,5.843) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (17.953,5.843) .. controls (17.904,6.001) .. (17.977,6.149) .. controls (17.987,5.994) .. (17.953,5.843) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (17.976,5.843) .. controls (17.948,5.964) .. (18.037,6.05) .. controls (18.028,5.94) .. (17.976,5.843) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (17.999,5.843) .. controls (17.964,5.92) .. (18.042,5.951) .. controls (18.042,5.889) .. (17.999,5.843) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (18.376,5.833) .. controls (18.322,5.905) .. (18.32,5.995) .. controls (18.418,5.938) .. (18.376,5.833) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (18.407,5.833) .. controls (18.354,5.98) .. (18.354,6.136) .. controls (18.453,5.997) .. (18.407,5.833) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (18.438,5.833) .. controls (18.379,6.023) .. (18.468,6.201) .. controls (18.48,6.015) .. (18.438,5.833) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (18.466,5.833) .. controls (18.432,5.979) .. (18.54,6.082) .. controls (18.529,5.95) .. (18.466,5.833) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (18.495,5.833) .. controls (18.452,5.926) .. (18.546,5.963) .. controls (18.546,5.888) .. (18.495,5.833) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.018,5.882) .. controls (18.972,5.943) .. (18.97,6.02) .. controls (19.054,5.972) .. (19.018,5.882) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.045,5.882) .. controls (18.999,6.008) .. (18.999,6.142) .. controls (19.084,6.023) .. (19.045,5.882) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.071,5.882) .. controls (19.021,6.045) .. (19.097,6.198) .. controls (19.107,6.038) .. (19.071,5.882) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.096,5.882) .. controls (19.066,6.007) .. (19.159,6.096) .. controls (19.15,5.982) .. (19.096,5.882) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.12,5.882) .. controls (19.083,5.961) .. (19.164,5.994) .. controls (19.164,5.929) .. (19.12,5.882) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.566,5.838) .. controls (19.519,5.901) .. (19.517,5.98) .. controls (19.603,5.93) .. (19.566,5.838) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.594,5.838) .. controls (19.547,5.967) .. (19.547,6.104) .. controls (19.634,5.982) .. (19.594,5.838) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.621,5.838) .. controls (19.569,6.005) .. (19.647,6.162) .. controls (19.658,5.998) .. (19.621,5.838) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.646,5.838) .. controls (19.616,5.966) .. (19.711,6.057) .. controls (19.701,5.941) .. (19.646,5.838) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.671,5.838) .. controls (19.633,5.919) .. (19.716,5.953) .. controls (19.716,5.887) .. (19.671,5.838) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.972,5.838) .. controls (19.929,5.894) .. (19.928,5.965) .. controls (20.004,5.92) .. (19.972,5.838) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (19.996,5.838) .. controls (19.954,5.953) .. (19.954,6.075) .. controls (20.032,5.967) .. (19.996,5.838) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (20.02,5.838) .. controls (19.974,5.987) .. (20.043,6.126) .. controls (20.053,5.981) .. (20.02,5.838) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (20.042,5.838) .. controls (20.015,5.952) .. (20.1,6.033) .. controls (20.092,5.93) .. (20.042,5.838) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (20.064,5.838) .. controls (20.031,5.911) .. (20.105,5.94) .. controls (20.104,5.881) .. (20.064,5.838) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (20.742,5.834) .. controls (20.69,5.903) .. (20.688,5.989) .. controls (20.783,5.935) .. (20.742,5.834) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (20.772,5.834) .. controls (20.721,5.975) .. (20.721,6.125) .. controls (20.816,5.992) .. (20.772,5.834) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (20.802,5.834) .. controls (20.745,6.016) .. (20.83,6.188) .. controls (20.842,6.009) .. (20.802,5.834) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (20.829,5.834) .. controls (20.796,5.974) .. (20.9,6.073) .. controls (20.89,5.946) .. (20.829,5.834) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (20.856,5.834) .. controls (20.815,5.923) .. (20.906,5.959) .. controls (20.905,5.887) .. (20.856,5.834) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (21.197,5.875) .. controls (21.14,5.952) .. (21.137,6.047) .. controls (21.242,5.987) .. (21.197,5.875) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (21.23,5.875) .. controls (21.173,6.031) .. (21.173,6.197) .. controls (21.279,6.05) .. (21.23,5.875) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (21.263,5.875) .. controls (21.2,6.077) .. (21.294,6.267) .. controls (21.308,6.069) .. (21.263,5.875) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (21.293,5.875) .. controls (21.257,6.03) .. (21.371,6.14) .. controls (21.36,5.999) .. (21.293,5.875) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (21.323,5.875) .. controls (21.277,5.974) .. (21.378,6.014) .. controls (21.377,5.934) .. (21.323,5.875) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (21.895,5.811) .. controls (21.842,5.881) .. (21.84,5.969) .. controls (21.936,5.914) .. (21.895,5.811) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (21.925,5.811) .. controls (21.873,5.954) .. (21.873,6.107) .. controls (21.97,5.972) .. (21.925,5.811) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (21.956,5.811) .. controls (21.898,5.997) .. (21.984,6.171) .. controls (21.997,5.989) .. (21.956,5.811) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (21.983,5.811) .. controls (21.95,5.953) .. (22.055,6.055) .. controls (22.045,5.925) .. (21.983,5.811) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (22.01,5.811) .. controls (21.969,5.902) .. (22.061,5.939) .. controls (22.061,5.865) .. (22.01,5.811) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (22.239,5.835) .. controls (22.19,5.9) .. (22.188,5.982) .. controls (22.277,5.93) .. (22.239,5.835) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (22.267,5.835) .. controls (22.218,5.968) .. (22.218,6.11) .. controls (22.309,5.984) .. (22.267,5.835) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (22.295,5.835) .. controls (22.242,6.007) .. (22.322,6.169) .. controls (22.333,6) .. (22.295,5.835) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (22.321,5.835) .. controls (22.29,5.967) .. (22.388,6.061) .. controls (22.378,5.941) .. (22.321,5.835) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (22.346,5.835) .. controls (22.307,5.919) .. (22.394,5.953) .. controls (22.393,5.885) .. (22.346,5.835) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (22.949,5.808) .. controls (22.894,5.88) .. (22.892,5.971) .. controls (22.991,5.914) .. (22.949,5.808) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (22.98,5.808) .. controls (22.926,5.956) .. (22.926,6.114) .. controls (23.027,5.974) .. (22.98,5.808) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (23.012,5.808) .. controls (22.952,6) .. (23.042,6.18) .. controls (23.054,5.992) .. (23.012,5.808) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (23.04,5.808) .. controls (23.006,5.955) .. (23.115,6.06) .. controls (23.104,5.926) .. (23.04,5.808) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (23.069,5.808) .. controls (23.025,5.901) .. (23.121,5.94) .. controls (23.12,5.864) .. (23.069,5.808) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (23.565,5.833) .. controls (23.515,5.898) .. (23.513,5.981) .. controls (23.603,5.929) .. (23.565,5.833) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (23.593,5.833) .. controls (23.544,5.967) .. (23.544,6.11) .. controls (23.636,5.983) .. (23.593,5.833) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (23.622,5.833) .. controls (23.568,6.007) .. (23.649,6.17) .. controls (23.66,5.999) .. (23.622,5.833) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (23.648,5.833) .. controls (23.616,5.966) .. (23.715,6.061) .. controls (23.705,5.94) .. (23.648,5.833) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (23.673,5.833) .. controls (23.634,5.917) .. (23.721,5.952) .. controls (23.72,5.883) .. (23.673,5.833) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (24.105,5.8) .. controls (24.061,5.858) .. (24.06,5.93) .. controls (24.139,5.884) .. (24.105,5.8) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (24.13,5.8) .. controls (24.087,5.918) .. (24.087,6.044) .. controls (24.167,5.932) .. (24.13,5.8) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (24.155,5.8) .. controls (24.107,5.953) .. (24.179,6.097) .. controls (24.189,5.947) .. (24.155,5.8) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (24.178,5.8) .. controls (24.15,5.917) .. (24.237,6.001) .. controls (24.229,5.894) .. (24.178,5.8) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (24.201,5.8) .. controls (24.166,5.874) .. (24.243,5.905) .. controls (24.242,5.844) .. (24.201,5.8) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (24.406,5.832) .. controls (24.353,5.903) .. (24.351,5.992) .. controls (24.448,5.936) .. (24.406,5.832) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (24.437,5.832) .. controls (24.384,5.977) .. (24.384,6.132) .. controls (24.483,5.995) .. (24.437,5.832) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (24.468,5.832) .. controls (24.41,6.02) .. (24.497,6.197) .. controls (24.51,6.012) .. (24.468,5.832) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (24.496,5.832) .. controls (24.462,5.976) .. (24.569,6.079) .. controls (24.558,5.948) .. (24.496,5.832) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (24.524,5.832) .. controls (24.481,5.924) .. (24.575,5.961) .. controls (24.575,5.887) .. (24.524,5.832) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (25.099,5.864) .. controls (25.053,5.925) .. (25.052,6.002) .. controls (25.135,5.954) .. (25.099,5.864) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (25.126,5.864) .. controls (25.08,5.989) .. (25.08,6.123) .. controls (25.166,6.005) .. (25.126,5.864) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (25.153,5.864) .. controls (25.102,6.027) .. (25.178,6.179) .. controls (25.189,6.02) .. (25.153,5.864) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (25.177,5.864) .. controls (25.148,5.989) .. (25.24,6.077) .. controls (25.231,5.964) .. (25.177,5.864) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (25.201,5.864) .. controls (25.164,5.943) .. (25.245,5.976) .. controls (25.245,5.911) .. (25.201,5.864) -- cycle;
+\begin{scope}\clip (9,-1) -- (26.6,-1) -- (26.6,15.4) -- (-1,15.4) -- (-1,5) -- (9,5) -- cycle;
+\draw[roadline!70!asphalt, opacity=0.836, line width=0.778pt, line cap=round] (-14.794,5.559) -- (-10.625,5.67);
+\draw[roadline!70!asphalt, opacity=0.803, line width=0.661pt, line cap=round] (-10.625,5.67) -- (-7.543,5.752);
+\draw[roadline!70!asphalt, opacity=0.913, line width=0.778pt, line cap=round] (-13.543,5.559) -- (-9.562,5.67);
+\draw[roadline!70!asphalt, opacity=0.762, line width=0.661pt, line cap=round] (-9.562,5.67) -- (-6.619,5.752);
+\draw[roadline!70!asphalt, opacity=0.836, line width=0.778pt, line cap=round] (-11.042,5.559) -- (-7.436,5.67);
+\draw[roadline!70!asphalt, opacity=0.703, line width=0.661pt, line cap=round] (-7.436,5.67) -- (-4.77,5.752);
+\draw[roadline!70!asphalt, opacity=0.975, line width=0.778pt, line cap=round] (-9.791,5.559) -- (-6.372,5.67);
+\draw[roadline!70!asphalt, opacity=0.812, line width=0.661pt, line cap=round] (-6.372,5.67) -- (-3.846,5.752);
+\draw[roadline!70!asphalt, opacity=0.872, line width=0.661pt, line cap=round] (-5.309,5.67) -- (-2.921,5.752);
+\draw[roadline!70!asphalt, opacity=0.843, line width=0.778pt, line cap=round] (-6.039,5.559) -- (-3.183,5.67);
+\draw[roadline!70!asphalt, opacity=0.802, line width=0.661pt, line cap=round] (-3.183,5.67) -- (-1.072,5.752);
+\draw[roadline!70!asphalt, opacity=0.724, line width=0.661pt, line cap=round] (-2.12,5.67) -- (-0.148,5.752);
+\draw[roadline!70!asphalt, opacity=0.915, line width=0.778pt, line cap=round] (-3.537,5.559) -- (-1.057,5.67);
+\draw[roadline!70!asphalt, opacity=0.636, line width=0.661pt, line cap=round] (-1.057,5.67) -- (0.777,5.752);
+\draw[roadline!70!asphalt, opacity=0.684, line width=0.778pt, line cap=round] (-2.287,5.559) -- (0.006,5.67);
+\draw[roadline!70!asphalt, opacity=0.684, line width=0.661pt, line cap=round] (0.006,5.67) -- (1.701,5.752);
+\draw[roadline!70!asphalt, opacity=0.646, line width=0.778pt, line cap=round] (-1.036,5.559) -- (1.069,5.67);
+\draw[roadline!70!asphalt, opacity=0.955, line width=0.661pt, line cap=round] (1.069,5.67) -- (2.626,5.752);
+\draw[roadline!70!asphalt, opacity=0.657, line width=0.778pt, line cap=round] (0.215,5.559) -- (2.133,5.67);
+\draw[roadline!70!asphalt, opacity=0.705, line width=0.661pt, line cap=round] (2.133,5.67) -- (3.55,5.752);
+\draw[roadline!70!asphalt, opacity=0.962, line width=0.778pt, line cap=round] (1.465,5.559) -- (3.196,5.67);
+\draw[roadline!70!asphalt, opacity=0.679, line width=0.661pt, line cap=round] (3.196,5.67) -- (4.474,5.752);
+\draw[roadline!70!asphalt, opacity=0.614, line width=0.661pt, line cap=round] (4.259,5.67) -- (5.399,5.752);
+\draw[roadline!70!asphalt, opacity=0.924, line width=0.661pt, line cap=round] (5.322,5.67) -- (6.323,5.752);
+\draw[roadline!70!asphalt, opacity=0.913, line width=0.778pt, line cap=round] (5.218,5.559) -- (6.385,5.67);
+\draw[roadline!70!asphalt, opacity=0.745, line width=0.661pt, line cap=round] (6.385,5.67) -- (7.248,5.752);
+\draw[roadline!70!asphalt, opacity=0.872, line width=0.661pt, line cap=round] (7.448,5.67) -- (8.172,5.752);
+\draw[roadline!70!asphalt, opacity=0.715, line width=0.778pt, line cap=round] (7.719,5.559) -- (8.511,5.67);
+\draw[roadline!70!asphalt, opacity=0.873, line width=0.661pt, line cap=round] (8.511,5.67) -- (9.097,5.752);
+\draw[roadline!70!asphalt, opacity=0.888, line width=0.778pt, line cap=round] (8.97,5.559) -- (9.574,5.67);
+\draw[roadline!70!asphalt, opacity=0.921, line width=0.778pt, line cap=round] (10.221,5.559) -- (10.638,5.67);
+\draw[roadline!70!asphalt, opacity=0.739, line width=0.661pt, line cap=round] (10.638,5.67) -- (10.946,5.752);
+\draw[roadline!70!asphalt, opacity=0.893, line width=0.778pt, line cap=round] (11.471,5.559) -- (11.701,5.67);
+\draw[roadline!70!asphalt, opacity=0.764, line width=0.661pt, line cap=round] (11.701,5.67) -- (11.87,5.752);
+\draw[roadline!70!asphalt, opacity=0.809, line width=0.778pt, line cap=round] (12.722,5.559) -- (12.764,5.67);
+\draw[roadline!70!asphalt, opacity=0.865, line width=0.661pt, line cap=round] (12.764,5.67) -- (12.795,5.752);
+\draw[roadline!70!asphalt, opacity=0.841, line width=0.661pt, line cap=round] (13.827,5.67) -- (13.719,5.752);
+\draw[roadline!70!asphalt, opacity=0.949, line width=0.778pt, line cap=round] (15.224,5.559) -- (14.89,5.67);
+\draw[roadline!70!asphalt, opacity=0.701, line width=0.661pt, line cap=round] (14.89,5.67) -- (14.643,5.752);
+\draw[roadline!70!asphalt, opacity=0.698, line width=0.778pt, line cap=round] (16.474,5.559) -- (15.953,5.67);
+\draw[roadline!70!asphalt, opacity=0.616, line width=0.661pt, line cap=round] (15.953,5.67) -- (15.568,5.752);
+\draw[roadline!70!asphalt, opacity=0.803, line width=0.778pt, line cap=round] (17.725,5.559) -- (17.016,5.67);
+\draw[roadline!70!asphalt, opacity=0.757, line width=0.661pt, line cap=round] (17.016,5.67) -- (16.492,5.752);
+\draw[roadline!70!asphalt, opacity=0.881, line width=0.661pt, line cap=round] (18.079,5.67) -- (17.417,5.752);
+\draw[roadline!70!asphalt, opacity=0.91, line width=0.778pt, line cap=round] (20.226,5.559) -- (19.143,5.67);
+\draw[roadline!70!asphalt, opacity=0.873, line width=0.661pt, line cap=round] (19.143,5.67) -- (18.341,5.752);
+\draw[roadline!70!asphalt, opacity=0.816, line width=0.778pt, line cap=round] (21.477,5.559) -- (20.206,5.67);
+\draw[roadline!70!asphalt, opacity=0.814, line width=0.661pt, line cap=round] (20.206,5.67) -- (19.266,5.752);
+\draw[roadline!70!asphalt, opacity=0.759, line width=0.778pt, line cap=round] (22.728,5.559) -- (21.269,5.67);
+\draw[roadline!70!asphalt, opacity=0.829, line width=0.661pt, line cap=round] (21.269,5.67) -- (20.19,5.752);
+\draw[roadline!70!asphalt, opacity=0.604, line width=0.661pt, line cap=round] (22.332,5.67) -- (21.115,5.752);
+\draw[roadline!70!asphalt, opacity=0.739, line width=0.778pt, line cap=round] (25.229,5.559) -- (23.395,5.67);
+\draw[roadline!70!asphalt, opacity=0.693, line width=0.661pt, line cap=round] (23.395,5.67) -- (22.039,5.752);
+\draw[roadline!70!asphalt, opacity=0.909, line width=0.778pt, line cap=round] (26.48,5.559) -- (24.458,5.67);
+\draw[roadline!70!asphalt, opacity=0.717, line width=0.661pt, line cap=round] (24.458,5.67) -- (22.964,5.752);
+\draw[roadline!70!asphalt, opacity=0.906, line width=0.778pt, line cap=round] (27.731,5.559) -- (25.521,5.67);
+\draw[roadline!70!asphalt, opacity=0.747, line width=0.778pt, line cap=round] (28.982,5.559) -- (26.584,5.67);
+\draw[roadline!70!asphalt, opacity=0.933, line width=0.661pt, line cap=round] (26.584,5.67) -- (24.813,5.752);
+\draw[roadline!70!asphalt, opacity=0.727, line width=0.778pt, line cap=round] (30.232,5.559) -- (27.648,5.67);
+\draw[roadline!70!asphalt, opacity=0.688, line width=0.661pt, line cap=round] (27.648,5.67) -- (25.737,5.752);
+\draw[roadline!70!asphalt, opacity=0.754, line width=0.778pt, line cap=round] (31.483,5.559) -- (28.711,5.67);
+\draw[roadline!70!asphalt, opacity=0.976, line width=0.661pt, line cap=round] (28.711,5.67) -- (26.661,5.752);
+\draw[roadline!70!asphalt, opacity=0.938, line width=0.778pt, line cap=round] (32.734,5.559) -- (29.774,5.67);
+\draw[roadline!70!asphalt, opacity=0.816, line width=0.661pt, line cap=round] (29.774,5.67) -- (27.586,5.752);
+\draw[roadline!70!asphalt, opacity=0.96, line width=0.661pt, line cap=round] (30.837,5.67) -- (28.51,5.752);
+\draw[roadline!70!asphalt, opacity=0.719, line width=0.778pt, line cap=round] (35.235,5.559) -- (31.9,5.67);
+\draw[roadline!70!asphalt, opacity=0.952, line width=0.661pt, line cap=round] (31.9,5.67) -- (29.435,5.752);
+\draw[roadline!70!asphalt, opacity=0.708, line width=0.778pt, line cap=round] (36.486,5.559) -- (32.963,5.67);
+\draw[roadline!70!asphalt, opacity=0.782, line width=0.661pt, line cap=round] (32.963,5.67) -- (30.359,5.752);
+\draw[roadline!70!asphalt, opacity=0.825, line width=0.778pt, line cap=round] (37.737,5.559) -- (34.026,5.67);
+\draw[roadline!70!asphalt, opacity=0.989, line width=0.661pt, line cap=round] (34.026,5.67) -- (31.284,5.752);
+\draw[roadline!70!asphalt, opacity=0.797, line width=0.778pt, line cap=round] (38.988,5.559) -- (35.089,5.67);
+\draw[roadline!70!asphalt, opacity=0.678, line width=0.661pt, line cap=round] (35.089,5.67) -- (32.208,5.752);
+\draw[roadline!70!asphalt, opacity=0.688, line width=0.778pt, line cap=round] (40.238,5.559) -- (36.153,5.67);
+\draw[roadline!70!asphalt, opacity=0.895, line width=0.661pt, line cap=round] (36.153,5.67) -- (33.133,5.752);
+\draw[roadline!70!asphalt, opacity=0.6, line width=0.9pt] (-10.625,5.67) -- (36.625,5.67);
+\begin{scope}[shift={(1.29,5.57)}, rotate=0, xscale=0.457, yscale=0.457]
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (-0.85,-0.02) rectangle (-0.55,0.35);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (0.55,-0.02) rectangle (0.85,0.35);
+\filldraw[inked,fill=cream,line width=0.6pt] (-0.72,0.92) -- (-0.58,1.42) -- (0.58,1.42) -- (0.72,0.92) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.6pt] (-0.6,0.95) -- (-0.5,1.33) -- (0.5,1.33) -- (0.6,0.95) -- cycle;
+\filldraw[inked,fill=cream,rounded corners=0.12cm,line width=0.6pt] (-0.9,0.18) rectangle (0.9,0.95);
+\filldraw[inked,fill=metaldark,line width=0.6pt] (-0.85,0.22) rectangle (0.85,0.36);
+\filldraw[inked,fill=red,line width=0.6pt] (-0.82,0.62) rectangle (-0.55,0.8);
+\filldraw[inked,fill=red,line width=0.6pt] (0.55,0.62) rectangle (0.82,0.8);
+\filldraw[inked,fill=cream,line width=0.6pt] (-0.22,0.42) rectangle (0.22,0.58);
+\end{scope}
+\begin{scope}[shift={(4.988,5.57)}, rotate=0, xscale=0.457, yscale=0.457]
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (-0.85,-0.02) rectangle (-0.55,0.35);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (0.55,-0.02) rectangle (0.85,0.35);
+\filldraw[inked,fill=sage,line width=0.6pt] (-0.72,0.92) -- (-0.58,1.42) -- (0.58,1.42) -- (0.72,0.92) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.6pt] (-0.6,0.95) -- (-0.5,1.33) -- (0.5,1.33) -- (0.6,0.95) -- cycle;
+\filldraw[inked,fill=sage,rounded corners=0.12cm,line width=0.6pt] (-0.9,0.18) rectangle (0.9,0.95);
+\filldraw[inked,fill=metaldark,line width=0.6pt] (-0.85,0.22) rectangle (0.85,0.36);
+\filldraw[inked,fill=red,line width=0.6pt] (-0.82,0.62) rectangle (-0.55,0.8);
+\filldraw[inked,fill=red,line width=0.6pt] (0.55,0.62) rectangle (0.82,0.8);
+\filldraw[inked,fill=cream,line width=0.6pt] (-0.22,0.42) rectangle (0.22,0.58);
+\end{scope}
+\begin{scope}[shift={(8.686,5.57)}, rotate=0, xscale=0.457, yscale=0.457]
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (-0.85,-0.02) rectangle (-0.55,0.35);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (0.55,-0.02) rectangle (0.85,0.35);
+\filldraw[inked,fill=cream,line width=0.6pt] (-0.72,0.92) -- (-0.58,1.42) -- (0.58,1.42) -- (0.72,0.92) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.6pt] (-0.6,0.95) -- (-0.5,1.33) -- (0.5,1.33) -- (0.6,0.95) -- cycle;
+\filldraw[inked,fill=cream,rounded corners=0.12cm,line width=0.6pt] (-0.9,0.18) rectangle (0.9,0.95);
+\filldraw[inked,fill=metaldark,line width=0.6pt] (-0.85,0.22) rectangle (0.85,0.36);
+\filldraw[inked,fill=red,line width=0.6pt] (-0.82,0.62) rectangle (-0.55,0.8);
+\filldraw[inked,fill=red,line width=0.6pt] (0.55,0.62) rectangle (0.82,0.8);
+\filldraw[inked,fill=cream,line width=0.6pt] (-0.22,0.42) rectangle (0.22,0.58);
+\end{scope}
+\begin{scope}[shift={(16.082,5.57)}, rotate=0, xscale=0.457, yscale=0.457]
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (-0.85,-0.02) rectangle (-0.55,0.35);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (0.55,-0.02) rectangle (0.85,0.35);
+\filldraw[inked,fill=sage,line width=0.6pt] (-0.72,0.92) -- (-0.58,1.42) -- (0.58,1.42) -- (0.72,0.92) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.6pt] (-0.6,0.95) -- (-0.5,1.33) -- (0.5,1.33) -- (0.6,0.95) -- cycle;
+\filldraw[inked,fill=sage,rounded corners=0.12cm,line width=0.6pt] (-0.9,0.18) rectangle (0.9,0.95);
+\filldraw[inked,fill=metaldark,line width=0.6pt] (-0.85,0.22) rectangle (0.85,0.36);
+\filldraw[inked,fill=red,line width=0.6pt] (-0.82,0.62) rectangle (-0.55,0.8);
+\filldraw[inked,fill=red,line width=0.6pt] (0.55,0.62) rectangle (0.82,0.8);
+\filldraw[inked,fill=cream,line width=0.6pt] (-0.22,0.42) rectangle (0.22,0.58);
+\end{scope}
+\begin{scope}[shift={(19.779,5.57)}, rotate=0, xscale=0.457, yscale=0.457]
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (-0.85,-0.02) rectangle (-0.55,0.35);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (0.55,-0.02) rectangle (0.85,0.35);
+\filldraw[inked,fill=metallight,line width=0.6pt] (-0.72,0.92) -- (-0.58,1.42) -- (0.58,1.42) -- (0.72,0.92) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.6pt] (-0.6,0.95) -- (-0.5,1.33) -- (0.5,1.33) -- (0.6,0.95) -- cycle;
+\filldraw[inked,fill=metallight,rounded corners=0.12cm,line width=0.6pt] (-0.9,0.18) rectangle (0.9,0.95);
+\filldraw[inked,fill=metaldark,line width=0.6pt] (-0.85,0.22) rectangle (0.85,0.36);
+\filldraw[inked,fill=red,line width=0.6pt] (-0.82,0.62) rectangle (-0.55,0.8);
+\filldraw[inked,fill=red,line width=0.6pt] (0.55,0.62) rectangle (0.82,0.8);
+\filldraw[inked,fill=cream,line width=0.6pt] (-0.22,0.42) rectangle (0.22,0.58);
+\end{scope}
+\begin{scope}[shift={(23.477,5.57)}, rotate=0, xscale=0.457, yscale=0.457]
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (-0.85,-0.02) rectangle (-0.55,0.35);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (0.55,-0.02) rectangle (0.85,0.35);
+\filldraw[inked,fill=metallight,line width=0.6pt] (-0.72,0.92) -- (-0.58,1.42) -- (0.58,1.42) -- (0.72,0.92) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.6pt] (-0.6,0.95) -- (-0.5,1.33) -- (0.5,1.33) -- (0.6,0.95) -- cycle;
+\filldraw[inked,fill=metallight,rounded corners=0.12cm,line width=0.6pt] (-0.9,0.18) rectangle (0.9,0.95);
+\filldraw[inked,fill=metaldark,line width=0.6pt] (-0.85,0.22) rectangle (0.85,0.36);
+\filldraw[inked,fill=red,line width=0.6pt] (-0.82,0.62) rectangle (-0.55,0.8);
+\filldraw[inked,fill=red,line width=0.6pt] (0.55,0.62) rectangle (0.82,0.8);
+\filldraw[inked,fill=cream,line width=0.6pt] (-0.22,0.42) rectangle (0.22,0.58);
+\end{scope}
+\begin{scope}[shift={(29.595,5.57)}, rotate=0, xscale=0.457, yscale=0.457]
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (-0.85,-0.02) rectangle (-0.55,0.35);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.6pt] (0.55,-0.02) rectangle (0.85,0.35);
+\filldraw[inked,fill=cream,line width=0.6pt] (-0.72,0.92) -- (-0.58,1.42) -- (0.58,1.42) -- (0.72,0.92) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.6pt] (-0.6,0.95) -- (-0.5,1.33) -- (0.5,1.33) -- (0.6,0.95) -- cycle;
+\filldraw[inked,fill=cream,rounded corners=0.12cm,line width=0.6pt] (-0.9,0.18) rectangle (0.9,0.95);
+\filldraw[inked,fill=metaldark,line width=0.6pt] (-0.85,0.22) rectangle (0.85,0.36);
+\filldraw[inked,fill=red,line width=0.6pt] (-0.82,0.62) rectangle (-0.55,0.8);
+\filldraw[inked,fill=red,line width=0.6pt] (0.55,0.62) rectangle (0.82,0.8);
+\filldraw[inked,fill=cream,line width=0.6pt] (-0.22,0.42) rectangle (0.22,0.58);
+\end{scope}
+\filldraw[inked,fill=concrete,line width=0.7pt] (3.491,5.67) rectangle (3.609,5.946);
+\filldraw[inked,fill=metaldark,line width=0.7pt] (3.525,5.946) rectangle (3.575,9.607);
+\filldraw[inked,fill=metaldark,line width=0.7pt] (3.156,9.568) rectangle (3.944,9.655);
+\filldraw[inked,fill=metal,line width=0.7pt] (2.959,9.47) rectangle (3.353,9.647);
+\filldraw[inked,fill=metal,line width=0.7pt] (3.747,9.47) rectangle (4.141,9.647);
+\filldraw[inked,fill=concrete,line width=0.7pt] (13.728,5.67) rectangle (13.847,5.946);
+\filldraw[inked,fill=metaldark,line width=0.7pt] (13.763,5.946) rectangle (13.812,9.607);
+\filldraw[inked,fill=metaldark,line width=0.7pt] (13.394,9.568) rectangle (14.181,9.655);
+\filldraw[inked,fill=metal,line width=0.7pt] (13.197,9.47) rectangle (13.591,9.647);
+\filldraw[inked,fill=metal,line width=0.7pt] (13.984,9.47) rectangle (14.378,9.647);
+\filldraw[inked,fill=concrete,line width=0.7pt] (23.178,5.67) rectangle (23.297,5.946);
+\filldraw[inked,fill=metaldark,line width=0.7pt] (23.213,5.946) rectangle (23.262,9.607);
+\filldraw[inked,fill=metaldark,line width=0.7pt] (22.844,9.568) rectangle (23.631,9.655);
+\filldraw[inked,fill=metal,line width=0.7pt] (22.647,9.47) rectangle (23.041,9.647);
+\filldraw[inked,fill=metal,line width=0.7pt] (23.434,9.47) rectangle (23.828,9.647);
+\begin{scope}[shift={(5.125,5.4)}, rotate=-4, xscale=0.562, yscale=0.562]
+\filldraw[inked,fill=wallC,rounded corners=0.2cm,line width=0.8pt] (-2.2,0.25) rectangle (2.2,0.9);
+\filldraw[inked,fill=wallC,rounded corners=0.15cm,line width=0.8pt] (-1.3,0.88) -- (-0.85,1.4) -- (0.75,1.4) -- (1.35,0.88) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.8pt] (-1.1,0.94) -- (-0.75,1.32) -- (-0.05,1.32) -- (-0.05,0.94) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.8pt] (0.05,0.94) -- (0.05,1.32) -- (0.68,1.32) -- (1.1,0.94) -- cycle;
+\filldraw[inked,fill=window,line width=0.8pt] (2.05,0.55) rectangle (2.22,0.72);
+\filldraw[inked,fill=red,line width=0.8pt] (-2.22,0.5) rectangle (-2.08,0.7);
+\filldraw[inked,fill=ink!80!asphaltdark,line width=0.8pt] (-1.71,0) rectangle (-0.99,0.3);
+\filldraw[inked,fill=ink!80!asphaltdark,line width=0.8pt] (0.99,0) rectangle (1.71,0.3);
+\end{scope}
+\begin{scope}[shift={(-0.933,5.331)}, rotate=0, xscale=0.606, yscale=0.606]
+\filldraw[draw=ink, line width=0.7pt, fill=metallight, fill opacity=0.35, line join=round] (-0.45,0.45) -- (0.35,0.45) -- (0.5,1) -- (-0.55,1) -- cycle;
+\draw[ink, line width=0.42pt, line cap=round] (-0.317,0.45) -- (-0.375,1);
+\draw[ink, line width=0.42pt, line cap=round] (-0.183,0.45) -- (-0.2,1);
+\draw[ink, line width=0.42pt, line cap=round] (-0.05,0.45) -- (-0.025,1);
+\draw[ink, line width=0.42pt, line cap=round] (0.083,0.45) -- (0.15,1);
+\draw[ink, line width=0.42pt, line cap=round] (0.217,0.45) -- (0.325,1);
+\draw[ink, line width=0.42pt, line cap=round] (-0.5,0.725) -- (0.425,0.725);
+\draw[ink, line width=0.91pt, line cap=round] (0.5,1) -- (0.7,1.12);
+\draw[ink, line width=0.91pt, line cap=round] (0.66,1.1) -- (0.68,1.2);
+\draw[ink, line width=0.7pt, line cap=round] (-0.4,0.45) -- (-0.38,0.12);
+\draw[ink, line width=0.7pt, line cap=round] (0.32,0.45) -- (0.35,0.12);
+\draw[ink, line width=0.7pt, line cap=round] (-0.42,0.18) -- (0.4,0.18);
+\draw[red, line width=1.68pt, line cap=round] (0.6,1.1) -- (0.68,1.15);
+\filldraw[inked,fill=ink,line width=0.7pt] (-0.38,0.07) circle (0.07);
+\filldraw[inked,fill=ink,line width=0.7pt] (0.35,0.07) circle (0.07);
+\end{scope}
+\draw[roadline!70!asphalt, opacity=0.766, line width=1.89pt, line cap=round] (10.3,4.5) -- (11.11,5.04);
+\draw[roadline!70!asphalt, opacity=0.725, line width=1.323pt, line cap=round] (11.11,5.04) -- (11.546,5.331);
+\draw[roadline!70!asphalt, opacity=0.71, line width=1.89pt, line cap=round] (13.338,4.5) -- (13.236,5.04);
+\draw[roadline!70!asphalt, opacity=0.669, line width=1.323pt, line cap=round] (13.236,5.04) -- (13.182,5.331);
+\draw[roadline!70!asphalt, opacity=0.74, line width=1.89pt, line cap=round] (16.375,4.5) -- (15.363,5.04);
+\draw[roadline!70!asphalt, opacity=0.9, line width=1.323pt, line cap=round] (15.363,5.04) -- (14.817,5.331);
+\draw[roadline!70!asphalt, opacity=0.794, line width=1.89pt, line cap=round] (19.413,4.5) -- (17.489,5.04);
+\draw[roadline!70!asphalt, opacity=0.881, line width=1.89pt, line cap=round] (22.45,4.5) -- (19.615,5.04);
+\draw[roadline!70!asphalt, opacity=0.916, line width=1.323pt, line cap=round] (19.615,5.04) -- (18.088,5.331);
+\draw[roadline!70!asphalt, opacity=0.6, line width=0.9pt] (11.11,5.04) -- (20.087,5.04);
+\filldraw[inked,fill=kerb,line width=0.8pt] (9.175,4.32) -- (10.075,4.32) -- (10.075,4.5) -- (9.175,4.5) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.9pt] (9.175,4.5) -- (10.075,4.5) -- (11.425,5.331) -- (10.94,5.331) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (9.789,4.62) .. controls (9.727,4.703) .. (9.724,4.807) .. controls (9.837,4.741) .. (9.789,4.62) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (9.825,4.62) .. controls (9.763,4.789) .. (9.763,4.969) .. controls (9.878,4.81) .. (9.825,4.62) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (9.861,4.62) .. controls (9.793,4.839) .. (9.895,5.045) .. controls (9.909,4.83) .. (9.861,4.62) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (9.893,4.62) .. controls (9.854,4.788) .. (9.978,4.908) .. controls (9.966,4.755) .. (9.893,4.62) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (9.926,4.62) .. controls (9.876,4.727) .. (9.985,4.77) .. controls (9.985,4.684) .. (9.926,4.62) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (9.873,4.62) -- (9.895,5.025);
+\filldraw[inked,fill=cream,line width=0.5pt] (9.895,5.034) circle (0.032);
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.314,4.9) .. controls (10.252,4.983) .. (10.249,5.087) .. controls (10.362,5.021) .. (10.314,4.9) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.35,4.9) .. controls (10.288,5.069) .. (10.288,5.249) .. controls (10.403,5.09) .. (10.35,4.9) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.386,4.9) .. controls (10.318,5.119) .. (10.42,5.325) .. controls (10.434,5.11) .. (10.386,4.9) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.418,4.9) .. controls (10.379,5.068) .. (10.503,5.188) .. controls (10.491,5.035) .. (10.418,4.9) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.451,4.9) .. controls (10.401,5.007) .. (10.51,5.05) .. controls (10.51,4.964) .. (10.451,4.9) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (10.398,4.9) -- (10.42,5.305);
+\filldraw[inked,fill=pink,line width=0.5pt] (10.42,5.314) circle (0.032);
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.791,5.155) .. controls (10.729,5.238) .. (10.726,5.341) .. controls (10.84,5.276) .. (10.791,5.155) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.827,5.155) .. controls (10.765,5.324) .. (10.765,5.504) .. controls (10.88,5.344) .. (10.827,5.155) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.863,5.155) .. controls (10.795,5.374) .. (10.897,5.58) .. controls (10.911,5.365) .. (10.863,5.155) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.895,5.155) .. controls (10.856,5.323) .. (10.98,5.442) .. controls (10.968,5.29) .. (10.895,5.155) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.928,5.155) .. controls (10.878,5.261) .. (10.988,5.305) .. controls (10.987,5.218) .. (10.928,5.155) -- cycle;
+\filldraw[inked,fill=wooddark] (10.856,5.204) -- (11.036,5.204) -- (11.006,6.254) -- (10.886,6.254) -- cycle;
+\filldraw[inked,fill=greenB] plot[smooth cycle, tension=0.8] coordinates {(11.668,6.704) (11.499,7.122) (11.085,7.413) (10.576,7.28) (10.344,6.901) (10.242,6.474) (10.619,6.195) (11.082,6.01) (11.46,6.316)};
+\draw[ink, line width=0.7pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(10.646,6.629) (10.871,6.854) (11.171,6.704)};
+\filldraw[inked,fill=concrete,line width=1pt] (10.474,5.008) rectangle (10.68,5.488);
+\filldraw[inked,fill=metaldark,line width=1pt] (10.534,5.488) rectangle (10.62,11.873);
+\filldraw[inked,fill=metaldark,line width=1pt] (9.89,11.804) rectangle (11.263,11.955);
+\filldraw[inked,fill=metal,line width=1pt] (9.547,11.633) rectangle (10.234,11.942);
+\filldraw[inked,fill=metal,line width=1pt] (10.92,11.633) rectangle (11.607,11.942);
+\begin{scope}[shift={(14.792,4.562)}, rotate=0, xscale=1.086, yscale=1.086]
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.9pt] (-0.85,-0.02) rectangle (-0.55,0.35);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.9pt] (0.55,-0.02) rectangle (0.85,0.35);
+\filldraw[inked,fill=wallA,line width=0.9pt] (-0.72,0.92) -- (-0.58,1.42) -- (0.58,1.42) -- (0.72,0.92) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.9pt] (-0.6,0.95) -- (-0.5,1.33) -- (0.5,1.33) -- (0.6,0.95) -- cycle;
+\filldraw[inked,fill=wallA,rounded corners=0.12cm,line width=0.9pt] (-0.9,0.18) rectangle (0.9,0.95);
+\filldraw[inked,fill=metaldark,line width=0.9pt] (-0.85,0.22) rectangle (0.85,0.36);
+\filldraw[inked,fill=red,line width=0.9pt] (-0.82,0.62) rectangle (-0.55,0.8);
+\filldraw[inked,fill=red,line width=0.9pt] (0.55,0.62) rectangle (0.82,0.8);
+\filldraw[inked,fill=cream,line width=0.9pt] (-0.22,0.42) rectangle (0.22,0.58);
+\end{scope}
+\begin{scope}[shift={(17.725,4.562)}, rotate=0, xscale=1.086, yscale=1.086]
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.9pt] (-0.85,-0.02) rectangle (-0.55,0.35);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.9pt] (0.55,-0.02) rectangle (0.85,0.35);
+\filldraw[inked,fill=sagelight,line width=0.9pt] (-0.72,0.92) -- (-0.58,1.42) -- (0.58,1.42) -- (0.72,0.92) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.9pt] (-0.6,0.95) -- (-0.5,1.33) -- (0.5,1.33) -- (0.6,0.95) -- cycle;
+\filldraw[inked,fill=sagelight,rounded corners=0.12cm,line width=0.9pt] (-0.9,0.18) rectangle (0.9,0.95);
+\filldraw[inked,fill=metaldark,line width=0.9pt] (-0.85,0.22) rectangle (0.85,0.36);
+\filldraw[inked,fill=red,line width=0.9pt] (-0.82,0.62) rectangle (-0.55,0.8);
+\filldraw[inked,fill=red,line width=0.9pt] (0.55,0.62) rectangle (0.82,0.8);
+\filldraw[inked,fill=cream,line width=0.9pt] (-0.22,0.42) rectangle (0.22,0.58);
+\end{scope}
+\begin{scope}[shift={(23.591,4.562)}, rotate=0, xscale=1.086, yscale=1.086]
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.9pt] (-0.85,-0.02) rectangle (-0.55,0.35);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.06cm,line width=0.9pt] (0.55,-0.02) rectangle (0.85,0.35);
+\filldraw[inked,fill=gold!60!stone,line width=0.9pt] (-0.72,0.92) -- (-0.58,1.42) -- (0.58,1.42) -- (0.72,0.92) -- cycle;
+\filldraw[inked,fill=windark!70!skylow,line width=0.9pt] (-0.6,0.95) -- (-0.5,1.33) -- (0.5,1.33) -- (0.6,0.95) -- cycle;
+\filldraw[inked,fill=gold!60!stone,rounded corners=0.12cm,line width=0.9pt] (-0.9,0.18) rectangle (0.9,0.95);
+\filldraw[inked,fill=metaldark,line width=0.9pt] (-0.85,0.22) rectangle (0.85,0.36);
+\filldraw[inked,fill=red,line width=0.9pt] (-0.82,0.62) rectangle (-0.55,0.8);
+\filldraw[inked,fill=red,line width=0.9pt] (0.55,0.62) rectangle (0.82,0.8);
+\filldraw[inked,fill=cream,line width=0.9pt] (-0.22,0.42) rectangle (0.22,0.58);
+\end{scope}
+\draw[ink, line width=0.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(14.392,5.462) (14.461,5.312) (14.445,5.162) (14.495,5.012) (14.415,4.862)};
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.354,5.395) .. controls (14.485,5.412) .. (14.574,5.315) .. controls (14.444,5.299) .. (14.354,5.395) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.448,5.329) .. controls (14.359,5.232) .. (14.228,5.249) .. controls (14.318,5.345) .. (14.448,5.329) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (14.367,5.262) .. controls (14.498,5.278) .. (14.587,5.182) .. controls (14.457,5.166) .. (14.367,5.262) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.335,5.195) .. controls (14.245,5.099) .. (14.115,5.115) .. controls (14.204,5.212) .. (14.335,5.195) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (14.47,5.129) .. controls (14.6,5.145) .. (14.69,5.049) .. controls (14.559,5.032) .. (14.47,5.129) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.415,5.062) .. controls (14.326,4.966) .. (14.195,4.982) .. controls (14.285,5.078) .. (14.415,5.062) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (14.343,4.995) .. controls (14.473,5.012) .. (14.563,4.915) .. controls (14.432,4.899) .. (14.343,4.995) -- cycle;
+\filldraw[inked,fill=greenD,line width=0.6pt] (14.363,4.929) .. controls (14.274,4.832) .. (14.143,4.849) .. controls (14.233,4.945) .. (14.363,4.929) -- cycle;
+\draw[ink, line width=0.7pt, line join=round, line cap=round] (10.5,1) -- (10.852,1.186) -- (11.02,1.419) -- (11.333,1.619) -- (11.82,1.727) -- (12.364,1.727) -- (12.831,1.603) -- (13.198,1.422) -- (13.543,1.233) -- (13.952,1.072);
+\draw[ink, line width=0.56pt, line cap=round] (11.02,1.419) -- (11.392,1.453);
+\draw[ink, line width=0.56pt, line cap=round] (12.364,1.727) -- (12.553,1.586);
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.756,1.186) .. controls (10.659,1.316) .. (10.655,1.479) .. controls (10.832,1.376) .. (10.756,1.186) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.813,1.186) .. controls (10.716,1.452) .. (10.716,1.734) .. controls (10.896,1.484) .. (10.813,1.186) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.869,1.186) .. controls (10.762,1.53) .. (10.922,1.853) .. controls (10.945,1.516) .. (10.869,1.186) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.92,1.186) .. controls (10.858,1.45) .. (11.053,1.638) .. controls (11.034,1.398) .. (10.92,1.186) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (10.971,1.186) .. controls (10.893,1.354) .. (11.065,1.422) .. controls (11.064,1.286) .. (10.971,1.186) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.73,1.727) .. controls (11.638,1.85) .. (11.635,2.002) .. controls (11.801,1.906) .. (11.73,1.727) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.783,1.727) .. controls (11.692,1.977) .. (11.692,2.242) .. controls (11.861,2.007) .. (11.783,1.727) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.836,1.727) .. controls (11.735,2.051) .. (11.886,2.354) .. controls (11.907,2.037) .. (11.836,1.727) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.884,1.727) .. controls (11.825,1.975) .. (12.009,2.151) .. controls (11.991,1.926) .. (11.884,1.727) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.931,1.727) .. controls (11.859,1.885) .. (12.02,1.949) .. controls (12.019,1.821) .. (11.931,1.727) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (13.104,1.422) .. controls (13.01,1.549) .. (13.006,1.707) .. controls (13.178,1.607) .. (13.104,1.422) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (13.159,1.422) .. controls (13.065,1.681) .. (13.065,1.956) .. controls (13.241,1.712) .. (13.159,1.422) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (13.214,1.422) .. controls (13.11,1.757) .. (13.266,2.071) .. controls (13.288,1.743) .. (13.214,1.422) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (13.264,1.422) .. controls (13.203,1.679) .. (13.393,1.862) .. controls (13.375,1.628) .. (13.264,1.422) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (13.313,1.422) .. controls (13.238,1.585) .. (13.405,1.652) .. controls (13.404,1.519) .. (13.313,1.422) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (13.232,1.422) -- (13.266,2.041);
+\filldraw[inked,fill=pink,line width=0.5pt] (13.266,2.054) circle (0.048);
+\draw[ink, line width=0.7pt, line join=round, line cap=round] (12,3) -- (11.462,2.993) -- (10.924,2.99) -- (10.457,3.11) -- (10.167,3.314) -- (9.857,3.512) -- (9.513,3.698);
+\draw[ink, line width=0.56pt, line cap=round] (11.462,2.993) -- (11.283,2.851);
+\draw[ink, line width=0.56pt, line cap=round] (10.457,3.11) -- (10.456,3.271);
+\draw[ink, line width=0.56pt, line cap=round] (9.857,3.512) -- (10.015,3.658);
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.386,2.993) .. controls (11.308,3.097) .. (11.305,3.226) .. controls (11.446,3.145) .. (11.386,2.993) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.431,2.993) .. controls (11.353,3.205) .. (11.353,3.43) .. controls (11.497,3.23) .. (11.431,2.993) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.476,2.993) .. controls (11.39,3.267) .. (11.518,3.525) .. controls (11.536,3.256) .. (11.476,2.993) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.516,2.993) .. controls (11.467,3.203) .. (11.622,3.353) .. controls (11.607,3.162) .. (11.516,2.993) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (11.557,2.993) .. controls (11.495,3.127) .. (11.632,3.181) .. controls (11.631,3.073) .. (11.557,2.993) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (10.094,3.314) .. controls (10.02,3.413) .. (10.017,3.536) .. controls (10.152,3.458) .. (10.094,3.314) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (10.137,3.314) .. controls (10.063,3.516) .. (10.063,3.73) .. controls (10.2,3.54) .. (10.137,3.314) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (10.18,3.314) .. controls (10.098,3.575) .. (10.22,3.821) .. controls (10.237,3.564) .. (10.18,3.314) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (10.218,3.314) .. controls (10.171,3.514) .. (10.32,3.657) .. controls (10.305,3.475) .. (10.218,3.314) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (10.257,3.314) .. controls (10.198,3.441) .. (10.329,3.493) .. controls (10.328,3.39) .. (10.257,3.314) -- cycle;
+\draw[ink, line width=0.7pt, line join=round, line cap=round] (15,0.3) -- (15.154,0.517) -- (15.205,0.743) -- (14.965,0.944) -- (14.75,1.15) -- (14.659,1.374);
+\filldraw[inked,fill=greenB,line width=0.6pt] (15.051,0.517) .. controls (14.946,0.657) .. (14.942,0.832) .. controls (15.133,0.721) .. (15.051,0.517) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (15.112,0.517) .. controls (15.007,0.802) .. (15.007,1.106) .. controls (15.201,0.837) .. (15.112,0.517) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (15.172,0.517) .. controls (15.057,0.887) .. (15.229,1.234) .. controls (15.254,0.871) .. (15.172,0.517) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (15.227,0.517) .. controls (15.16,0.8) .. (15.37,1.002) .. controls (15.35,0.745) .. (15.227,0.517) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (15.282,0.517) .. controls (15.198,0.697) .. (15.383,0.771) .. controls (15.382,0.624) .. (15.282,0.517) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.654,1.15) .. controls (14.556,1.281) .. (14.552,1.444) .. controls (14.73,1.341) .. (14.654,1.15) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.71,1.15) .. controls (14.613,1.417) .. (14.613,1.7) .. controls (14.794,1.449) .. (14.71,1.15) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.767,1.15) .. controls (14.66,1.496) .. (14.82,1.82) .. controls (14.843,1.481) .. (14.767,1.15) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.818,1.15) .. controls (14.756,1.415) .. (14.952,1.603) .. controls (14.933,1.363) .. (14.818,1.15) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (14.869,1.15) .. controls (14.791,1.318) .. (14.964,1.387) .. controls (14.962,1.25) .. (14.869,1.15) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (14.786,1.15) -- (14.821,1.788);
+\filldraw[inked,fill=gold,line width=0.5pt] (14.821,1.802) circle (0.05);
+\draw[ink, line width=0.7pt, line join=round, line cap=round] (9.6,4.9) -- (9.96,4.98) -- (10.361,4.98) -- (10.739,4.919) -- (11.001,4.782) -- (11.221,4.631) -- (11.559,4.533) -- (11.943,4.48) -- (12.26,4.37);
+\draw[ink, line width=0.56pt, line cap=round] (10.361,4.98) -- (10.502,5.084);
+\draw[ink, line width=0.56pt, line cap=round] (10.739,4.919) -- (10.789,4.8);
+\draw[ink, line width=0.56pt, line cap=round] (11.943,4.48) -- (12.006,4.363);
+\filldraw[inked,fill=greenB,line width=0.6pt] (9.905,4.98) .. controls (9.849,5.055) .. (9.847,5.148) .. controls (9.948,5.089) .. (9.905,4.98) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (9.937,4.98) .. controls (9.881,5.132) .. (9.881,5.294) .. controls (9.985,5.151) .. (9.937,4.98) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (9.969,4.98) .. controls (9.908,5.178) .. (10,5.363) .. controls (10.013,5.169) .. (9.969,4.98) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (9.999,4.98) .. controls (9.963,5.131) .. (10.075,5.239) .. controls (10.064,5.102) .. (9.999,4.98) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.028,4.98) .. controls (9.983,5.076) .. (10.082,5.116) .. controls (10.081,5.037) .. (10.028,4.98) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.943,4.782) .. controls (10.885,4.859) .. (10.883,4.956) .. controls (10.989,4.895) .. (10.943,4.782) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (10.977,4.782) .. controls (10.919,4.94) .. (10.919,5.108) .. controls (11.027,4.959) .. (10.977,4.782) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (11.011,4.782) .. controls (10.947,4.987) .. (11.042,5.179) .. controls (11.056,4.978) .. (11.011,4.782) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (11.041,4.782) .. controls (11.004,4.939) .. (11.12,5.051) .. controls (11.109,4.908) .. (11.041,4.782) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (11.071,4.782) .. controls (11.025,4.882) .. (11.127,4.922) .. controls (11.127,4.841) .. (11.071,4.782) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (11.022,4.782) -- (11.043,5.16);
+\filldraw[inked,fill=cream,line width=0.5pt] (11.043,5.169) circle (0.029);
+\filldraw[inked,fill=greenB,line width=0.6pt] (11.882,4.48) .. controls (11.821,4.562) .. (11.818,4.664) .. controls (11.93,4.6) .. (11.882,4.48) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (11.918,4.48) .. controls (11.857,4.647) .. (11.857,4.825) .. controls (11.97,4.667) .. (11.918,4.48) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (11.953,4.48) .. controls (11.886,4.697) .. (11.987,4.9) .. controls (12.001,4.688) .. (11.953,4.48) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (11.985,4.48) .. controls (11.946,4.646) .. (12.069,4.764) .. controls (12.057,4.613) .. (11.985,4.48) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.017,4.48) .. controls (11.969,4.586) .. (12.077,4.629) .. controls (12.076,4.543) .. (12.017,4.48) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (11.965,4.48) -- (11.987,4.88);
+\filldraw[inked,fill=pink,line width=0.5pt] (11.987,4.889) circle (0.031);
+\draw[ink, line width=0.7pt, line join=round, line cap=round] (3,5.4) -- (3.394,5.359) -- (3.795,5.381) -- (4.176,5.442) -- (4.58,5.451) -- (4.978,5.485) -- (5.349,5.413) -- (5.739,5.364);
+\draw[ink, line width=0.56pt, line cap=round] (4.58,5.451) -- (4.71,5.559);
+\filldraw[inked,fill=greenA,line width=0.6pt] (3.343,5.359) .. controls (3.291,5.428) .. (3.289,5.514) .. controls (3.383,5.46) .. (3.343,5.359) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (3.373,5.359) .. controls (3.321,5.5) .. (3.321,5.65) .. controls (3.417,5.517) .. (3.373,5.359) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (3.403,5.359) .. controls (3.346,5.542) .. (3.431,5.713) .. controls (3.443,5.534) .. (3.403,5.359) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (3.43,5.359) .. controls (3.397,5.499) .. (3.501,5.599) .. controls (3.49,5.471) .. (3.43,5.359) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (3.457,5.359) .. controls (3.416,5.448) .. (3.507,5.484) .. controls (3.506,5.412) .. (3.457,5.359) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (3.413,5.359) -- (3.431,5.696);
+\filldraw[inked,fill=pink,line width=0.5pt] (3.431,5.704) circle (0.026);
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.53,5.451) .. controls (4.48,5.519) .. (4.478,5.603) .. controls (4.57,5.55) .. (4.53,5.451) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.56,5.451) .. controls (4.509,5.589) .. (4.509,5.736) .. controls (4.603,5.606) .. (4.56,5.451) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.589,5.451) .. controls (4.533,5.63) .. (4.617,5.798) .. controls (4.629,5.623) .. (4.589,5.451) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.616,5.451) .. controls (4.583,5.588) .. (4.685,5.686) .. controls (4.675,5.561) .. (4.616,5.451) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (4.642,5.451) .. controls (4.602,5.538) .. (4.691,5.574) .. controls (4.69,5.503) .. (4.642,5.451) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (5.688,5.364) .. controls (5.636,5.433) .. (5.634,5.519) .. controls (5.728,5.465) .. (5.688,5.364) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (5.718,5.364) .. controls (5.666,5.505) .. (5.666,5.655) .. controls (5.762,5.522) .. (5.718,5.364) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (5.748,5.364) .. controls (5.691,5.547) .. (5.776,5.718) .. controls (5.788,5.539) .. (5.748,5.364) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (5.775,5.364) .. controls (5.742,5.504) .. (5.845,5.604) .. controls (5.835,5.477) .. (5.775,5.364) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (5.802,5.364) .. controls (5.76,5.453) .. (5.851,5.489) .. controls (5.851,5.417) .. (5.802,5.364) -- cycle;
+\draw[ink, line width=0.7pt, line join=round, line cap=round] (19,5.3) -- (18.614,5.323) -- (18.233,5.289) -- (17.867,5.23) -- (17.508,5.162) -- (17.175,5.072);
+\draw[ink, line width=0.56pt, line cap=round] (17.867,5.23) -- (17.659,5.306);
+\draw[ink, line width=0.56pt, line cap=round] (17.508,5.162) -- (17.473,5.047);
+\filldraw[inked,fill=greenA,line width=0.6pt] (18.563,5.323) .. controls (18.511,5.392) .. (18.509,5.479) .. controls (18.604,5.425) .. (18.563,5.323) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (18.593,5.323) .. controls (18.541,5.465) .. (18.541,5.616) .. controls (18.638,5.482) .. (18.593,5.323) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (18.623,5.323) .. controls (18.566,5.507) .. (18.652,5.68) .. controls (18.664,5.499) .. (18.623,5.323) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (18.651,5.323) .. controls (18.617,5.464) .. (18.722,5.564) .. controls (18.712,5.436) .. (18.651,5.323) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (18.678,5.323) .. controls (18.636,5.412) .. (18.728,5.449) .. controls (18.728,5.376) .. (18.678,5.323) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (18.633,5.323) -- (18.652,5.663);
+\filldraw[inked,fill=gold,line width=0.5pt] (18.652,5.67) circle (0.026);
+\filldraw[inked,fill=greenC,line width=0.6pt] (17.455,5.162) .. controls (17.401,5.234) .. (17.399,5.324) .. controls (17.497,5.268) .. (17.455,5.162) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (17.486,5.162) .. controls (17.432,5.309) .. (17.432,5.465) .. controls (17.532,5.327) .. (17.486,5.162) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (17.517,5.162) .. controls (17.458,5.353) .. (17.547,5.531) .. controls (17.559,5.345) .. (17.517,5.162) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (17.545,5.162) .. controls (17.511,5.308) .. (17.619,5.412) .. controls (17.608,5.279) .. (17.545,5.162) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (17.573,5.162) .. controls (17.531,5.255) .. (17.625,5.293) .. controls (17.625,5.218) .. (17.573,5.162) -- cycle;
+\draw[ink, line width=0.7pt, line join=round, line cap=round] (14.5,4.4) -- (14.723,4.526) -- (15.051,4.591) -- (15.408,4.574) -- (15.754,4.616) -- (16.112,4.613);
+\draw[ink, line width=0.56pt, line cap=round] (14.723,4.526) -- (14.632,4.626);
+\draw[ink, line width=0.56pt, line cap=round] (15.051,4.591) -- (15.079,4.698);
+\filldraw[inked,fill=greenC,line width=0.6pt] (14.663,4.526) .. controls (14.603,4.607) .. (14.6,4.709) .. controls (14.711,4.645) .. (14.663,4.526) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (14.699,4.526) .. controls (14.638,4.692) .. (14.638,4.868) .. controls (14.751,4.712) .. (14.699,4.526) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (14.734,4.526) .. controls (14.667,4.741) .. (14.767,4.942) .. controls (14.781,4.732) .. (14.734,4.526) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (14.766,4.526) .. controls (14.727,4.691) .. (14.849,4.808) .. controls (14.837,4.658) .. (14.766,4.526) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (14.797,4.526) .. controls (14.749,4.631) .. (14.856,4.673) .. controls (14.855,4.588) .. (14.797,4.526) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (15.695,4.616) .. controls (15.635,4.696) .. (15.632,4.796) .. controls (15.741,4.733) .. (15.695,4.616) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (15.729,4.616) .. controls (15.67,4.779) .. (15.67,4.953) .. controls (15.781,4.799) .. (15.729,4.616) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (15.764,4.616) .. controls (15.698,4.828) .. (15.797,5.026) .. controls (15.811,4.819) .. (15.764,4.616) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (15.795,4.616) .. controls (15.757,4.778) .. (15.877,4.893) .. controls (15.865,4.746) .. (15.795,4.616) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (15.826,4.616) .. controls (15.779,4.719) .. (15.884,4.761) .. controls (15.884,4.677) .. (15.826,4.616) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (15.775,4.616) -- (15.797,5.006);
+\filldraw[inked,fill=gold,line width=0.5pt] (15.797,5.015) circle (0.03);
+\filldraw[inked,fill=greenC,line width=0.6pt] (16.732,3.2) .. controls (16.663,3.292) .. (16.66,3.407) .. controls (16.786,3.335) .. (16.732,3.2) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (16.772,3.2) .. controls (16.703,3.388) .. (16.703,3.588) .. controls (16.831,3.411) .. (16.772,3.2) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (16.812,3.2) .. controls (16.736,3.444) .. (16.85,3.672) .. controls (16.866,3.433) .. (16.812,3.2) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (16.848,3.2) .. controls (16.804,3.387) .. (16.942,3.52) .. controls (16.929,3.35) .. (16.848,3.2) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (16.884,3.2) .. controls (16.829,3.319) .. (16.951,3.367) .. controls (16.95,3.271) .. (16.884,3.2) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.312,0.6) .. controls (12.222,0.72) .. (12.218,0.869) .. controls (12.382,0.775) .. (12.312,0.6) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.364,0.6) .. controls (12.274,0.844) .. (12.274,1.105) .. controls (12.441,0.874) .. (12.364,0.6) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.416,0.6) .. controls (12.317,0.917) .. (12.465,1.214) .. controls (12.485,0.903) .. (12.416,0.6) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.462,0.6) .. controls (12.405,0.843) .. (12.585,1.016) .. controls (12.567,0.795) .. (12.462,0.6) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (12.509,0.6) .. controls (12.438,0.754) .. (12.596,0.817) .. controls (12.595,0.692) .. (12.509,0.6) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (9.732,2.2) .. controls (9.663,2.292) .. (9.66,2.407) .. controls (9.786,2.335) .. (9.732,2.2) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (9.772,2.2) .. controls (9.703,2.388) .. (9.703,2.588) .. controls (9.831,2.411) .. (9.772,2.2) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (9.812,2.2) .. controls (9.736,2.444) .. (9.85,2.672) .. controls (9.866,2.433) .. (9.812,2.2) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (9.848,2.2) .. controls (9.804,2.387) .. (9.942,2.52) .. controls (9.929,2.35) .. (9.848,2.2) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (9.884,2.2) .. controls (9.829,2.319) .. (9.951,2.367) .. controls (9.95,2.271) .. (9.884,2.2) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (14.125,2) .. controls (14.049,2.101) .. (14.046,2.228) .. controls (14.184,2.148) .. (14.125,2) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (14.169,2) .. controls (14.093,2.207) .. (14.094,2.427) .. controls (14.234,2.232) .. (14.169,2) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (14.213,2) .. controls (14.13,2.268) .. (14.255,2.52) .. controls (14.272,2.257) .. (14.213,2) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (14.253,2) .. controls (14.204,2.205) .. (14.357,2.352) .. controls (14.342,2.165) .. (14.253,2) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (14.292,2) .. controls (14.232,2.131) .. (14.366,2.184) .. controls (14.365,2.078) .. (14.292,2) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (21.459,4.8) .. controls (21.418,4.855) .. (21.416,4.924) .. controls (21.492,4.881) .. (21.459,4.8) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (21.483,4.8) .. controls (21.442,4.913) .. (21.442,5.033) .. controls (21.519,4.926) .. (21.483,4.8) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (21.507,4.8) .. controls (21.462,4.946) .. (21.53,5.083) .. controls (21.539,4.94) .. (21.507,4.8) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (21.529,4.8) .. controls (21.502,4.912) .. (21.585,4.992) .. controls (21.577,4.89) .. (21.529,4.8) -- cycle;
+\filldraw[inked,fill=greenC,line width=0.6pt] (21.55,4.8) .. controls (21.517,4.871) .. (21.59,4.9) .. controls (21.59,4.842) .. (21.55,4.8) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (5.959,5.6) .. controls (5.918,5.655) .. (5.916,5.724) .. controls (5.992,5.681) .. (5.959,5.6) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (5.983,5.6) .. controls (5.942,5.713) .. (5.942,5.833) .. controls (6.019,5.726) .. (5.983,5.6) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (6.007,5.6) .. controls (5.962,5.746) .. (6.03,5.883) .. controls (6.039,5.74) .. (6.007,5.6) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (6.029,5.6) .. controls (6.002,5.712) .. (6.085,5.792) .. controls (6.077,5.69) .. (6.029,5.6) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (6.05,5.6) .. controls (6.017,5.671) .. (6.09,5.7) .. controls (6.09,5.642) .. (6.05,5.6) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (1.166,5.75) .. controls (1.132,5.796) .. (1.13,5.854) .. controls (1.193,5.817) .. (1.166,5.75) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (1.186,5.75) .. controls (1.152,5.844) .. (1.152,5.944) .. controls (1.216,5.855) .. (1.186,5.75) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (1.206,5.75) .. controls (1.168,5.872) .. (1.225,5.986) .. controls (1.233,5.867) .. (1.206,5.75) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (1.224,5.75) .. controls (1.202,5.843) .. (1.271,5.91) .. controls (1.264,5.825) .. (1.224,5.75) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (1.242,5.75) .. controls (1.215,5.809) .. (1.275,5.834) .. controls (1.275,5.785) .. (1.242,5.75) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (1.212,5.75) -- (1.225,5.975);
+\filldraw[inked,fill=gold,line width=0.5pt] (1.225,5.98) circle (0.018);
+\fill[ink, opacity=0.2]  (10.5,3.15) ellipse (0.75 and 0.08);
+\begin{scope}[shift={(10.5,3.15)}, rotate=-8, xscale=1.75, yscale=1.75]
+\filldraw[draw=ink, line width=1pt, fill=metallight, fill opacity=0.35, line join=round] (-0.45,0.45) -- (0.35,0.45) -- (0.5,1) -- (-0.55,1) -- cycle;
+\draw[ink, line width=0.6pt, line cap=round] (-0.317,0.45) -- (-0.375,1);
+\draw[ink, line width=0.6pt, line cap=round] (-0.183,0.45) -- (-0.2,1);
+\draw[ink, line width=0.6pt, line cap=round] (-0.05,0.45) -- (-0.025,1);
+\draw[ink, line width=0.6pt, line cap=round] (0.083,0.45) -- (0.15,1);
+\draw[ink, line width=0.6pt, line cap=round] (0.217,0.45) -- (0.325,1);
+\draw[ink, line width=0.6pt, line cap=round] (-0.5,0.725) -- (0.425,0.725);
+\draw[ink, line width=1.3pt, line cap=round] (0.5,1) -- (0.7,1.12);
+\draw[ink, line width=1.3pt, line cap=round] (0.66,1.1) -- (0.68,1.2);
+\draw[ink, line width=1pt, line cap=round] (-0.4,0.45) -- (-0.38,0.12);
+\draw[ink, line width=1pt, line cap=round] (0.32,0.45) -- (0.35,0.12);
+\draw[ink, line width=1pt, line cap=round] (-0.42,0.18) -- (0.4,0.18);
+\draw[red, line width=2.4pt, line cap=round] (0.6,1.1) -- (0.68,1.15);
+\filldraw[inked,fill=ink,line width=1pt] (-0.38,0.07) circle (0.07);
+\filldraw[inked,fill=ink,line width=1pt] (0.35,0.07) circle (0.07);
+\end{scope}
+\fill[asphaltdark, opacity=0.45]  (13.1,1.4) ellipse (1.1 and 0.242);
+\fill[asphaltdark, opacity=0.45]  (15.4,3.6) ellipse (0.7 and 0.154);
+\fill[asphaltdark, opacity=0.45]  (11,4.6) ellipse (0.5 and 0.11);
+\fill[asphaltdark, opacity=0.45]  (17,4.4) ellipse (0.6 and 0.132);
+\fill[roadline!70!asphalt, opacity=0.4] (12.6,2.5) -- (13.2,2.5) -- (13.3,3.3) -- (13.75,3.3) -- (13.05,3.9) -- (12.25,3.3) -- (12.7,3.3) -- cycle;
+\fill[roadline!70!asphalt, opacity=0.55] (9.81,2.94) -- (10.2,2.94) -- (10.2,3.403) -- (9.95,3.403) -- cycle;
+\fill[roadline!70!asphalt, opacity=0.55] (9.874,3.945) -- (10.2,3.945) -- (10.2,4.182) -- (9.95,4.182) -- cycle;
+\fill[roadline!70!asphalt, opacity=0.55] (9.938,4.487) -- (10.2,4.487) -- (10.2,4.631) -- (9.95,4.631) -- cycle;
+\fill[roadline!70!asphalt, opacity=0.55] (10.002,4.826) -- (10.2,4.826) -- (10.2,4.923) -- (9.95,4.923) -- cycle;
+\fill[roadline!70!asphalt, opacity=0.55] (10.066,5.059) -- (10.2,5.059) -- (10.2,5.128) -- (9.95,5.128) -- cycle;
+\filldraw[inked,fill=metaldark] (14.6,0.55) -- (16.2,0.55) -- (16,0.95) -- (14.75,0.95) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (14.87,0.58) -- (14.89,0.92);
+\draw[ink, line width=0.7pt, line cap=round] (15.14,0.58) -- (15.13,0.92);
+\draw[ink, line width=0.7pt, line cap=round] (15.41,0.58) -- (15.37,0.92);
+\draw[ink, line width=0.7pt, line cap=round] (15.68,0.58) -- (15.61,0.92);
+\draw[ink, line width=0.7pt, line cap=round] (15.95,0.58) -- (15.85,0.92);
+\begin{scope}[shift={(12,0.4)}, rotate=80, xscale=1.2, yscale=1.2]
+\filldraw[inked,fill=orange,line width=0.8pt] (-0.22,0) rectangle (0.22,0.06);
+\filldraw[inked,fill=orange,line width=0.8pt] (-0.15,0.06) -- (0.15,0.06) -- (0.04,0.7) -- (-0.04,0.7) -- cycle;
+\filldraw[inked,fill=cream,line width=0.56pt] (-0.1,0.3) -- (0.1,0.3) -- (0.08,0.42) -- (-0.08,0.42) -- cycle;
+\end{scope}
+\begin{scope}[shift={(16.9,2.75)}, rotate=0, xscale=1, yscale=1]
+\filldraw[inked,fill=orange,line width=0.8pt] (-0.22,0) rectangle (0.22,0.06);
+\filldraw[inked,fill=orange,line width=0.8pt] (-0.15,0.06) -- (0.15,0.06) -- (0.04,0.7) -- (-0.04,0.7) -- cycle;
+\filldraw[inked,fill=cream,line width=0.56pt] (-0.1,0.3) -- (0.1,0.3) -- (0.08,0.42) -- (-0.08,0.42) -- cycle;
+\end{scope}
+\begin{scope}[shift={(11.3,1.55)}, rotate=70, xscale=1, yscale=1]
+\filldraw[inked,fill=red,rounded corners=0.036cm,line width=0.6pt] (-0.09,-0.144) rectangle (0.09,0.144);
+\draw[ink, line width=0.5pt, line cap=round] (-0.09,0.099) -- (0.09,0.099);
+\end{scope}
+\begin{scope}[shift={(13.9,2.1)}, rotate=15, xscale=1, yscale=1]
+\filldraw[inked,fill=teal,rounded corners=0.032cm,line width=0.6pt] (-0.08,-0.128) rectangle (0.08,0.128);
+\draw[ink, line width=0.5pt, line cap=round] (-0.08,0.088) -- (0.08,0.088);
+\end{scope}
+\begin{scope}[shift={(17.8,3.6)}, rotate=95, xscale=1, yscale=1]
+\filldraw[inked,fill=gold,rounded corners=0.028cm,line width=0.6pt] (-0.07,-0.112) rectangle (0.07,0.112);
+\draw[ink, line width=0.5pt, line cap=round] (-0.07,0.077) -- (0.07,0.077);
+\end{scope}
+\begin{scope}[shift={(12.9,0.85)}, rotate=12, xscale=1, yscale=1]
+\filldraw[inked,fill=paper,line width=0.6pt] (-0.25,-0.12) -- (0.22,-0.16) -- (0.27,0.1) -- (-0.2,0.14) -- cycle;
+\end{scope}
+\begin{scope}[shift={(15.3,2.35)}, rotate=-20, xscale=1, yscale=1]
+\filldraw[inked,fill=paper,line width=0.6pt] (-0.25,-0.12) -- (0.22,-0.16) -- (0.27,0.1) -- (-0.2,0.14) -- cycle;
+\end{scope}
+\begin{scope}[shift={(10.6,2)}, rotate=30, xscale=1, yscale=1]
+\filldraw[inked,fill=paper,line width=0.6pt] (-0.25,-0.12) -- (0.22,-0.16) -- (0.27,0.1) -- (-0.2,0.14) -- cycle;
+\end{scope}
+\fill[ink, opacity=0.22]  (11.9,4.129) ellipse (0.443 and 0.071);
+\begin{scope}[shift={(11.9,4.109)}, rotate=0, xscale=0.715, yscale=0.715]
+\filldraw[inked,fill=wooddark] plot[smooth cycle, tension=0.5] coordinates {(-0.01,1.489) (-0.07,0.792) (-0.11,0.175) (-0.41,0.185) (-0.41,0.808) (-0.39,1.511)};
+\filldraw[inked,fill=wooddark] plot[smooth cycle, tension=0.5] coordinates {(0.39,1.512) (0.41,0.855) (0.39,0.18) (0.09,0.18) (0.07,0.845) (0.01,1.488)};
+\draw[ink, line width=0.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-0.38,0.95) (-0.1,0.9)};
+\filldraw[inked,fill=armourdark,rounded corners=0.06cm,line width=0.7pt] (-0.45,0.95) rectangle (-0.05,1.17);
+\filldraw[inked,fill=ink!70!wooddark,rounded corners=0.08cm,line width=0.9pt] (-0.44,-0.02) rectangle (-0.08,0.3);
+\filldraw[inked,fill=ink!70!wooddark,rounded corners=0.08cm,line width=0.9pt] (0.06,-0.02) rectangle (0.42,0.3);
+\filldraw[inked,fill=jacketc,rounded corners=0.22cm] (-0.5,1.35) rectangle (0.5,2.85);
+\filldraw[inked,fill=wooddark,line width=0.8pt] (-0.47,1.42) rectangle (0.47,1.58);
+\filldraw[inked,fill=gold,line width=0.6pt] (-0.08,1.4) rectangle (0.08,1.6);
+\filldraw[inked,fill=wood,rounded corners=0.04cm,line width=0.7pt] (0.18,1.2) rectangle (0.44,1.5);
+\filldraw[inked,fill=jacketc] plot[smooth cycle, tension=0.5] coordinates {(0.594,2.741) (0.754,2.117) (0.72,1.546) (0.48,1.554) (0.486,2.083) (0.306,2.659)};
+\filldraw[inked,fill=wooddark,line width=0.8pt] (0.6,1.5) circle (0.13);
+\filldraw[inked,fill=jacketc] plot[smooth cycle, tension=0.5] coordinates {(-0.308,2.653) (-0.516,2.083) (-0.48,1.561) (-0.72,1.539) (-0.784,2.117) (-0.592,2.747)};
+\filldraw[inked,fill=wooddark,line width=0.8pt] (-0.6,1.5) circle (0.13);
+\draw[ink, line width=2pt, line cap=round] (-0.32,2.85) -- (-0.3,2.3);
+\draw[ink, line width=2pt, line cap=round] (0.32,2.85) -- (0.3,2.3);
+\filldraw[inked,fill=wallE,rounded corners=0.12cm] (-0.42,1.7) rectangle (0.42,2.68);
+\filldraw[inked,fill=wallE!80!ink,rounded corners=0.08cm,line width=0.8pt] (-0.38,2.38) rectangle (0.38,2.62);
+\filldraw[inked,fill=wallE!85!paper,rounded corners=0.06cm,line width=0.8pt] (-0.26,1.8) rectangle (0.26,2.12);
+\draw[ink, line width=1pt, line cap=round] (-0.1,2.38) -- (-0.1,2.25);
+\draw[ink, line width=1pt, line cap=round] (0.1,2.38) -- (0.1,2.25);
+\filldraw[inked,fill=skinc,line width=0.6pt] (-0.24,2.97) ellipse (0.06 and 0.09);
+\filldraw[inked,fill=skinc,line width=0.6pt] (0.24,2.97) ellipse (0.06 and 0.09);
+\filldraw[inked,fill=skinc,rounded corners=0.1cm,line width=0.8pt] (-0.24,2.76) rectangle (0.24,3.05);
+\filldraw[inked,fill=sagedark] (-0.37,3.0) arc[start angle=180,end angle=0,radius=0.37] -- cycle;
+\filldraw[inked,fill=sagedark!80!ink,rounded corners=0.05cm,line width=0.7pt] (-0.39,2.96) rectangle (0.39,3.07);
+\draw[ink!80!asphaltdark, line width=1.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-0.34,3.14) (0,3.18) (0.34,3.14)};
+\filldraw[inked,fill=metal,rounded corners=0.03cm,line width=0.5pt] (-0.08,3.12) rectangle (0.08,3.22);
+\end{scope}
+\fill[ink, opacity=0.22]  (13.4,3.39) ellipse (0.593 and 0.096);
+\begin{scope}[shift={(13.4,3.37)}, rotate=0, xscale=0.956, yscale=0.956]
+\begin{scope}[shift={(0.45,2.55)}, rotate=38, xscale=0.85, yscale=0.85]
+\filldraw[inked,fill=wood,line width=0.9pt] (-1.25,0.25) -- (-0.4,0.45) -- (-0.35,0.68) -- (-1.2,0.62) -- cycle;
+\filldraw[inked,fill=wooddark,line width=0.9pt] (-0.05,0) -- (0.15,0) -- (0.2,0.42) -- (0,0.42) -- cycle;
+\filldraw[inked,fill=metaldark,rounded corners=0.05cm,line width=0.9pt] (-0.45,0.4) rectangle (0.8,0.7);
+\filldraw[inked,fill=metaldark,line width=0.9pt] (0.3,0.42) -- (0.55,0.42) -- (0.68,-0.15) -- (0.45,-0.25) -- cycle;
+\filldraw[inked,fill=wood,rounded corners=0.06cm,line width=0.9pt] (0.75,0.46) rectangle (1.35,0.66);
+\filldraw[inked,fill=metaldark,line width=0.8pt] (1.35,0.52) rectangle (2.15,0.6);
+\filldraw[inked,fill=metaldark,line width=0.7pt] (2.1,0.49) rectangle (2.22,0.63);
+\filldraw[inked,fill=sagedark,rounded corners=0.06cm,line width=0.9pt] (-0.6,0.78) rectangle (1.25,1.08);
+\filldraw[inked,fill=red,line width=0.9pt] (1.25,0.78) -- (1.55,0.83) -- (1.82,0.93) -- (1.55,1.03) -- (1.25,1.08) -- cycle;
+\filldraw[inked,fill=metaldark,line width=0.7pt] (-0.62,0.74) rectangle (-0.5,1.12);
+\filldraw[inked,fill=wooddark,line width=0.6pt] (-0.1,0.68) rectangle (0,1.1);
+\filldraw[inked,fill=wooddark,line width=0.6pt] (0.65,0.68) rectangle (0.75,1.1);
+\end{scope}
+\filldraw[inked,fill=sagedark] plot[smooth cycle, tension=0.5] coordinates {(-0.01,1.489) (-0.07,0.792) (-0.11,0.175) (-0.41,0.185) (-0.41,0.808) (-0.39,1.511)};
+\filldraw[inked,fill=sagedark] plot[smooth cycle, tension=0.5] coordinates {(0.39,1.512) (0.41,0.856) (0.39,0.42) (0.09,0.42) (0.07,0.844) (0.01,1.488)};
+\draw[ink, line width=0.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-0.38,0.95) (-0.1,0.9)};
+\filldraw[inked,fill=ink!70!wooddark,rounded corners=0.08cm,line width=0.9pt] (-0.44,-0.02) rectangle (-0.08,0.3);
+\filldraw[inked,fill=ink!70!wooddark,rounded corners=0.08cm,line width=0.9pt] (0.07,0.28) rectangle (0.41,0.56);
+\fill[ink, opacity=0.35] (0.1,0.3) rectangle (0.38,0.36);
+\filldraw[inked,fill=jacketb,rounded corners=0.22cm] (-0.5,1.35) rectangle (0.5,2.85);
+\filldraw[inked,fill=wooddark,line width=0.8pt] (-0.47,1.42) rectangle (0.47,1.58);
+\filldraw[inked,fill=gold,line width=0.6pt] (-0.08,1.4) rectangle (0.08,1.6);
+\filldraw[inked,fill=sagedark,rounded corners=0.04cm,line width=0.7pt] (0.18,1.2) rectangle (0.44,1.5);
+\filldraw[inked,fill=jacketb] plot[smooth cycle, tension=0.5] coordinates {(0.594,2.741) (0.754,2.117) (0.72,1.546) (0.48,1.554) (0.486,2.083) (0.306,2.659)};
+\filldraw[inked,fill=wooddark,line width=0.8pt] (0.6,1.5) circle (0.13);
+\filldraw[inked,fill=jacketb] plot[smooth cycle, tension=0.5] coordinates {(-0.311,2.756) (-0.169,2.308) (0.135,2.369) (0.165,2.131) (-0.331,2.092) (-0.589,2.644)};
+\filldraw[inked,fill=wooddark,line width=0.8pt] (0.18,2.27) circle (0.13);
+\draw[ink, line width=2pt, line cap=round] (-0.32,2.85) -- (-0.3,2.3);
+\draw[ink, line width=2pt, line cap=round] (0.32,2.85) -- (0.3,2.3);
+\filldraw[inked,fill=wood,rounded corners=0.12cm] (-0.42,1.7) rectangle (0.42,2.68);
+\filldraw[inked,fill=wood!80!ink,rounded corners=0.08cm,line width=0.8pt] (-0.38,2.38) rectangle (0.38,2.62);
+\filldraw[inked,fill=wood!85!paper,rounded corners=0.06cm,line width=0.8pt] (-0.26,1.8) rectangle (0.26,2.12);
+\draw[ink, line width=1pt, line cap=round] (-0.1,2.38) -- (-0.1,2.25);
+\draw[ink, line width=1pt, line cap=round] (0.1,2.38) -- (0.1,2.25);
+\draw[ink, line width=0.8pt, line cap=round] (0.3,2.6) -- (0.5,3.7);
+\filldraw[inked,fill=red,line width=0.4pt] (0.5,3.7) circle (0.04);
+\filldraw[inked,fill=skinb,line width=0.6pt] (-0.24,2.97) ellipse (0.06 and 0.09);
+\filldraw[inked,fill=skinb,line width=0.6pt] (0.24,2.97) ellipse (0.06 and 0.09);
+\filldraw[inked,fill=skinb,rounded corners=0.1cm,line width=0.8pt] (-0.24,2.76) rectangle (0.24,3.05);
+\filldraw[inked,fill=armourlight] (-0.37,3.0) arc[start angle=180,end angle=0,radius=0.37] -- cycle;
+\filldraw[inked,fill=armourlight!80!ink,rounded corners=0.05cm,line width=0.7pt] (-0.39,2.96) rectangle (0.39,3.07);
+\draw[ink!80!asphaltdark, line width=1.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-0.34,3.14) (0,3.18) (0.34,3.14)};
+\filldraw[inked,fill=metal,rounded corners=0.03cm,line width=0.5pt] (-0.08,3.12) rectangle (0.08,3.22);
+\end{scope}
+\fill[ink, opacity=0.22]  (15.5,2.383) ellipse (0.796 and 0.128);
+\begin{scope}[shift={(15.5,2.363)}, rotate=0, xscale=1.285, yscale=1.285]
+\filldraw[inked,fill=asphaltdark] plot[smooth cycle, tension=0.5] coordinates {(-0.01,1.489) (-0.07,0.792) (-0.11,0.175) (-0.41,0.185) (-0.41,0.808) (-0.39,1.511)};
+\filldraw[inked,fill=asphaltdark] plot[smooth cycle, tension=0.5] coordinates {(0.39,1.512) (0.41,0.856) (0.39,0.42) (0.09,0.42) (0.07,0.844) (0.01,1.488)};
+\draw[ink, line width=0.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-0.38,0.95) (-0.1,0.9)};
+\filldraw[inked,fill=ink!70!wooddark,rounded corners=0.08cm,line width=0.9pt] (-0.44,-0.02) rectangle (-0.08,0.3);
+\filldraw[inked,fill=ink!70!wooddark,rounded corners=0.08cm,line width=0.9pt] (0.07,0.28) rectangle (0.41,0.56);
+\fill[ink, opacity=0.35] (0.1,0.3) rectangle (0.38,0.36);
+\filldraw[inked,fill=jacket,rounded corners=0.22cm] (-0.5,1.35) rectangle (0.5,2.85);
+\filldraw[inked,fill=wooddark,line width=0.8pt] (-0.47,1.42) rectangle (0.47,1.58);
+\filldraw[inked,fill=gold,line width=0.6pt] (-0.08,1.4) rectangle (0.08,1.6);
+\filldraw[inked,fill=sagedark,rounded corners=0.04cm,line width=0.7pt] (0.18,1.2) rectangle (0.44,1.5);
+\filldraw[inked,fill=jacket] plot[smooth cycle, tension=0.5] coordinates {(0.568,2.792) (0.926,2.299) (0.834,1.963) (0.606,2.037) (0.674,2.201) (0.332,2.608)};
+\filldraw[inked,fill=wooddark,line width=0.8pt] (0.72,2) circle (0.13);
+\filldraw[inked,fill=jacket] plot[smooth cycle, tension=0.5] coordinates {(-0.308,2.653) (-0.516,2.083) (-0.48,1.561) (-0.72,1.539) (-0.784,2.117) (-0.592,2.747)};
+\filldraw[inked,fill=wooddark,line width=0.8pt] (-0.6,1.5) circle (0.13);
+\draw[ink, line width=2pt, line cap=round] (-0.32,2.85) -- (-0.3,2.3);
+\draw[ink, line width=2pt, line cap=round] (0.32,2.85) -- (0.3,2.3);
+\filldraw[inked,fill=sagedark,rounded corners=0.12cm] (-0.42,1.7) rectangle (0.42,2.68);
+\filldraw[inked,fill=sagedark!80!ink,rounded corners=0.08cm,line width=0.8pt] (-0.38,2.38) rectangle (0.38,2.62);
+\filldraw[inked,fill=sagedark!85!paper,rounded corners=0.06cm,line width=0.8pt] (-0.26,1.8) rectangle (0.26,2.12);
+\draw[ink, line width=1pt, line cap=round] (-0.1,2.38) -- (-0.1,2.25);
+\draw[ink, line width=1pt, line cap=round] (0.1,2.38) -- (0.1,2.25);
+\filldraw[inked,fill=wallE,line width=0.8pt] (0,2.74) ellipse (0.45 and 0.11);
+\draw[ink, line width=0.7pt, line cap=round] (-0.18,2.63) -- (-0.18,2.85);
+\draw[ink, line width=0.7pt, line cap=round] (0.18,2.63) -- (0.18,2.85);
+\filldraw[inked,fill=skin,line width=0.6pt] (-0.24,2.97) ellipse (0.06 and 0.09);
+\filldraw[inked,fill=skin,line width=0.6pt] (0.24,2.97) ellipse (0.06 and 0.09);
+\filldraw[inked,fill=skin,rounded corners=0.1cm,line width=0.8pt] (-0.24,2.76) rectangle (0.24,3.05);
+\filldraw[inked,fill=armour] (-0.37,3.0) arc[start angle=180,end angle=0,radius=0.37] -- cycle;
+\filldraw[inked,fill=armour!80!ink,rounded corners=0.05cm,line width=0.7pt] (-0.39,2.96) rectangle (0.39,3.07);
+\draw[ink!80!asphaltdark, line width=1.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-0.34,3.14) (0,3.18) (0.34,3.14)};
+\filldraw[inked,fill=metal,rounded corners=0.03cm,line width=0.5pt] (-0.08,3.12) rectangle (0.08,3.22);
+\begin{scope}[shift={(0.72,1.95)}, rotate=52, xscale=0.8, yscale=0.8]
+\filldraw[inked,fill=wooddark,line width=0.9pt] (-0.1,0) -- (0.12,0) -- (0.2,0.42) -- (-0.05,0.42) -- cycle;
+\filldraw[inked,fill=metaldark,rounded corners=0.05cm,line width=0.9pt] (-0.2,0.36) rectangle (0.55,0.62);
+\draw[ink, line width=0.8pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(0.08,0.36) (0.12,0.22) (0.26,0.22) (0.3,0.36)};
+\filldraw[inked,fill=metal,rounded corners=0.04cm,line width=0.9pt] (0.45,0.4) rectangle (1.75,0.58);
+\filldraw[inked,fill=metal,rounded corners=0.04cm,line width=0.9pt] (0.45,0.58) rectangle (1.75,0.76);
+\filldraw[inked,fill=wood,line width=0.7pt] (0.7,0.36) rectangle (0.82,0.8);
+\filldraw[inked,fill=wood,line width=0.7pt] (1.35,0.36) rectangle (1.47,0.8);
+\filldraw[inked,fill=metaldark,rounded corners=0.05cm,line width=0.9pt] (1.72,0.3) rectangle (2.06,0.86);
+\filldraw[inked,fill=ink,line width=0.4pt] (1.81,0.44) circle (0.055);
+\filldraw[inked,fill=ink,line width=0.4pt] (1.81,0.7) circle (0.055);
+\filldraw[inked,fill=ink,line width=0.4pt] (1.97,0.44) circle (0.055);
+\filldraw[inked,fill=ink,line width=0.4pt] (1.97,0.7) circle (0.055);
+\end{scope}
+\end{scope}
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.2cm] (18.45,0.65) rectangle (19.45,1.8);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.2cm] (23.15,0.65) rectangle (24.15,1.8);
+\fill[ink, opacity=0.25] (16.7,0.6) rectangle (25.9,0.8);
+\filldraw[inked,fill=teal!55!sagelight,rounded corners=0.35cm] (18.1,1.6) rectangle (24.5,7.2);
+\fill[teal!55!sagelight!85!ink] (18.2,6.7) rectangle (24.4,6.9);
+\filldraw[inked,fill=ink!75!wooddark] (18.6,2.15) rectangle (24,6.75);
+\filldraw[inked,fill=wooddark!70!ink] (18.6,2.15) -- (24,2.15) -- (23,3.05) -- (19.6,3.05) -- cycle;
+\draw[ink, line width=0.5pt, line cap=round] (19.5,2.15) -- (20.167,3.05);
+\draw[ink, line width=0.5pt, line cap=round] (20.4,2.15) -- (20.733,3.05);
+\draw[ink, line width=0.5pt, line cap=round] (21.3,2.15) -- (21.3,3.05);
+\draw[ink, line width=0.5pt, line cap=round] (22.2,2.15) -- (21.867,3.05);
+\draw[ink, line width=0.5pt, line cap=round] (23.1,2.15) -- (22.433,3.05);
+\filldraw[inked,fill=ink!60!metaldark] (18.6,6.75) -- (19.6,6) -- (23,6) -- (24,6.75) -- cycle;
+\filldraw[inked,fill=ink!55!sagedark] (18.6,2.15) -- (19.6,3.05) -- (19.6,6) -- (18.6,6.75) -- cycle;
+\filldraw[inked,fill=ink!55!sagedark] (24,2.15) -- (23,3.05) -- (23,6) -- (24,6.75) -- cycle;
+\filldraw[inked,fill=ink!65!sagedark] (19.6,3.05) rectangle (23,6);
+\filldraw[inked,fill=window!50!skylow,rounded corners=0.1cm,line width=0.9pt] (20.75,5.05) rectangle (21.85,5.65);
+\fill[window, opacity=0.12] (21,6.35) -- (21.6,6.35) -- (23.3,2.25) -- (19.3,2.25) -- cycle;
+\filldraw[inked,fill=window,rounded corners=0.08cm,line width=0.8pt] (20.95,6.25) rectangle (21.65,6.45);
+\filldraw[inked,fill=metal,line width=0.7pt] (18.65,4.55) -- (19.6,4.65) -- (19.6,4.75) -- (18.65,4.7) -- cycle;
+\filldraw[inked,fill=sagedark,line width=0.7pt] (18.764,4.706) -- (18.954,4.716) -- (18.954,5.116) -- (18.764,5.156) -- cycle;
+\filldraw[inked,fill=gold,line width=0.7pt] (19.03,4.72) -- (19.22,4.73) -- (19.22,5.03) -- (19.03,5.07) -- cycle;
+\filldraw[inked,fill=sagedark,line width=0.7pt] (19.296,4.734) -- (19.486,4.744) -- (19.486,4.944) -- (19.296,4.984) -- cycle;
+\begin{scope}[shift={(23.45,4.85)}, rotate=6, xscale=0.9, yscale=0.9]
+\filldraw[inked,fill=wood,rounded corners=0.06cm,line width=0.9pt] (-0.42,-0.6) rectangle (0.42,0.6);
+\filldraw[inked,fill=paper,line width=0.7pt] (-0.34,-0.52) rectangle (0.34,0.46);
+\filldraw[inked,fill=metal,rounded corners=0.04cm,line width=0.7pt] (-0.15,0.4) rectangle (0.15,0.56);
+\fill[ink!60!paper] (-0.26,0.28) rectangle (0.24,0.31);
+\fill[ink!60!paper] (-0.26,0.16) rectangle (0.14,0.19);
+\fill[ink!60!paper] (-0.26,0.04) rectangle (0.19,0.07);
+\fill[ink!60!paper] (-0.26,-0.08) rectangle (0.04,-0.05);
+\filldraw[inked,fill=sagelight,line width=0.5pt] (-0.26,-0.44) rectangle (0.06,-0.2);
+\draw[red, line width=0.6pt, line cap=round] (-0.22,-0.4) -- (-0.05,-0.25);
+\filldraw[inked,fill=none,draw=red,line width=0.9pt] (0.18,-0.33) circle (0.1);
+\end{scope}
+\filldraw[inked,fill=jacketd!80!wooddark] plot[smooth cycle, tension=0.5] coordinates {(18.85,2.3) (20.35,2.3) (20.43,2.81) (20.05,3.15) (19.15,3.15) (18.77,2.81)};
+\draw[ink, line width=1.4pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(19.225,3.108) (19.6,3.448) (19.975,3.108)};
+\draw[ink, line width=0.7pt, line cap=round] (18.95,2.768) -- (20.25,2.768);
+\filldraw[inked,fill=metal,line width=0.6pt] (19.45,2.428) rectangle (19.75,2.683);
+\filldraw[inked,fill=sagedark] plot[smooth cycle, tension=0.5] coordinates {(19.5,2.9) (20.6,2.9) (20.68,3.26) (20.38,3.5) (19.72,3.5) (19.42,3.26)};
+\draw[ink, line width=1.4pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(19.775,3.47) (20.05,3.71) (20.325,3.47)};
+\draw[ink, line width=0.7pt, line cap=round] (19.6,3.23) -- (20.5,3.23);
+\filldraw[inked,fill=metal,line width=0.6pt] (19.94,2.99) rectangle (20.16,3.17);
+\filldraw[inked,fill=metaldark,rounded corners=0.05cm,line width=0.8pt] (22.15,3.15) rectangle (22.35,4.15);
+\filldraw[inked,fill=metal,rounded corners=0.05cm,line width=0.8pt] (22.4,3.15) rectangle (22.58,4);
+\begin{scope}[shift={(22.961,3.4)}, rotate=-25, xscale=1, yscale=1]
+\filldraw[inked,fill=metaldark,rounded corners=0.04cm,line width=0.8pt] (-0.1,0) rectangle (0.1,0.65);
+\filldraw[inked,fill=glow,line width=0.6pt] (0,0.65) ellipse (0.16 and 0.08);
+\end{scope}
+\filldraw[inked,fill=metaldark,line width=0.8pt] (23.05,3.15) -- (23.25,3.15) -- (23.4,3.7) -- (23.2,3.75) -- cycle;
+\filldraw[inked,fill=wooddark,line width=0.8pt] (22.543,3.15) -- (22.775,3.15) -- (22.852,3.65) -- (22.589,3.67) -- cycle;
+\filldraw[inked,fill=wood] (22,2.3) rectangle (23.55,3.25);
+\draw[ink, line width=0.7pt, line cap=round] (22,2.617) -- (23.55,2.617);
+\draw[ink, line width=0.7pt, line cap=round] (22,2.933) -- (23.55,2.933);
+\draw[ink, line width=0.7pt, line cap=round] (22.08,2.38) -- (23.47,3.17);
+\filldraw[inked,fill=gold,line width=0.6pt] (22.62,2.68) rectangle (22.93,2.87);
+\draw[inked, line width=1.6pt] (18.6,2.15) rectangle (24,6.75);
+\filldraw[inked,fill=metaldark,rounded corners=0.1cm] (17.9,1.25) rectangle (24.7,1.8);
+\filldraw[inked,fill=metal,line width=0.9pt] (20.3,1.05) rectangle (22.3,1.3);
+\filldraw[inked,fill=cream,line width=0.8pt] (20.75,1.35) rectangle (21.85,1.72);
+\filldraw[inked,fill=red,rounded corners=0.08cm,line width=0.9pt] (18.18,2.6) rectangle (18.52,3.6);
+\filldraw[inked,fill=gold,line width=0.7pt] (18.18,3.3) rectangle (18.52,3.6);
+\filldraw[inked,fill=red,rounded corners=0.08cm,line width=0.9pt] (24.08,2.6) rectangle (24.42,3.6);
+\filldraw[inked,fill=gold,line width=0.7pt] (24.08,3.3) rectangle (24.42,3.6);
+\filldraw[inked,fill=wallE,line width=0.6pt] plot[smooth cycle, tension=0.7] coordinates {(18.2,1.9) (18.55,1.85) (18.52,2.1) (18.25,2.2)};
+\filldraw[inked,fill=wallE,line width=0.6pt] plot[smooth cycle, tension=0.7] coordinates {(24.05,6.9) (24.35,6.85) (24.38,7.08) (24.1,7.08)};
+\filldraw[inked,fill=metaldark,line width=0.8pt] (18.5,7.15) rectangle (24.1,7.32);
+\draw[ink, line width=1.2pt, line cap=round] (18.9,7.2) -- (18.9,7.5);
+\draw[ink, line width=1.2pt, line cap=round] (23.7,7.2) -- (23.7,7.5);
+\draw[ink, line width=1.5pt, line cap=round] (18.6,7.5) -- (24,7.5);
+\filldraw[inked,fill=ink!80!asphaltdark,rounded corners=0.2cm] (19.1,7.5) rectangle (20.7,7.95);
+\filldraw[inked,fill=red,rounded corners=0.06cm,line width=0.8pt] (22.5,7.5) rectangle (23.2,8.15);
+\filldraw[inked,fill=teal!55!sagelight!80!ink] (18.1,1.75) -- (16.75,1.35) -- (16.75,7.55) -- (18.1,7.05) -- cycle;
+\filldraw[inked,fill=ink!55!sagedark,line width=0.8pt] (17.938,1.972) -- (16.912,1.703) -- (16.912,7.185) -- (17.938,6.84) -- cycle;
+\filldraw[inked,fill=window!60!skylow,line width=0.8pt] (17.83,4.958) -- (17.02,5.042) -- (17.02,6.848) -- (17.83,6.602) -- cycle;
+\fill[white, opacity=0.4] (17.695,5.083) -- (17.56,5.099) -- (17.668,6.539) -- (17.776,6.508) -- cycle;
+\filldraw[inked,fill=metaldark,line width=0.7pt] (17.993,2.951) rectangle (18.153,3.191);
+\filldraw[inked,fill=metaldark,line width=0.7pt] (17.993,5.61) rectangle (18.153,5.85);
+\draw[ink, line width=2pt, line cap=round] (17.087,3.84) -- (17.087,4.438);
+\filldraw[inked,fill=teal!55!sagelight!80!ink] (24.5,1.75) -- (25.85,1.35) -- (25.85,7.55) -- (24.5,7.05) -- cycle;
+\filldraw[inked,fill=ink!55!sagedark,line width=0.8pt] (24.662,1.972) -- (25.688,1.703) -- (25.688,7.185) -- (24.662,6.84) -- cycle;
+\filldraw[inked,fill=window!60!skylow,line width=0.8pt] (24.77,4.958) -- (25.58,5.042) -- (25.58,6.848) -- (24.77,6.602) -- cycle;
+\fill[white, opacity=0.4] (24.905,5.083) -- (25.04,5.099) -- (24.932,6.539) -- (24.824,6.508) -- cycle;
+\filldraw[inked,fill=metaldark,line width=0.7pt] (24.447,2.951) rectangle (24.607,3.191);
+\filldraw[inked,fill=metaldark,line width=0.7pt] (24.447,5.61) rectangle (24.607,5.85);
+\draw[ink, line width=2pt, line cap=round] (25.513,3.84) -- (25.513,4.438);
+\begin{scope}[shift={(21.2,1.13)}, rotate=0, xscale=1.45, yscale=1.45]
+\filldraw[inked,fill=ink!60!jacketb] plot[smooth cycle, tension=0.5] coordinates {(-0.01,1.489) (-0.07,0.792) (-0.11,0.175) (-0.41,0.185) (-0.41,0.808) (-0.39,1.511)};
+\filldraw[inked,fill=ink!60!jacketb] plot[smooth cycle, tension=0.5] coordinates {(0.39,1.512) (0.41,0.855) (0.39,0.18) (0.09,0.18) (0.07,0.845) (0.01,1.488)};
+\draw[ink, line width=0.6pt, line cap=round, line join=round] plot[smooth, tension=0.6] coordinates {(-0.38,0.95) (-0.1,0.9)};
+\filldraw[inked,fill=ink!70!wooddark,rounded corners=0.08cm,line width=0.9pt] (-0.44,-0.02) rectangle (-0.08,0.3);
+\filldraw[inked,fill=ink!70!wooddark,rounded corners=0.08cm,line width=0.9pt] (0.06,-0.02) rectangle (0.42,0.3);
+\filldraw[inked,fill=jacketd,rounded corners=0.22cm] (-0.5,1.35) rectangle (0.5,2.85);
+\filldraw[inked,fill=wooddark,line width=0.8pt] (-0.47,1.42) rectangle (0.47,1.58);
+\filldraw[inked,fill=gold,line width=0.6pt] (-0.08,1.4) rectangle (0.08,1.6);
+\filldraw[inked,fill=sagedark,rounded corners=0.04cm,line width=0.7pt] (0.18,1.2) rectangle (0.44,1.5);
+\filldraw[inked,fill=jacketd] plot[smooth cycle, tension=0.5] coordinates {(0.594,2.741) (0.754,2.117) (0.72,1.546) (0.48,1.554) (0.486,2.083) (0.306,2.659)};
+\filldraw[inked,fill=wooddark,line width=0.8pt] (0.6,1.5) circle (0.13);
+\filldraw[inked,fill=jacketd] plot[smooth cycle, tension=0.5] coordinates {(-0.308,2.653) (-0.516,2.083) (-0.48,1.561) (-0.72,1.539) (-0.784,2.117) (-0.592,2.747)};
+\filldraw[inked,fill=wooddark,line width=0.8pt] (-0.6,1.5) circle (0.13);
+\filldraw[inked,fill=sagedark,rounded corners=0.1cm,line width=0.9pt] (-0.38,1.65) rectangle (0.38,2.55);
+\filldraw[inked,fill=wood,line width=0.7pt] (-0.3,1.72) rectangle (-0.12,1.98);
+\filldraw[inked,fill=wood,line width=0.7pt] (-0.05,1.72) rectangle (0.13,1.98);
+\filldraw[inked,fill=wood,line width=0.7pt] (0.2,1.72) rectangle (0.38,1.98);
+\filldraw[inked,fill=ink!70!metaldark,line width=0.7pt] (0.12,2.15) rectangle (0.28,2.45);
+\draw[ink, line width=0.8pt, line cap=round] (0.2,2.45) -- (0.24,2.7);
+\filldraw[inked,fill=skin,line width=0.8pt] (-0.1,2.8) rectangle (0.1,2.95);
+\filldraw[inked,fill=skin] (0,3.12) ellipse (0.25 and 0.3);
+\filldraw[inked,fill=ink!60!asphaltdark] (-0.25,3.08) -- (0.25,3.08) -- (0.18,2.86) -- (0,2.82) -- (-0.18,2.86) -- cycle;
+\filldraw[inked,fill=wallE] (-0.33,3.22) arc[start angle=180,end angle=0,radius=0.33] -- cycle;
+\filldraw[inked,fill=ink,rounded corners=0.06cm,line width=0.6pt] (-0.26,3.13) rectangle (0.26,3.28);
+\filldraw[inked,fill=glow,line width=0.5pt] (-0.12,3.205) circle (0.07);
+\filldraw[inked,fill=glow,line width=0.5pt] (0.12,3.205) circle (0.07);
+\end{scope}
+\filldraw[inked,fill=greenB,line width=0.6pt] (17.532,0.65) .. controls (17.463,0.742) .. (17.46,0.857) .. controls (17.586,0.785) .. (17.532,0.65) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (17.572,0.65) .. controls (17.503,0.838) .. (17.503,1.038) .. controls (17.631,0.861) .. (17.572,0.65) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (17.612,0.65) .. controls (17.536,0.894) .. (17.65,1.122) .. controls (17.666,0.883) .. (17.612,0.65) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (17.648,0.65) .. controls (17.604,0.837) .. (17.742,0.97) .. controls (17.729,0.8) .. (17.648,0.65) -- cycle;
+\filldraw[inked,fill=greenB,line width=0.6pt] (17.684,0.65) .. controls (17.629,0.769) .. (17.751,0.817) .. controls (17.75,0.721) .. (17.684,0.65) -- cycle;
+\draw[ink, line width=0.7pt, line cap=round] (17.625,0.65) -- (17.65,1.1);
+\filldraw[inked,fill=pink,line width=0.5pt] (17.65,1.11) circle (0.035);
+\filldraw[inked,fill=greenA,line width=0.6pt] (24.839,0.65) .. controls (24.777,0.733) .. (24.774,0.837) .. controls (24.887,0.771) .. (24.839,0.65) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (24.875,0.65) .. controls (24.813,0.819) .. (24.813,0.999) .. controls (24.928,0.84) .. (24.875,0.65) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (24.911,0.65) .. controls (24.843,0.869) .. (24.945,1.075) .. controls (24.959,0.86) .. (24.911,0.65) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (24.943,0.65) .. controls (24.904,0.818) .. (25.028,0.938) .. controls (25.016,0.785) .. (24.943,0.65) -- cycle;
+\filldraw[inked,fill=greenA,line width=0.6pt] (24.976,0.65) .. controls (24.926,0.757) .. (25.035,0.8) .. controls (25.035,0.714) .. (24.976,0.65) -- cycle;
+\end{scope}
+\end{tikzpicture}
+\end{document}
