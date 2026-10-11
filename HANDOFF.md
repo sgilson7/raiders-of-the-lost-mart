@@ -22,6 +22,15 @@ Everything the brief asked for is in: one to four raiders, alone or online; roll
 | `BUILDER_ORIGIN=https://sgilson7.github.io/raiders-of-the-lost-mart tests/browser/check.py` | PASSED in Chromium, Firefox and WebKit against the live site |
 | `cargo test -p rm_core --release --test perf -- --nocapture` | a busy four-raider tick with 29 drones: about 35 µs natively; a run snapshot (rollback clones one a tick): under 1 µs |
 
+## Since the first release (playtest rounds)
+
+- Sound: the van's engine replayed every frame (the "droning"); legs walked at six strides a second. Fixed.
+- Drones: breakable parts (rotors, plates, guns, legs, wings, beacon) that change behaviour when lost; health bars, part pips and damage numbers.
+- Online: rooms named by protocol, not build, so a cached page still finds the room; a mismatched build is told to reload. Live room-code test through the public relays: two browsers met in about 4 s and ran in step.
+- Flicker: z-fighting walls removed; a test lists any visible coplanar faces (171 before, none now).
+- Crouch, gradual stealth with "?" and "!" meters, five ammo kinds, melee, ten gear slots with thirty-five pieces and four belt gadgets, the Tab inventory with drops; wardens fly under the balconies; inputs tapped between ticks are kept.
+- Checks after the last round: 83 core tests, 12 boundary tests; browser check passed in Chromium, Firefox and WebKit locally and against the live site; the four-browser online run passed in all three engines.
+
 ## Waiting on Sam
 
 1. **The website listing is live.** `website-1e`, the session working in `~/Documents/website`, folded the record, project page, tile and route into its commit `5f38125` and deployed it (build d1e468dc; make check, packet, gate and gate-live all passed). https://sgilson7.github.io/projects/raiders-of-the-lost-mart/ answers 200, and /projects/ links to the game. The tile has no hover clip; an animated `raiders-of-the-lost-mart-clip.webp` in `static/img/tiles/` would add one.
