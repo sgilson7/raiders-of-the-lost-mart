@@ -124,6 +124,26 @@
    "colour": "#D9765F",
    "dark": "#A8543F",
    "loot": 3
+  },
+  {
+   "id": "queen",
+   "walks": true,
+   "hp": 2200,
+   "armour_pct": 15,
+   "weak_pct": 300,
+   "speed": 30,
+   "accel": 6,
+   "sight": 80,
+   "range": 60,
+   "damage": 14,
+   "shot_speed": 45,
+   "burst": 4,
+   "burst_gap": 10,
+   "reload": 130,
+   "radius": 900,
+   "colour": "#7E5C94",
+   "dark": "#4C3A60",
+   "loot": 4
   }
  ]
 }

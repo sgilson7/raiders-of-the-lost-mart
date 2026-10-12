@@ -229,6 +229,8 @@ pub enum Goal {
     Clear,
     Hive,
     Power,
+    /// bring down the street's queen
+    Queen,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -586,9 +588,12 @@ pub(crate) mod tests {
                 cat.name()
             );
         }
-        assert_eq!(c.drones.len(), 6);
-        assert_eq!(c.drones.iter().filter(|d| d.walks).count(), 2);
-        assert_eq!(c.missions.len(), 5);
+        // four flyers and two spiders, as the brief asks, and the queen besides
+        let common: Vec<&DroneDef> = c.drones.iter().filter(|d| d.id != "queen").collect();
+        assert_eq!(common.len(), 6);
+        assert_eq!(common.iter().filter(|d| d.walks).count(), 2);
+        assert!(c.drones.iter().any(|d| d.id == "queen" && d.walks));
+        assert_eq!(c.missions.len(), 6);
         for slot in SLOTS {
             assert!(c.gear.iter().filter(|g| g.slot == slot).count() >= 3, "{slot}");
         }

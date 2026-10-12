@@ -17,7 +17,9 @@
 //!   `Call` and `Bait`, the wasps' `Ambush`);
 //! * holding range with the armour turned to the threat (the warden),
 //!   rushing and detonating (the tick), keeping distance, strafing and
-//!   stomping (the strider).
+//!   stomping (the strider);
+//! * the queen: stamping on whoever is under her, launching wasps from her
+//!   back, a rocket barrage from her shoulder pods and her eye cannon.
 
 use crate::balance::*;
 use crate::content::DroneDef;
@@ -92,6 +94,10 @@ pub enum A {
     Anchor,
     /// go, slowly, to where it noticed something, and look about
     Search,
+    /// the queen: a salvo of rockets from each pod she still has
+    Barrage,
+    /// the queen: launch wasps from her back
+    Brood,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -207,6 +213,28 @@ pub const STRIDER: Bt = Sel(&[
     Do(A::Patrol),
 ]);
 
+pub const QUEEN: Bt = Sel(&[
+    // on two legs or fewer she squats where she is and keeps firing
+    Seq(&[
+        If(C::HasTarget),
+        If(C::Lame),
+        Do(A::Anchor),
+        Sel(&[Do(A::Brood), Do(A::Barrage), Do(A::Shoot)]),
+    ]),
+    Seq(&[
+        If(C::HasTarget),
+        Sel(&[
+            Seq(&[If(C::Near(11)), Do(A::Stomp)]),
+            Seq(&[If(C::Sees), Do(A::Brood)]),
+            Seq(&[If(C::Sees), Do(A::Barrage)]),
+            Seq(&[If(C::Sees), Do(A::Keep(24)), Do(A::Shoot)]),
+            Do(A::Investigate),
+        ]),
+    ]),
+    Seq(&[If(C::Suspicious), Do(A::Search)]),
+    Do(A::Patrol),
+]);
+
 pub fn tree(kind: Kind) -> &'static Bt {
     match kind {
         Kind::Wasp => &WASP,
@@ -215,6 +243,7 @@ pub fn tree(kind: Kind) -> &'static Bt {
         Kind::Warden => &WARDEN,
         Kind::Tick => &TICK,
         Kind::Strider => &STRIDER,
+        Kind::Queen => &QUEEN,
     }
 }
 
@@ -249,6 +278,9 @@ pub struct Brain {
     pub bait_at: Option<V3>,
     pub called: i32,
     pub stomp: i32,
+    /// the queen: ticks until her next barrage, and her next brood
+    pub barrage: i32,
+    pub brood: i32,
     /// what the drone is doing, for the HUD's scanner and for tests
     pub doing: A,
     /// how aware it is of each raider, in thousandths (run.rs: AWARE_*)
@@ -290,6 +322,8 @@ impl Brain {
             bait_at: None,
             called: 0,
             stomp: 0,
+            barrage: QUEEN_FIRST_BARRAGE,
+            brood: QUEEN_FIRST_BROOD,
             doing: A::Patrol,
             aware: [0; 4],
             suspect: None,
@@ -327,6 +361,10 @@ pub enum Order {
     Stomp,
     /// it hit the target body first
     Ram,
+    /// the queen's rockets, at this point
+    Barrage(V3),
+    /// the queen's wasps, out of her back
+    Brood,
 }
 
 pub struct Ctx<'a> {
@@ -544,7 +582,9 @@ fn act(a: A, d: &mut Drone, cx: &mut Ctx) -> Status {
         }
         A::Shoot => {
             let Some(t) = target else { return Status::Failure };
-            if d.disarmed() {
+            // the queen shoots with her eye cannon, while she has it
+            let eye_gone = d.kind == Kind::Queen && d.pieces[crate::drone::QUEEN_EYE] <= 0;
+            if d.disarmed() || eye_gone {
                 return Status::Failure;
             }
             if !d.brain.sees || cx.def.burst == 0 {
@@ -761,6 +801,27 @@ fn act(a: A, d: &mut Drone, cx: &mut Ctx) -> Status {
             }
             Status::Running
         }
+        A::Barrage => {
+            let Some(t) = target else { return Status::Failure };
+            let pods = crate::drone::QUEEN_PODS.iter().any(|&i| d.pieces[i] > 0);
+            if d.brain.barrage > 0 || !pods || !d.brain.sees {
+                return Status::Failure;
+            }
+            d.brain.barrage = QUEEN_BARRAGE_EVERY + cx.rng.range(0, secs(2000));
+            d.brain.goal = d.pos;
+            d.brain.face = aim_at(d.pos, t.pos);
+            cx.orders.push(Order::Barrage(t.pos.add(t.vel.scale(ONE / 2))));
+            Status::Success
+        }
+        A::Brood => {
+            if d.brain.brood > 0 || target.is_none() {
+                return Status::Failure;
+            }
+            d.brain.brood = QUEEN_BROOD_EVERY;
+            d.brain.goal = d.pos;
+            cx.orders.push(Order::Brood);
+            Status::Success
+        }
         A::Anchor => {
             d.brain.goal = d.pos;
             if let Some(t) = target {
@@ -827,6 +888,8 @@ pub fn think(d: &mut Drone, cx: &mut Ctx) {
     b.reload = (b.reload - dt).max(0);
     b.called = (b.called - dt).max(0);
     b.stomp = (b.stomp - dt).max(0);
+    b.barrage = (b.barrage - dt).max(0);
+    b.brood = (b.brood - dt).max(0);
     b.seen_t = (b.seen_t + dt).min(FORGET * 2);
     if b.seen_t >= FORGET && b.fuse == 0 {
         b.target = None;

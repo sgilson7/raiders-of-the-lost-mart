@@ -35,6 +35,7 @@ COLOURS = {
     "wasp": "E0A82E", "waspdark": "B07E1A", "moth": "F2E6C8", "mothdark": "D2C09A",
     "hornet": "3C8582", "hornetdark": "2C6260", "warden": "E47A7E", "wardendark": "B85A62",
     "tick": "8DBB7E", "tickdark": "5E8A5A", "strider": "D9765F", "striderdark": "A8543F",
+    "queen": "7E5C94", "queendark": "4C3A60",
     # the raiders
     "jacket": "6FA77A", "jacketb": "4FA3A0", "jacketc": "E88A73", "jacketd": "F0B07E",
     "skin": "F2C49A", "skinb": "C98C6A", "skinc": "8C5A3C", "hair": "3B2340",

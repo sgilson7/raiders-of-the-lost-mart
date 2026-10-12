@@ -279,7 +279,7 @@ export function makeScreens(game, copy, changed) {
       make("div", "label", copy.help_drones),
     );
     el("help-drones").replaceChildren(
-      ...["wasp", "moth", "hornet", "warden", "tick", "strider"].map((id) => {
+      ...["wasp", "moth", "hornet", "warden", "tick", "strider", "queen"].map((id) => {
         const d = make("div", "drone");
         const img = make("img");
         img.src = "art/drones/" + id + ".png";

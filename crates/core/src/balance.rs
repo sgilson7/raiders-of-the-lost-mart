@@ -65,6 +65,29 @@ pub const LOOK_EVERY: u32 = 8;
 pub const HOVER_LOW: i32 = ONE * 25 / 10;
 pub const HOVER_HIGH: i32 = int(5);
 pub const OUTDOOR_HOVER: i32 = int(9);
+// ---- the queen ---------------------------------------------------------------------------
+pub const QUEEN_FIRST_BARRAGE: i32 = secs(4000);
+pub const QUEEN_BARRAGE_EVERY: i32 = secs(7000);
+pub const QUEEN_FIRST_BROOD: i32 = secs(8000);
+pub const QUEEN_BROOD_EVERY: i32 = secs(22_000);
+/// wasps a brood launches, and the most of hers flying at once
+pub const QUEEN_BROOD: i32 = 3;
+pub const QUEEN_BROOD_MOST: usize = 6;
+/// rockets each pod fires in a barrage, and how wide they spread
+pub const QUEEN_ROCKETS: i32 = 3;
+pub const QUEEN_ROCKET_SPREAD: i32 = deg(5);
+pub const QUEEN_ROCKET_SPEED: i32 = int(24);
+pub const QUEEN_ROCKET_SPLASH: i32 = int(3);
+/// her stamp reaches this far and hurts this much
+pub const QUEEN_STOMP_RANGE: i32 = int(12);
+pub const QUEEN_STOMP_DAMAGE: i32 = 40;
+/// health for each raider past the first, in percent of her own
+pub const QUEEN_HP_PER_RAIDER_PCT: i32 = 45;
+/// what she drops when she falls
+pub const QUEEN_HOARD: i32 = 9;
+/// rounds the client leaves behind the van for her, per raider, as a share
+/// of a run's starting rounds
+pub const QUEEN_SUPPLY_PCT: i32 = 200;
 /// a drone forgets a raider it has not seen for this long
 pub const FORGET: i32 = secs(9000);
 pub const ORBIT_RADIUS: i32 = int(11);

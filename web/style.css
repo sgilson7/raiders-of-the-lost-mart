@@ -198,6 +198,14 @@ kbd { border: 2px solid var(--ink); border-radius: 6px; padding: 0.05em 0.4em; b
 .bar-name { font-weight: 800; }
 .bar-state { font-size: 0.85em; color: #d9654f; font-weight: 800; }
 .pips { display: flex; gap: 2px; flex-wrap: wrap; }
+/* the queen's bar, across the top while she is near */
+#boss { top: 3em; left: 50%; transform: translateX(-50%); width: min(34em, 60vw); text-align: center; padding: 0.35em 0.8em 0.45em; }
+#boss .label { font-size: 0.95em; letter-spacing: 0.12em; }
+#boss .bar { height: 1em; margin: 0.25em 0; }
+#boss .bar > div { background: #b8577a; }
+#boss .pips { justify-content: center; gap: 4px; }
+#boss .pip { width: 1em; height: 1em; }
+#boss .pip.leg { width: 0.55em; height: 1.2em; }
 .pip { width: 0.7em; height: 0.7em; border: 1.5px solid var(--ink); border-radius: 2px; background: #8d9a93; }
 .pip.rotor { border-radius: 50%; background: #4fa3a0; }
 .pip.gun { background: #e0483e; }

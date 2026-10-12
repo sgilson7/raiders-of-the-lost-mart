@@ -61,7 +61,7 @@
  "tag_zoom": "Zooms",
  "tag_scanner": "Marks weak spots",
  "board_title": "Client board",
- "board_hint": "Five orders, one mall. Each one parks the van in front of a different door.",
+ "board_hint": "Six orders, one mall. Each one parks the van in front of a different door; the queen's at the end of Main Street.",
  "lobby_title": "Lobby",
  "lobby_room": "Room",
  "lobby_paste": "Invite by pasted code instead",
@@ -478,5 +478,12 @@
  "ws_trade_title": "Trade gear for ammunition",
  "ws_trade_hint": "Pick an ammunition above, then trade a spare piece of gear for {ammo}. Rarer pieces buy more. Worn and basic pieces cannot be traded.",
  "ws_trade_for": "+{n} · ×{owned}",
- "ws_trade_none": "No spare gear on the shelf. Bring some back from a run."
+ "ws_trade_none": "No spare gear on the shelf. Bring some back from a run.",
+ "drone_queen": "Queen",
+ "drone_queen_about": "A walking mech as tall as the buildings on Main Street. Stamps on anyone under her, fires rocket salvos from her shoulder pods, launches wasps from her back and shoots with the cannon under her brow. Shoot out her knees to slow her, her pods and cannon to quiet her, the plate under her belly to bare her core. Her back vent glows too.",
+ "goal_queen": "Bring down the queen on Main Street. Queen {hp}",
+ "mission_queen_name": "The Queen",
+ "mission_queen_client": "Main Street merchants",
+ "mission_queen_brief": "Something the size of a building walks Main Street at night. Knees, pods and the cannon come off; the plate under her belly hides her core. We left rounds behind your van. Bring her down.",
+ "entrance_street": "Van parks past the north end of Main Street, where she walks."
 }

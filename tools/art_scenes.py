@@ -1,4 +1,4 @@
-"""Raiders of the Lost Mart: the title art and the five mission postcards,
+"""Raiders of the Lost Mart: the title art and the six mission postcards,
 drawn as TikZ and compiled by tools/art.py (web/art/title.png,
 web/art/missions/*.png). Never generated pixels.
 
@@ -43,8 +43,10 @@ wrong), and where this file enforces each:
   pods on four arms): every rotor is drawn by `rotor`, which counts, and
   `wasp`, `moth`, `hornet` and `warden` each assert the count is ROTORS = 4.
 - the walkers have exactly six legs: every leg is drawn by `spider_leg`,
-  which counts, and `tick` and `strider` assert LEGS (6 each; the brief
-  fixes the strider's six and the tick follows it).
+  which counts, and `tick`, `strider` and `queen` assert LEGS (6 each; the
+  brief fixes the strider's six and the tick and the queen follow it).
+- the queen is as tall as Main Street's buildings: in `queen_card` her
+  knees rise above the cornices behind her.
 - drone colours and features match the 3D game: the wasp is yellow
   (`wasp`/`waspdark`) with a red eye; the moth is pale cream (`moth`) with
   wide flat solar-panel wings and a pink blinking light; the hornet is long
@@ -127,7 +129,7 @@ def calm_clip(W, H, cx, cy, body):
 # --------------------------------------------------------------------------
 
 ROTORS = 4
-LEGS = {"tick": 6, "strider": 6}
+LEGS = {"tick": 6, "strider": 6, "queen": 6}
 
 
 class Count:
@@ -322,7 +324,61 @@ def strider(aim=20):
     return s
 
 
-DRONES = {"wasp": wasp, "moth": moth, "hornet": hornet, "warden": warden, "tick": tick, "strider": strider}
+def queen(stride=0.0):
+    """The street's queen, side 3/4 facing left, feet on y = 0, about 6.6
+    tall: a long plum hull on six legs whose knees rise above it, rocket pods
+    on her shoulders, the eye cannon under her brow with three red eyes, a
+    grey plate over the cyan core in her belly and a cyan vent on her back."""
+    Count.n = 0
+    s = ""
+    hips = [(-1.3, 3.0), (0.0, 2.9), (1.3, 3.0)]
+    # front legs reach forward, the middle pair out, the back legs back
+    reach = [-1.0, 0.1, 1.0]
+    for k, (hx, hy) in enumerate(hips):  # far legs, a little behind and darker
+        sx = stride * (1 if k % 2 else -1)
+        r_ = reach[k] + 0.35
+        s += spider_leg((hx + 0.3, hy + 0.4), (hx + r_ * 1.5 + 0.3, 5.7), (hx + r_ * 2.7 + 0.3 + sx, 0.0), 0.15, 0.09, "queendark")
+    # the hull
+    hull = [(-2.6, 3.2), (-2.2, 4.25), (-0.6, 4.75), (1.4, 4.7), (2.8, 4.1), (3.0, 3.1), (1.8, 2.45), (-0.4, 2.35), (-2.1, 2.6)]
+    s += blob(hull, "queen", tension=0.55)
+    s += blob([(-1.6, 4.45), (-0.4, 4.85), (1.3, 4.8), (2.2, 4.4), (1.1, 4.2), (-0.6, 4.25)], "armour", tension=0.5)
+    s += curve([(-2.2, 3.4), (0.3, 3.15), (2.7, 3.45)], lw=0.8)
+    for x in (-1.4, -0.4, 0.6, 1.6):
+        s += circle(x, 3.0, 0.06, "queendark", lw(0.5))
+    # the vent on her back
+    s += halo(2.05, 4.55, 0.22, "glow", 3, 0.16)
+    s += ellipse(2.05, 4.5, 0.42, 0.13, "glow", extra=lw(0.8))
+    for dx in (-0.2, 0.0, 0.2):
+        s += line((2.05 + dx - 0.08, 4.45), (2.05 + dx + 0.08, 4.58), lw=0.6)
+    # the belly plate, the core glowing at its edge
+    s += halo(0.0, 2.2, 0.3, "glow", 3, 0.16)
+    s += ellipse(0.0, 2.25, 0.75, 0.18, "glow", extra=lw(0.8))
+    s += ellipse(0.0, 2.38, 1.1, 0.2, "armour", extra=lw(0.9))
+    # the rocket pods on her shoulders
+    for (px, py) in [(-1.25, 4.75), (0.1, 4.95)]:
+        s += rrect(px - 0.55, py, px + 0.55, py + 0.7, "armour", 0.08, lw(0.9))
+        for (tx, ty) in [(-0.3, 0.2), (0.0, 0.2), (0.3, 0.2), (-0.3, 0.48), (0.0, 0.48), (0.3, 0.48)]:
+            s += circle(px + tx, py + ty, 0.09, "armourdark", lw(0.5))
+    # the brow, the eye cannon and three red eyes
+    s += rrect(-3.0, 2.9, -2.1, 3.75, "queendark", 0.15, lw(1.0))
+    s += rect(-4.2, 3.0, -2.9, 3.28, "metaldark", lw(0.9))
+    s += rect(-4.4, 2.96, -4.15, 3.32, "armourdark", lw(0.8))
+    s += halo(-4.45, 3.14, 0.06, "red", 2, 0.25)
+    for (ex, ey) in [(-2.75, 3.5), (-2.45, 3.58), (-2.6, 3.25)]:
+        s += circle(ex, ey, 0.08, "red", lw(0.5))
+    s += line((-2.6, 2.5), (-2.95, 2.95), lw=0.9)
+    for k, (hx, hy) in enumerate(hips):  # near legs
+        sx = stride * (-1 if k % 2 else 1)
+        r_ = reach[k]
+        knee = (hx + r_ * 1.7, 6.1)
+        s += circle(hx, hy, 0.26, "queendark", lw(0.8))
+        s += spider_leg((hx, hy), knee, (hx + r_ * 3.1 + sx, 0.0), 0.18, 0.11, "queen")
+        s += circle(knee[0], knee[1], 0.24, "armour", lw(0.8))
+    assert Count.n == LEGS["queen"], "the queen must have six legs"
+    return s
+
+
+DRONES = {"wasp": wasp, "moth": moth, "hornet": hornet, "warden": warden, "tick": tick, "strider": strider, "queen": queen}
 
 
 def drone(kind, x, y, s, rot=0.0, flip=False):
@@ -1850,4 +1906,74 @@ def power():
     return s, (W, H)
 
 
-PICTURES = {"title": title, "missions/cudi": cudi, "missions/foodcourt": foodcourt, "missions/drives": drives, "missions/hive": hive, "missions/power": power}
+# --------------------------------------------------------------------------
+# missions/queen
+# --------------------------------------------------------------------------
+
+def brick_front(rng, x0, x1, y1, fill, trim="stone", awning="teal"):
+    """A Main Street building seen from the street: a brick face with rows of
+    windows, a cornice and a striped awning over a dark shop front."""
+    s = rect(x0, 1.2, x1, y1, fill)
+    s += rect(x0 - 0.12, y1, x1 + 0.12, y1 + 0.3, trim)
+    cols = max(2, int((x1 - x0) / 1.05))
+    w = (x1 - x0) / cols
+    y = 4.0
+    while y + 0.9 < y1 - 0.2:
+        for c in range(cols):
+            wx = x0 + c * w + w * 0.22
+            lit = rng.random() < 0.25
+            s += rect(wx, y, wx + w * 0.56, y + 0.85, "window" if lit else "windark", lw(0.7))
+            s += line((wx, y + 0.42), (wx + w * 0.56, y + 0.42), lw=0.5)
+        y += 1.4
+    s += rect(x0 + 0.2, 1.2, x1 - 0.2, 2.9, "ink!70!windark", lw(0.8))
+    s += poly([(x0 + 0.05, 3.5), (x1 - 0.05, 3.5), (x1 + 0.2, 2.95), (x0 - 0.2, 2.95)], awning)
+    k = 0
+    x = x0
+    while x < x1 - 0.2:
+        if k % 2 == 0:
+            s += poly([(x + 0.05, 3.5), (min(x + 0.45, x1 - 0.05), 3.5), (min(x + 0.5, x1 + 0.2), 2.95), (x - 0.0, 2.95)], "cream", lw(0.5))
+        x += 0.45
+        k += 1
+    return s
+
+
+def queen_card():
+    """Main Street at dusk: brick fronts with awnings either side, street
+    lamps, and the queen striding down the middle of the street, her knees
+    above the cornices, rockets streaking from her pods and her wasps
+    leaving her back; a raider in the right foreground, small against her.
+    Left third: plain sky and street."""
+    W, H = MW, MH
+    rng = random.Random(9071)
+    s = sky(W, H)
+    s += rect(-0.5, -0.5, W + 0.5, 1.2, "asphalt")
+    s += line((-0.5, 1.2), (W + 0.5, 1.2), lw=1.0)
+    s += rect(-0.5, 1.2, W + 0.5, 1.45, "kerb", lw(0.8))
+    d = ""
+    for (cx, cy, cs) in [(9.6, 9.7, 0.7), (15.5, 10.1, 0.6)]:
+        d += cloud(cx, cy, cs)
+    # the fronts behind her, then her, then the near lamp and the raider
+    for (x0, x1, y1, c, a) in [(6.7, 9.6, 7.4, "wallE", "teal"), (9.9, 12.8, 8.7, "wallA", "gold"), (13.1, 16.2, 6.9, "wallC", "teal"), (16.5, 19.6, 8.0, "wallE", "violet")]:
+        d += brick_front(rng, x0, x1, y1, c, awning=a)
+    for x in (8.4, 14.6):
+        d += rect(x - 0.05, 1.45, x + 0.05, 5.0, "metaldark", lw(0.6))
+        d += halo(x, 5.15, 0.14, "window", 3, 0.2)
+        d += circle(x, 5.15, 0.2, "window", lw(0.7))
+    # dust where her feet come down
+    for (x, y) in [(9.6, 1.25), (12.6, 1.3), (15.7, 1.25)]:
+        d += fillo(ellipse_path(x, y, 0.9, 0.22), "stonedark", 0.45)
+    d += place(12.7, 1.3, 1.22, queen(stride=0.35))
+    # rockets from her pods toward the raider, and her wasps
+    for (a, b, c) in [((11.6, 8.5), (14.8, 9.3), (17.8, 4.6)), ((12.3, 8.7), (15.6, 9.7), (18.4, 5.4))]:
+        d += curve([a, b, c], lw=3.2, colour="stone", extra=", opacity=0.55")
+        d += curve([a, b, c], lw=1.2, colour="gold")
+        d += circle(c[0], c[1], 0.13, "orange", lw(0.6))
+        d += halo(c[0], c[1], 0.12, "orange", 3, 0.2)
+    for (x, y, sc, r_) in [(14.6, 8.9, 0.32, -10), (15.8, 7.9, 0.28, 14), (10.4, 9.6, 0.3, 8)]:
+        d += drone("wasp", x, y, sc, rot=r_)
+    d += place(18.6, 0.3, 0.55, raider("jacketb", gun="ak"))
+    s += right_of(MCALM, d)
+    return s, (W, H)
+
+
+PICTURES = {"title": title, "missions/cudi": cudi, "missions/foodcourt": foodcourt, "missions/drives": drives, "missions/hive": hive, "missions/power": power, "missions/queen": queen_card}

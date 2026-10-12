@@ -122,6 +122,20 @@ export function makeHud(copy, game) {
       el("o-goal").textContent = fill(copy[h.objective.key], h.objective);
       el("o-zone").textContent = copy["zone_" + h.zone] || "";
       el("order").classList.toggle("done", Boolean(h.done));
+      // the queen's bar, while she is near
+      el("boss").hidden = !h.boss;
+      if (h.boss) {
+        el("boss-name").textContent = copy[h.boss.name] || "";
+        setBar("boss-bar", h.boss.hp);
+        el("boss-pips").replaceChildren(
+          ...h.boss.parts.map(([kind, on]) => {
+            const pip = document.createElement("span");
+            pip.className = "pip " + kind + (on ? "" : " gone");
+            pip.title = copy["piece_" + kind] || kind;
+            return pip;
+          }),
+        );
+      }
       // health and the gun
       setBar("hp-bar", h.hp);
       el("hp-n").textContent = h.hp_n;

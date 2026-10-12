@@ -3,9 +3,10 @@
 //! here changes the run; it reads it.
 
 use crate::balance::{secs, TICKS_PER_SECOND};
+use crate::balance::{QUEEN_BARRAGE_EVERY, QUEEN_BROOD_EVERY};
 use crate::content::{Content, Rgb};
 use crate::content::{Palette, ShotKind};
-use crate::drone::{zones, Drone, Kind, State, Zone};
+use crate::drone::{zones, Drone, Kind, State, Zone, QUEEN_EYE, QUEEN_PODS};
 use crate::fx::{self, deg, int, ONE, QUARTER};
 use crate::geom::{facing, v3, Affine, V3};
 use crate::gun::Gun;
@@ -942,6 +943,7 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
                 rotor(b, i, x, 22, z, 40);
             }
         }
+        Kind::Queen => queen(b, d, c, &base, body, weak_pulse, tick),
         Kind::Tick | Kind::Strider => {
             let big = d.kind == Kind::Strider;
             let k = if big { 100 } else { 40 };
@@ -1126,6 +1128,236 @@ pub fn drone(b: &mut Batch, d: &Drone, c: &DroneColours, tick: u32) {
     }
     if matches!(d.state, State::Falling(_)) && tick.is_multiple_of(2) {
         glow_ball(b, d.centre(), cm(50), c.ember, ONE / 2);
+    }
+}
+
+/// The queen: a hull as long as a bus on six legs as tall as the street's
+/// buildings, rocket pods on her shoulders, an eye cannon under her brow,
+/// a plate over the glowing core in her belly and a vent on her back.
+fn queen(b: &mut Batch, d: &Drone, c: &DroneColours, base: &Affine, body: Rgb, weak_pulse: i32, tick: u32) {
+    let at = |x: i32, y: i32, z: i32| v3(cm(x), cm(y), cm(z));
+    let has = |i: usize| d.pieces[i] > 0;
+    let bob = fx::sin(d.gait * 2) * cm(18) / ONE;
+    let core = base
+        .then(&Affine::translate(v3(0, cm(820) + bob, 0)))
+        .then(&Affine::rot_z(-d.lean.1));
+    // the hull: front and rear shells, a ridge of plate, skirts
+    put(
+        b,
+        Mesh::Sphere,
+        &core,
+        at(0, 0, -200),
+        at(760, 520, 900),
+        body,
+        0,
+        true,
+    );
+    put(
+        b,
+        Mesh::Sphere,
+        &core,
+        at(0, 10, 260),
+        at(640, 460, 700),
+        body,
+        0,
+        true,
+    );
+    put(
+        b,
+        Mesh::Cube,
+        &core,
+        at(0, 240, -150),
+        at(500, 70, 680),
+        c.armour,
+        0,
+        true,
+    );
+    for x in [-350, 350] {
+        put(
+            b,
+            Mesh::Cube,
+            &core,
+            at(x, -30, -60),
+            at(70, 220, 760),
+            c.dark,
+            0,
+            true,
+        );
+    }
+    // the brow, the eye cannon and the eyes
+    put(
+        b,
+        Mesh::Cube,
+        &core,
+        at(0, 90, -620),
+        at(320, 170, 220),
+        c.dark,
+        0,
+        true,
+    );
+    for x in [-110, 0, 110] {
+        put(
+            b,
+            Mesh::Sphere,
+            &core,
+            at(x, 140, -735),
+            at(60, 60, 40),
+            c.eye,
+            ONE * 3 / 4,
+            true,
+        );
+    }
+    if has(QUEEN_EYE) {
+        segment(
+            b,
+            Mesh::Cyl,
+            core.apply(at(0, 0, -560)),
+            core.apply(at(0, 0, -900)),
+            cm(80),
+            c.dark,
+            0,
+            true,
+        );
+        put(
+            b,
+            Mesh::Sphere,
+            &core,
+            at(0, 0, -905),
+            at(70, 70, 30),
+            c.laser,
+            ONE * 3 / 4,
+            false,
+        );
+    }
+    // the core in her belly, under its plate while the plate holds
+    put(
+        b,
+        Mesh::Sphere,
+        &core,
+        at(0, -200, 0),
+        at(300, 200, 300),
+        c.weak,
+        weak_pulse,
+        true,
+    );
+    if has(8) {
+        put(
+            b,
+            Mesh::Cyl,
+            &core,
+            at(0, -230, 0),
+            at(500, 60, 500),
+            c.armour,
+            0,
+            true,
+        );
+    }
+    // the vent on her back, glowing with heat, and the hatch her wasps leave by
+    put(
+        b,
+        Mesh::Cyl,
+        &core,
+        at(0, 270, 420),
+        at(230, 60, 230),
+        c.weak,
+        weak_pulse,
+        true,
+    );
+    for z in [380, 420, 460] {
+        put(
+            b,
+            Mesh::Cube,
+            &core,
+            at(0, 305, z),
+            at(240, 14, 16),
+            c.dark,
+            0,
+            false,
+        );
+    }
+    let open = if d.brain.brood > QUEEN_BROOD_EVERY - secs(1500) {
+        60
+    } else {
+        0
+    };
+    put(
+        b,
+        Mesh::Cube,
+        &core,
+        at(0, 255 + open, 160),
+        at(220, 36, 200),
+        c.dark,
+        0,
+        true,
+    );
+    // the rocket pods, a block of tubes on each shoulder
+    for (k, x) in [(QUEEN_PODS[0], -330), (QUEEN_PODS[1], 330)] {
+        if !has(k) {
+            put(
+                b,
+                Mesh::Cube,
+                &core,
+                at(x, 230, -120),
+                at(90, 60, 90),
+                c.dark,
+                0,
+                true,
+            );
+            continue;
+        }
+        put(
+            b,
+            Mesh::Cube,
+            &core,
+            at(x, 300, -120),
+            at(250, 190, 300),
+            c.armour,
+            0,
+            true,
+        );
+        for (tx, ty) in [(-70, -50), (0, -50), (70, -50), (-70, 50), (0, 50), (70, 50)] {
+            put(
+                b,
+                Mesh::Cyl,
+                &core,
+                at(x + tx, 300 + ty, -275),
+                at(50, 14, 50),
+                c.dark,
+                0,
+                false,
+            );
+        }
+        let lit = d.brain.barrage > QUEEN_BARRAGE_EVERY - secs(600) && tick % 4 < 2;
+        if lit {
+            glow_ball(b, core.apply(at(x, 300, -300)), cm(120), c.ember, ONE * 3 / 4);
+        }
+    }
+    // six legs: a hip under the hull, a knee high over the street, a foot
+    // set down wide; they step in two sets of three
+    for leg in 0..6 {
+        let side = if leg < 3 { -1 } else { 1 };
+        let row = (leg % 3) as i32 - 1;
+        let phase = d.gait + if (leg + (leg / 3)) % 2 == 0 { 0 } else { fx::HALF };
+        let lift = fx::sin(phase).max(0) * cm(130) / ONE;
+        let stride = fx::cos(phase) * cm(170) / ONE;
+        let hip = core.apply(at(side * 330, -40, row * 380));
+        let knee = base.apply(v3(
+            cm(side * 660),
+            cm(1080) + lift / 2,
+            cm(row * 430) + stride / 2,
+        ));
+        let foot = base.apply(v3(cm(side * 920), lift, cm(row * 500) + stride));
+        if !has(leg) {
+            let stub = hip.lerp(knee, ONE / 4);
+            segment(b, Mesh::Cube, hip, stub, cm(70), c.dark, 0, true);
+            continue;
+        }
+        segment(b, Mesh::Cube, hip, knee, cm(70), c.dark, 0, true);
+        segment(b, Mesh::Cube, knee, foot, cm(55), c.armour, 0, true);
+        let joint = Affine::translate(knee).then(&Affine::scale(at(170, 170, 170)));
+        b.inked(Mesh::Sphere, &joint, c.armour, 0);
+        let pad = Affine::translate(foot).then(&Affine::scale(at(180, 40, 220)));
+        b.inked(Mesh::Cube, &pad, c.dark, 0);
     }
 }
 

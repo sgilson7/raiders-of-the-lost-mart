@@ -8,7 +8,7 @@ use crate::balance::*;
 use crate::content;
 use crate::content::{Cat, Content, Goal, Rgb};
 use crate::draw::{self, DroneColours, Particle};
-use crate::drone::PieceKind;
+use crate::drone::{Kind, PieceKind};
 use crate::fx::{self, deg, int, ONE};
 use crate::geom::{facing, right_of, v3, yaw_pitch_of, Affine, V3};
 use crate::gun::{self, Build, Gun};
@@ -67,6 +67,8 @@ const STARTER: &[(&str, i32)] = &[
     ("ember", 1),
 ];
 const RESULTS_AFTER: i32 = secs(2500);
+/// the queen is heard, and her bar shown, this near
+const QUEEN_HEARD: i32 = int(150);
 /// crates to search are drawn this near, and glow (to find one close up) this near
 const CACHE_SEEN: i32 = int(70);
 const CACHE_GLOW: i32 = int(12);
@@ -540,8 +542,7 @@ impl Game {
     }
 
     fn average_drone_hp(&self) -> i32 {
-        let d = &self.content.drones;
-        d.iter().map(|d| d.hp).sum::<i32>() / (d.len() as i32).max(1)
+        crate::run::average_hp(&self.content)
     }
 
     /// The ammunition the trade counter would buy.
@@ -1862,6 +1863,35 @@ impl Game {
                     self.toast = Some(("toast_no_ammo", secs(2500)));
                 }
             }
+            Event::Tread { at } => {
+                // the queen's footfall: heard and felt down the street
+                if at.dist(self.eye) < QUEEN_HEARD {
+                    self.sounds.push("thud");
+                    self.burst(
+                        at,
+                        6,
+                        &["dry", "smoke"],
+                        int(4),
+                        ONE / 4,
+                        0,
+                        secs(600),
+                        Mesh::Blob,
+                    );
+                }
+            }
+            Event::Brood { at } => {
+                self.sounds.push("beep");
+                self.burst(
+                    at,
+                    10,
+                    &["spark", "smoke"],
+                    int(4),
+                    ONE / 4,
+                    0,
+                    secs(500),
+                    Mesh::Sphere,
+                );
+            }
             Event::Stomp { at } => {
                 self.sounds.push("boom");
                 self.burst(
@@ -2204,6 +2234,11 @@ impl Game {
                         markers.push(self.marker(&cam, hv.core(), "objective", from));
                     }
                 }
+                Goal::Queen => {
+                    if let Some(q) = run.drones.iter().find(|d| d.kind == Kind::Queen && d.active()) {
+                        markers.push(self.marker(&cam, q.centre().add(v3(0, int(6), 0)), "objective", from));
+                    }
+                }
                 Goal::Power => {
                     if let Some(s) = self.map.spots.iter().find(|s| s.key == "generator") {
                         markers.push(self.marker(
@@ -2319,6 +2354,18 @@ impl Game {
             };
             json!({ "key": format!("use_{}", u.name()), "pct": progress, "item": item })
         });
+        // the queen's bar along the top while she is near
+        let boss = run
+            .drones
+            .iter()
+            .find(|d| d.kind == Kind::Queen && d.active() && d.pos.dist(from) < QUEEN_HEARD)
+            .map(|q| {
+                json!({
+                    "name": "drone_queen",
+                    "hp": format!("{}%", q.health_pct()),
+                    "parts": crate::drone::pieces(q.kind).iter().enumerate().map(|(i, p)| json!([p.kind.name(), q.pieces[i] > 0])).collect::<Vec<_>>(),
+                })
+            });
         let objective = match m.goal {
             Goal::Fetch => json!({ "key": format!("goal_{}", m.id), "have": run.found, "need": m.count }),
             Goal::Clear => {
@@ -2327,6 +2374,15 @@ impl Game {
             }
             Goal::Hive => {
                 json!({ "key": format!("goal_{}", m.id), "hp": run.hive.as_ref().map(|hv| pct(hv.hp, HIVE_HP)).unwrap_or_default() })
+            }
+            Goal::Queen => {
+                let hp = run
+                    .drones
+                    .iter()
+                    .find(|d| d.kind == Kind::Queen)
+                    .map(|q| format!("{}%", q.health_pct()))
+                    .unwrap_or_default();
+                json!({ "key": format!("goal_{}", m.id), "hp": hp })
             }
             Goal::Power => {
                 let left = match run.generator {
@@ -2432,6 +2488,7 @@ impl Game {
             "hurt": self.hurt_t > 0 || me.hurt_flash > 0,
             "prompt": prompt,
             "objective": objective,
+            "boss": boss,
             "done": goal_done,
             "mission": m.id,
             "zone": zone,

@@ -1,4 +1,4 @@
-"""The six drone portraits (web/art/drones/*.png), drawn as TikZ and built by
+"""The seven drone portraits (web/art/drones/*.png), drawn as TikZ and built by
 tools/art.py (`python3 tools/art.py drones`). Each is a 10 x 10 cm picture
 on a transparent background, the machine filling about 80% of the frame in
 a three-quarter view, after the frog portraits in NickHGame/tools/art.py and
@@ -12,7 +12,7 @@ each:
 
 - the counts: wasp 4 rotors, moth 4 rotors (hidden under the wings, their
   rims showing), hornet 2 rotors, warden 4 ducted rotor pods, tick 6 legs,
-  strider 6 legs. Every rotor is drawn by `rotor` or `duct` and every leg by
+  strider 6 legs, queen 6 legs. Every rotor is drawn by `rotor` or `duct` and every leg by
   `leg`, which tally what they draw in TALLY; `build` resets the tally,
   draws the picture and asserts the tally equals COUNTS[name], so the build
   stops if a picture gains or loses a rotor or a leg.
@@ -27,7 +27,8 @@ each:
   the moth's core between the wings, the hornet's lens housing ring, the
   warden's ring round its core opening (the core itself glows orange,
   hot/hothi), the tick's underside between its legs, the strider's abdomen
-  sac at the rear underside.
+  sac at the rear underside; the queen has two, the core glowing at the
+  rim of her belly plate and the vent on her back (TALLY["weak"] == 2).
 - the features named in the brief, each drawn once by its picture's
   function: the wasp's plum stripes, front armour plate, one big red camera
   eye, X frame of short arms and twin chin barrels; the moth's two flat
@@ -59,11 +60,12 @@ COUNTS = {
     "warden": {"rotors": 4, "weak": 1},
     "tick": {"legs": 6, "weak": 1},
     "strider": {"legs": 6, "weak": 1, "eyes": 3},
+    "queen": {"legs": 6, "weak": 2, "eyes": 3},
 }
 TALLY = Counter()
 # each picture is drawn about the frame's centre then scaled into frame by
 # (zoom, dy); tube and leg widths are given in pt, so they scale by ZOOM too
-FRAME = {"wasp": (0.94, -0.35), "moth": (0.95, 0.0), "hornet": (1.0, -0.35), "warden": (0.95, 0.35), "tick": (1.0, 0.0), "strider": (1.0, 0.0)}
+FRAME = {"wasp": (0.94, -0.35), "moth": (0.95, 0.0), "hornet": (1.0, -0.35), "warden": (0.95, 0.35), "tick": (1.0, 0.0), "strider": (1.0, 0.0), "queen": (1.0, 0.0)}
 ZOOM = [1.0]
 
 
@@ -590,6 +592,55 @@ def strider():
     return s, (W, H)
 
 
+def queen():
+    """The street's queen, side 3/4 facing left: a long plum hull with a
+    ridge of grey plate, six legs whose knees rise above the hull, two
+    rocket pods of tubes on her shoulders, the eye cannon under a dark brow
+    with three red eyes, a grey belly plate with the cyan core glowing at
+    its rim, and the cyan heat vent on her back (two weak spots)."""
+    rng = random.Random(4242)
+    s = shadow(5.0, 0.75, 4.7, 0.5)
+    hips = [(3.7, 4.3), (5.0, 4.15), (6.3, 4.3)]
+    reach = [-1.0, 0.05, 1.0]
+    for k, (hx, hy) in enumerate(hips):
+        r_ = reach[k] + 0.3
+        s += leg([(hx + 0.25, hy + 0.35), (hx + r_ * 1.25 + 0.2, 7.9), (hx + r_ * 2.35 + 0.2, 0.95)], 0.15, "queendark", foot=0.3)
+    # the vent on her back (weak), behind the hull's ridge
+    s += weak(7.0, 6.15, 0.55, 0.2)
+    # the hull
+    hull = [(2.3, 4.6), (2.75, 5.7), (4.4, 6.25), (6.5, 6.2), (7.9, 5.6), (8.05, 4.6), (6.9, 3.85), (4.6, 3.75), (2.95, 3.95)]
+    hp = blob_path(hull, 0.55)
+    s += shaded(hp, "queen", "queendark", 0.15, 0.22)
+    s += clipped(hp, scuffs(rng, hp, (2.8, 4.0, 7.8, 6.0), 10, "queendark")
+                 + "\\fill[white, opacity=0.28] (5.1,6.05) ellipse (1.1 and 0.12);\n")
+    s += plate([(3.4, 5.95), (5.0, 6.35), (6.6, 6.3), (7.3, 5.9), (5.4, 5.75)], rivets=[(4.3, 6.05), (5.6, 6.1), (6.7, 6.0)])
+    s += seam([(2.9, 4.75), (5.2, 4.5), (7.85, 4.85)])
+    for x in (3.6, 4.6, 5.6, 6.6):
+        s += rivet(x, 4.25)
+    # the belly plate, and the core glowing at its rim (weak)
+    s += weak(5.1, 3.62, 0.85, 0.2)
+    s += plate([(3.9, 3.85), (6.3, 3.85), (6.0, 3.6), (4.2, 3.6)], rivets=[(4.6, 3.73), (5.6, 3.73)])
+    # the rocket pods on her shoulders
+    for px in (3.9, 5.2):
+        s += rrect(px - 0.55, 6.1, px + 0.55, 6.95, "armour", r=0.08)
+        for (tx, ty) in [(-0.3, 0.25), (0.0, 0.25), (0.3, 0.25), (-0.3, 0.6), (0.0, 0.6), (0.3, 0.6)]:
+            s += circle(px + tx, 6.1 + ty, 0.1, "armourdark")
+            s += f"\\fill[ink] {P(px + tx, 6.1 + ty)} circle (0.045);\n"
+    # the brow, the eye cannon and three red eyes
+    s += rrect(1.75, 4.25, 2.85, 5.35, "queendark", r=0.18)
+    s += rrect(0.35, 4.45, 1.9, 4.8, "metaldark", r=0.06)
+    s += rrect(0.15, 4.38, 0.45, 4.87, "armourdark", r=0.05)
+    s += red_eye(2.1, 5.0, 0.16)
+    s += red_eye(2.5, 5.08, 0.14)
+    s += red_eye(2.35, 4.62, 0.13)
+    for k, (hx, hy) in enumerate(hips):
+        r_ = reach[k]
+        s += circle(hx, hy, 0.3, "queendark")
+        s += rivet(hx, hy, 0.08)
+        s += leg([(hx, hy), (hx + r_ * 1.45, 8.35), (hx + r_ * 2.75, 0.7)], 0.18, "queen", joint="armour", foot=0.36)
+    return s, (W, H)
+
+
 def build(name, make):
     def run():
         TALLY.clear()
@@ -606,4 +657,4 @@ def build(name, make):
 
 
 PICTURES = {f"drones/{n}": build(n, fn) for n, fn in
-            (("wasp", wasp), ("moth", moth), ("hornet", hornet), ("warden", warden), ("tick", tick), ("strider", strider))}
+            (("wasp", wasp), ("moth", moth), ("hornet", hornet), ("warden", warden), ("tick", tick), ("strider", strider), ("queen", queen))}

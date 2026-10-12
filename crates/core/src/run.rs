@@ -251,6 +251,14 @@ pub enum Event {
     Stomp {
         at: V3,
     },
+    /// one of the queen's feet came down
+    Tread {
+        at: V3,
+    },
+    /// the queen's wasps left her back
+    Brood {
+        at: V3,
+    },
     /// a melee swing landed on something (or swished through air)
     Melee {
         who: u8,
@@ -401,6 +409,18 @@ pub fn smoke_between(c: V3, a: V3, b: V3) -> bool {
 }
 
 /// Rounds as pack items, in stacks.
+/// The average health of a drone kind, the measure of starting rounds
+/// (the queen is no measure).
+pub fn average_hp(c: &Content) -> i32 {
+    let d: Vec<i32> = c
+        .drones
+        .iter()
+        .filter(|d| d.id != "queen")
+        .map(|d| d.hp)
+        .collect();
+    d.iter().sum::<i32>() / (d.len() as i32).max(1)
+}
+
 pub fn ammo_stacks(c: &Content, ammo: usize, n: i32) -> Vec<Item> {
     let stack = c.ammo[ammo].stack.max(1);
     let mut out = Vec::new();
@@ -530,6 +550,23 @@ impl Run {
                 }
             }
         }
+        // for the queen, the client left rounds behind the van for every gun
+        if m.goal == Goal::Queen {
+            let back = facing(run.van.yaw, 0);
+            let side = right_of(run.van.yaw);
+            for i in 0..players {
+                let a = s.guns[i].ammo;
+                let n = crate::gun::starting_rounds(&s.guns[i], average_hp(c)) * QUEEN_SUPPLY_PCT / 100;
+                for (k, item) in ammo_stacks(c, a, n).into_iter().enumerate() {
+                    let at = run
+                        .van
+                        .pos
+                        .add(back.scale(int(3) + int(1) * k as i32))
+                        .add(side.scale((i as i32 * 2 - 3) * ONE));
+                    run.pickups.push(Pickup { pos: at, item, vy: 0 });
+                }
+            }
+        }
         if m.goal == Goal::Hive {
             if let Some(spot) = map.spots.iter().find(|sp| sp.key == "hive") {
                 run.hive = Some(Hive {
@@ -610,15 +647,36 @@ impl Run {
             let kind = if k % 3 == 2 { "moth" } else { "wasp" };
             self.spawn(c, map, kind, map.nodes[n], rng, false);
         }
+        // the heavy ones on the main ways through, so a run meets them: the
+        // concourse and the centre court, on wide beats
+        let main: Vec<usize> = indoor
+            .iter()
+            .copied()
+            .filter(|&i| {
+                map.zone_at(map.nodes[i])
+                    .is_some_and(|z| z.key == "concourse" || z.key == "centercourt")
+            })
+            .collect();
+        let wardens = 1 + players / 3;
+        let striders = 2 + players / 3;
+        for k in 0..(wardens + striders) {
+            if main.is_empty() {
+                break;
+            }
+            let n = main[rng.range(0, main.len() as i32 - 1) as usize];
+            let kind = if k < wardens { "warden" } else { "strider" };
+            let j = self.spawn(c, map, kind, map.nodes[n], rng, false);
+            self.widen_beat(j, map, rng);
+        }
         // most inside
-        let count = m.drones * (2 + players) / 6;
+        let count = (m.drones * (2 + players) / 6 - wardens - striders).max(0);
         let weights = [
-            ("wasp", 34),
-            ("moth", 9),
-            ("hornet", 15),
-            ("warden", 8),
-            ("tick", 19),
-            ("strider", 15),
+            ("wasp", 38),
+            ("moth", 10),
+            ("hornet", 17),
+            ("warden", 4),
+            ("tick", 21),
+            ("strider", 10),
         ];
         for _ in 0..count {
             if indoor.is_empty() {
@@ -635,6 +693,25 @@ impl Run {
                 roll -= w;
             }
             self.spawn(c, map, kind, map.nodes[n], rng, false);
+        }
+        // the queen, on her beat up Main Street, stronger for every raider
+        if m.goal == Goal::Queen {
+            if let Some(spot) = map.spots.iter().find(|sp| sp.key == "queen") {
+                let j = self.spawn(c, map, "queen", spot.at, rng, true);
+                let beat: Vec<V3> = map
+                    .spots
+                    .iter()
+                    .filter(|sp| sp.key == "queen_beat")
+                    .map(|sp| sp.at)
+                    .collect();
+                let q = &mut self.drones[j];
+                q.yaw = 0;
+                q.max_hp = q.max_hp * (100 + QUEEN_HP_PER_RAIDER_PCT * (players - 1)) / 100;
+                q.hp = q.max_hp;
+                if !beat.is_empty() {
+                    q.brain.patrol = beat;
+                }
+            }
         }
         // the food court's nest
         if m.goal == Goal::Clear {
@@ -656,6 +733,25 @@ impl Run {
                     self.spawn(c, map, kind, map.nodes[n], rng, true);
                 }
             }
+        }
+    }
+
+    /// A heavy drone's beat: four waypoints anywhere within 60 m on its floor.
+    fn widen_beat(&mut self, j: usize, map: &Map, rng: &mut Rng) {
+        let at = self.drones[j].brain.home;
+        let mut route = vec![at];
+        for _ in 0..40 {
+            if route.len() >= 5 {
+                break;
+            }
+            let p = map.nodes[rng.range(0, map.nodes.len() as i32 - 1) as usize];
+            let indoors = map.zone_at(p).is_some_and(|z| z.indoors);
+            if indoors && p.dist(at) < int(60) && p.dist(at) > int(15) && (p.y - at.y).abs() < int(2) {
+                route.push(p);
+            }
+        }
+        if route.len() >= 3 {
+            self.drones[j].brain.patrol = route;
         }
     }
 
@@ -1718,7 +1814,15 @@ impl Run {
             }
             let want = ai::steer(d, map, &self.extra, top, outdoors);
             let face = d.brain.face;
+            let stepped = d.gait;
             d.step_body(def, want, face, map, &self.extra);
+            if d.kind == Kind::Queen {
+                d.pos = crate::mall::queen_clamp(d.pos);
+                // a foot comes down twice a stride
+                if (stepped ^ d.gait) & fx::HALF != 0 {
+                    self.events.push(Event::Tread { at: d.pos });
+                }
+            }
             // burning
             if d.burn > 0 && d.burn % 10 == 0 {
                 let by = d.burn_by;
@@ -1761,13 +1865,14 @@ impl Run {
                 let from = match d.kind {
                     Kind::Strider => d.to_world(0, 250, -70),
                     Kind::Warden => d.to_world(0, -30, -90),
+                    Kind::Queen => d.to_world(0, 820, -910),
                     _ => d.to_world(0, -15, -40),
                 };
                 let dir = to.sub(from).norm();
                 let (yaw, pitch) = yaw_pitch_of(dir);
                 let jy = self.rng.range(-DRONE_SHOT_SPREAD, DRONE_SHOT_SPREAD);
                 let jp = self.rng.range(-DRONE_SHOT_SPREAD, DRONE_SHOT_SPREAD);
-                let heavy = d.kind == Kind::Warden;
+                let heavy = matches!(d.kind, Kind::Warden | Kind::Queen);
                 self.shots.push(Shot {
                     from: ShotFrom::Drone(k as u16),
                     kind: ShotKind::Bullet,
@@ -1863,15 +1968,89 @@ impl Run {
             }
             Order::Stomp => {
                 let at = self.drones[k].pos;
+                let (range, damage) = if self.drones[k].kind == Kind::Queen {
+                    (QUEEN_STOMP_RANGE, QUEEN_STOMP_DAMAGE)
+                } else {
+                    (STOMP_RANGE, STOMP_DAMAGE)
+                };
                 for j in 0..self.raiders.len() {
                     let ra = &mut self.raiders[j];
-                    if ra.life.active() && ra.pos.dist(at) < STOMP_RANGE {
+                    if ra.life.active() && ra.pos.dist(at) < range {
                         let away = ra.pos.sub(at).norm();
                         ra.vel = ra.vel.add(v3(away.x, ONE / 2, away.z).scale(int(6)));
-                        self.hurt_raider(j, STOMP_DAMAGE);
+                        self.hurt_raider_by(j, damage, true);
                     }
                 }
                 self.events.push(Event::Stomp { at });
+            }
+            Order::Barrage(to) => {
+                // a salvo from each pod she still has, spread about the point
+                for &pod in drone::QUEEN_PODS.iter() {
+                    let d = &self.drones[k];
+                    if d.pieces[pod] <= 0 {
+                        continue;
+                    }
+                    let x = if pod == drone::QUEEN_PODS[0] { -330 } else { 330 };
+                    let from = d.to_world(x, 1120, -280);
+                    for n in 0..QUEEN_ROCKETS {
+                        let aim = to.add(v3(0, ONE / 2, 0)).sub(from).norm();
+                        let (yaw, pitch) = yaw_pitch_of(aim);
+                        let jy = self.rng.range(-QUEEN_ROCKET_SPREAD, QUEEN_ROCKET_SPREAD);
+                        let jp = self.rng.range(-QUEEN_ROCKET_SPREAD, QUEEN_ROCKET_SPREAD) / 2;
+                        // one after another, not all from the same point
+                        let start = from.add(facing(yaw, pitch).scale(ONE * n));
+                        self.shots.push(Shot {
+                            from: ShotFrom::Drone(k as u16),
+                            kind: ShotKind::Rocket,
+                            pos: start,
+                            vel: facing(yaw + jy, pitch + jp).scale(QUEEN_ROCKET_SPEED),
+                            life: ROCKET_LIFE,
+                            damage: def.damage * 2,
+                            splash: QUEEN_ROCKET_SPLASH,
+                            effect: Effect::None,
+                            power: 0,
+                            pierce: 0,
+                            heavy: true,
+                        });
+                    }
+                    self.events.push(Event::DroneFire {
+                        at: from,
+                        heavy: true,
+                    });
+                }
+            }
+            Order::Brood => {
+                let q = &self.drones[k];
+                let (hatch, target, seen_at, ground) = (
+                    q.to_world(0, 1150, 160),
+                    q.brain.target,
+                    q.brain.seen_at,
+                    v3(q.pos.x, 0, q.pos.z),
+                );
+                let hers = self
+                    .drones
+                    .iter()
+                    .filter(|d| d.active() && d.kind == Kind::Wasp && d.pos.dist(hatch) < int(60))
+                    .count();
+                let n = (QUEEN_BROOD_MOST.saturating_sub(hers) as i32).min(QUEEN_BROOD);
+                let mut rng = Rng::new(self.rng.next());
+                for w in 0..n {
+                    let j = self.spawn(r.content, r.map, "wasp", ground, &mut rng, false);
+                    let d = &mut self.drones[j];
+                    d.pos = hatch.add(v3((w - 1) * int(2), 0, 0));
+                    d.vel = v3((w - 1) * int(3), int(4), 0);
+                    d.brain.target = target;
+                    d.brain.seen_at = seen_at;
+                    d.brain.seen_t = 0;
+                    if let Some(t) = target {
+                        if let Some(a) = d.brain.aware.get_mut(t as usize) {
+                            *a = AWARE_FULL;
+                        }
+                    }
+                }
+                if n > 0 {
+                    self.events.push(Event::Brood { at: hatch });
+                }
             }
         }
     }
@@ -1880,6 +2059,23 @@ impl Run {
         let d = &self.drones[k];
         let at = d.pos;
         let luck = r.content.drones[d.def].loot;
+        if d.kind == Kind::Queen {
+            // her hoard: rare parts, gear and rounds round where she fell
+            for n in 0..QUEEN_HOARD {
+                let item = match n % 3 {
+                    0 => self.roll_part(r.content, luck * 2),
+                    1 => self.roll_loot(r.content, luck * 2),
+                    _ => self.roll_ammo(r.content),
+                };
+                let off = facing(n * deg(360) / QUEEN_HOARD, 0).scale(int(3));
+                self.pickups.push(Pickup {
+                    pos: v3(at.x + off.x, int(2), at.z + off.z),
+                    item,
+                    vy: int(3),
+                });
+            }
+            return;
+        }
         if self.rng.chance(DRONE_DROP_PCT + luck * 10) {
             let item = if self.rng.chance(40) {
                 self.roll_ammo(r.content)
@@ -2233,7 +2429,13 @@ impl Run {
                     let dir = d.centre().sub(at).norm();
                     let centre = d.centre();
                     let def = &c.drones[d.def];
-                    let s = self.drones[j].strike(def, Zone::Body, fx::mul(dmg, fall), dir, centre, who);
+                    // a blast meets the queen's hull, not her insides
+                    let zone = if d.kind == Kind::Queen {
+                        Zone::Armour
+                    } else {
+                        Zone::Body
+                    };
+                    let s = self.drones[j].strike(def, zone, fx::mul(dmg, fall), dir, centre, who);
                     self.drones[j].apply_effect(e, power, who);
                     self.events.push(Event::Hit {
                         at: centre,
@@ -2297,6 +2499,7 @@ impl Run {
             Goal::Clear => !self.drones.iter().any(|d| d.nest && d.active()),
             Goal::Hive => self.hive.as_ref().is_some_and(|h| h.hp <= 0),
             Goal::Power => self.generator == Generator::Done,
+            Goal::Queen => !self.drones.iter().any(|d| d.kind == Kind::Queen && d.active()),
         }
     }
 
@@ -3062,5 +3265,224 @@ pub(crate) mod tests {
         }
         let travelled = run.drones[k].pos.dist(v3(int(6), int(3), int(40)));
         assert!(travelled > int(10), "it got about: {travelled}");
+    }
+
+    #[test]
+    fn every_order_fields_wardens_and_striders_on_the_main_ways() {
+        let c = content();
+        let m = map();
+        for mission in 0..c.missions.len() {
+            for seed in [1u64, 2, 3, 40] {
+                let s = Setup::basic(&c, mission, 1, seed);
+                let r = Ref {
+                    content: &c,
+                    map: &m,
+                    setup: &s,
+                };
+                let run = Run::new(&r);
+                let on_main = |k: Kind| {
+                    run.drones
+                        .iter()
+                        .filter(|d| d.kind == k)
+                        .filter(|d| {
+                            m.zone_at(d.brain.home)
+                                .is_some_and(|z| z.key == "concourse" || z.key == "centercourt")
+                        })
+                        .count()
+                };
+                assert!(
+                    on_main(Kind::Warden) >= 1,
+                    "mission {mission} seed {seed}: no warden"
+                );
+                assert!(
+                    on_main(Kind::Strider) >= 2,
+                    "mission {mission} seed {seed}: striders"
+                );
+            }
+        }
+    }
+
+    fn queen_run(players: usize) -> (Content, Map, Setup) {
+        let c = content();
+        let m = map();
+        let s = setup(&c, "queen", players);
+        (c, m, s)
+    }
+
+    fn the_queen(run: &Run) -> usize {
+        run.drones.iter().position(|d| d.kind == Kind::Queen).unwrap()
+    }
+
+    #[test]
+    fn the_queen_walks_main_street_stronger_for_more_raiders_with_rounds_behind_the_van() {
+        let (c, m, s) = queen_run(1);
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let run = Run::new(&r);
+        assert_eq!(run.drones.iter().filter(|d| d.kind == Kind::Queen).count(), 1);
+        let q = &run.drones[the_queen(&run)];
+        assert_eq!(m.zone_at(q.pos).map(|z| z.key.as_str()), Some("mainstreet"));
+        let solo = q.max_hp;
+        let s4 = setup(&c, "queen", 4);
+        let r4 = Ref {
+            content: &c,
+            map: &m,
+            setup: &s4,
+        };
+        let run4 = Run::new(&r4);
+        assert!(run4.drones[the_queen(&run4)].max_hp > solo * 2);
+        // the client's rounds lie behind the van, for the raider's own gun
+        let near_van: Vec<&Pickup> = run
+            .pickups
+            .iter()
+            .filter(|p| p.pos.dist(run.van.pos) < int(8))
+            .collect();
+        assert!(!near_van.is_empty());
+        assert!(near_van
+            .iter()
+            .all(|p| matches!(p.item, Item::Ammo(a, _) if a as usize == s.guns[0].ammo)));
+        assert!(!run.goal_done(&r));
+    }
+
+    #[test]
+    fn the_queen_keeps_to_the_street_while_she_chases() {
+        let (c, m, s) = queen_run(1);
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let mut run = Run::new(&r);
+        run.open_doors();
+        let k = the_queen(&run);
+        let start = run.drones[k].pos;
+        let mut furthest = 0;
+        // a raider dodging about the shops on either side of the street
+        for t in 0..60 * 60 {
+            let side = if (t / 600) % 2 == 0 { int(50) } else { int(92) };
+            run.raiders[0].pos = v3(side, 0, int(110) + (t % 600) * ONE / 10);
+            run.raiders[0].hp = 100;
+            // she has seen them go in, and comes after them
+            let q = &mut run.drones[k];
+            q.brain.target = Some(0);
+            q.brain.aware[0] = AWARE_FULL;
+            q.brain.seen_at = run.raiders[0].pos;
+            q.brain.seen_t = 0;
+            run.step(&r, &[Input::default()]);
+            let p = run.drones[k].pos;
+            assert_eq!(crate::mall::queen_clamp(p), p, "she left the street at {p:?}");
+            furthest = furthest.max(p.dist(start));
+        }
+        assert!(furthest > int(5), "she walked: {}", furthest / ONE);
+    }
+
+    #[test]
+    fn the_queen_stamps_fires_rocket_salvos_and_launches_wasps() {
+        let (c, m, s) = queen_run(1);
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let mut run = Run::new(&r);
+        run.open_doors();
+        // her alone
+        run.drones.retain(|d| d.kind == Kind::Queen);
+        let k = the_queen(&run);
+        let q = run.drones[k].pos;
+        let wasps = |run: &Run| {
+            run.drones
+                .iter()
+                .filter(|d| d.kind == Kind::Wasp && d.active())
+                .count()
+        };
+        let (mut rockets, mut stamped) = (false, false);
+        for t in 0..60 * 25 {
+            // in the open, in front of her, then under her
+            let at = if t < 60 * 15 { v3(q.x, 0, q.z - int(30)) } else { q };
+            run.raiders[0].pos = at;
+            run.raiders[0].hp = 100;
+            run.raiders[0].life = Life::Alive;
+            run.drones[k].pos = q;
+            run.step(&r, &[Input::default()]);
+            rockets |= run
+                .shots
+                .iter()
+                .any(|s| s.kind == ShotKind::Rocket && matches!(s.from, ShotFrom::Drone(_)));
+            stamped |= run.events.iter().any(|e| matches!(e, Event::Stomp { .. })) && t >= 60 * 15;
+        }
+        assert!(rockets, "a rocket salvo");
+        assert!(wasps(&run) >= 1, "wasps from her back");
+        assert!(stamped, "a stamp on whoever is under her");
+    }
+
+    #[test]
+    fn her_knees_pods_cannon_and_belly_plate_come_off() {
+        let (c, m, s) = queen_run(1);
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let mut run = Run::new(&r);
+        let k = the_queen(&run);
+        let def = c.drones[run.drones[k].def].clone();
+        let q = &mut run.drones[k];
+        q.yaw = 0;
+        // from under her, the plate covers the core
+        let below = v3(q.pos.x + int(2), ONE, q.pos.z);
+        let up = q.to_world(0, 610, 0).sub(below).norm();
+        assert_eq!(q.ray(below, up, int(20)).map(|h| h.1), Some(Zone::Piece(8)));
+        for _ in 0..40 {
+            q.strike(&def, Zone::Piece(8), 60, up, below, 0);
+        }
+        assert_eq!(
+            q.ray(below, up, int(20)).map(|h| h.1),
+            Some(Zone::Weak),
+            "the core is bare"
+        );
+        // the vent on her back, from behind and above (a roof)
+        let roof = q.to_world(0, 1400, 2000);
+        let to_vent = q.to_world(0, 1090, 420).sub(roof).norm();
+        assert_eq!(q.ray(roof, to_vent, int(30)).map(|h| h.1), Some(Zone::Weak));
+        // four knees gone: she cannot walk
+        for leg in [0, 1, 3, 4] {
+            for _ in 0..10 {
+                q.strike(&def, Zone::Piece(leg), 80, up, below, 0);
+            }
+        }
+        assert!(q.lame() && q.active());
+        for pod in crate::drone::QUEEN_PODS {
+            for _ in 0..10 {
+                q.strike(&def, Zone::Piece(pod), 80, up, below, 0);
+            }
+            assert!(q.pieces[pod] <= 0, "pod {pod} off");
+        }
+    }
+
+    #[test]
+    fn bringing_down_the_queen_fills_the_order_and_drops_her_hoard() {
+        let (c, m, s) = queen_run(1);
+        let r = Ref {
+            content: &c,
+            map: &m,
+            setup: &s,
+        };
+        let mut run = Run::new(&r);
+        let k = the_queen(&run);
+        let def = c.drones[run.drones[k].def].clone();
+        let before = run.pickups.len();
+        let at = run.drones[k].centre();
+        while run.drones[k].active() {
+            run.drones[k].strike(&def, Zone::Weak, 100, v3(0, ONE, 0), at, 0);
+        }
+        for _ in 0..60 * 15 {
+            run.step(&r, &[Input::default()]);
+        }
+        assert!(run.goal_done(&r));
+        assert!(run.pickups.len() >= before + QUEEN_HOARD as usize);
     }
 }

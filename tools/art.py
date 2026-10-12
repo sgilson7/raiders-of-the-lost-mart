@@ -6,9 +6,10 @@ what an image generator gets wrong, and check the output against that list).
 The pipeline is Ribbit King's tools/art.py; the shared helpers and palette are
 in tools/artlib.py, and the pictures live in three modules:
 
-    art_scenes.py   the title and the five mission postcards (web/art/title.png,
+    art_scenes.py   the title and the six mission postcards (web/art/title.png,
                     web/art/missions/*.png)
-    art_drones.py   the six drone portraits (web/art/drones/*.png)
+    art_drones.py   the seven drone portraits, the queen's included
+                    (web/art/drones/*.png)
     art_parts.py    the thirty weapon-part icons (web/art/parts/*.png)
 
     python3 tools/art.py            # every picture

@@ -1,10 +1,11 @@
 {
-  "_doc": "Client orders. All five play on the one map; each starts the van in front of a different entrance. Words are in copy.json under mission_<id>_*.",
+  "_doc": "Client orders. All six play on the one map; each starts the van in front of a different entrance. Words are in copy.json under mission_<id>_*.",
   "missions": [
     { "id": "cudi", "entrance": "southeast", "goal": "fetch", "item": "shirt", "count": 1, "spots": ["hottopic"], "drones": 26, "pay": 3 },
     { "id": "foodcourt", "entrance": "north", "goal": "clear", "zone": "foodcourt", "drones": 24, "nest": 12, "pay": 3 },
     { "id": "drives", "entrance": "west", "goal": "fetch", "item": "drive", "count": 3, "spots": ["security", "electronics", "jewelry"], "drones": 28, "pay": 4 },
     { "id": "hive", "entrance": "south", "goal": "hive", "zone": "westanchor", "drones": 26, "pay": 4 },
-    { "id": "power", "entrance": "east", "goal": "power", "zone": "centercourt", "hold": 3600, "drones": 22, "waves": 4, "pay": 4 }
+    { "id": "power", "entrance": "east", "goal": "power", "zone": "centercourt", "hold": 3600, "drones": 22, "waves": 4, "pay": 4 },
+    { "id": "queen", "entrance": "street", "goal": "queen", "zone": "mainstreet", "drones": 14, "pay": 6 }
   ]
 }

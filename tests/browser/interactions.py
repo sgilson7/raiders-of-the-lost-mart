@@ -40,7 +40,7 @@ def run(page, check, engine):
     page.click("#ws-board")
     page.wait_for_selector("body[data-mode='board']", state="attached", timeout=5000)
     cards = page.locator("#b-list .mission").count()
-    check(cards == 5, f"five client orders ({cards})")
+    check(cards == 6, f"six client orders ({cards})")
     page.click("#b-list .mission:nth-child(5)")
     page.wait_for_timeout(200)
     check("Lights" in page.inner_text("#b-name"), "picking an order shows its brief")

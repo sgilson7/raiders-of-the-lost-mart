@@ -33,6 +33,7 @@ Everything the brief asked for is in: one to four raiders, alone or online; roll
 
 - **Ammunition for gear, and a fair start (row 18).** Every run starts with rounds enough for three or four drones of average health, worked out from the gun on the bench (`gun::starting_rounds`, `START_*` in `balance.rs`). The workshop's trade counter turns a spare piece of gear into a stack of the picked ammunition per step of its rarity. One drop no longer drops several things on a frame that runs several ticks (row 19). `./scripts/check.sh` passed in Chromium, Firefox and WebKit, online included.
 - **Crates to search (row 20).** Every place to search is a drawn crate with a yellow lid and, close up, a soft pulsing glow until it is searched (then it stands open and grey). `./scripts/check.sh` passed in Chromium, Firefox and WebKit, online included.
+- **Heavies you meet, and the queen (rows 21-22).** Wardens and striders now always patrol the concourse and the centre court. A sixth order, The Queen, sends the van to the north end of Main Street to bring down a building-sized walking mech. `./scripts/check.sh` passed in Chromium, Firefox and WebKit, online included.
 
 ## Waiting on Sam
 

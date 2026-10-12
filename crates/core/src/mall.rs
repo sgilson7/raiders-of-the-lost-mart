@@ -48,6 +48,19 @@ const fn mm(n: i32) -> i32 {
 }
 
 /// The playable area.
+/// Where the queen may stand: in Main Street her legs clear the shopfronts
+/// only down its middle; past its north end the lot is open.
+pub fn queen_clamp(p: V3) -> V3 {
+    let street_end = int(182);
+    let z = p.z.clamp(int(64), int(240));
+    let (x0, x1) = if z < street_end {
+        (int(66), int(74))
+    } else {
+        (int(44), int(110))
+    };
+    v3(p.x.clamp(x0, x1), 0, z)
+}
+
 pub const LO_X: i32 = -280;
 pub const HI_X: i32 = 280;
 pub const LO_Z: i32 = -300;
@@ -1157,6 +1170,11 @@ impl<'a> B<'a> {
         self.container(int(74), int(118), 0, "wood", "mainstreet");
         self.container(int(64), int(160), 0, "metal", "mainstreet");
         self.zone("mainstreet", 40, 50, 100, 180, false);
+        // the queen's beat: up the street and round the open lot past its end
+        self.mission_spot("queen", v3(int(70), 0, int(150)), "mainstreet");
+        for (x, z) in [(70, 64), (70, 180), (96, 226), (48, 226), (70, 180)] {
+            self.mission_spot("queen_beat", v3(int(x), 0, int(z)), "mainstreet");
+        }
     }
 
     fn lamp(&mut self, x: i32, z: i32, h: i32) {
@@ -1430,6 +1448,8 @@ impl<'a> B<'a> {
             ("west", v3(-int(112), 0, 0), v3(-int(240), 0, -int(40))),
             ("east", v3(int(66), 0, 0), v3(int(200), 0, int(36))),
             ("southeast", v3(int(70), 0, int(48)), v3(int(150), 0, int(-110))),
+            // the north end of Main Street, where the queen walks
+            ("street", v3(int(70), 0, int(184)), v3(int(170), 0, int(250))),
         ];
         for (key, door, van) in list {
             let d = door.sub(van);
@@ -1546,7 +1566,7 @@ pub(crate) mod tests {
     #[test]
     fn the_mall_has_five_entrances_and_every_mission_spot() {
         let m = map();
-        assert_eq!(m.entrances.len(), 5);
+        assert_eq!(m.entrances.len(), 6);
         for key in [
             "hottopic",
             "security",

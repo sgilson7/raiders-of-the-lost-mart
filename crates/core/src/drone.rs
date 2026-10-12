@@ -21,6 +21,8 @@ pub enum Kind {
     Warden,
     Tick,
     Strider,
+    /// the street's queen: a walking mech as tall as the buildings
+    Queen,
 }
 
 impl Kind {
@@ -31,12 +33,13 @@ impl Kind {
             "warden" => Kind::Warden,
             "tick" => Kind::Tick,
             "strider" => Kind::Strider,
+            "queen" => Kind::Queen,
             _ => Kind::Wasp,
         }
     }
 
     pub fn walks(self) -> bool {
-        matches!(self, Kind::Tick | Kind::Strider)
+        matches!(self, Kind::Tick | Kind::Strider | Kind::Queen)
     }
 
     pub fn rotors(self) -> usize {
@@ -196,8 +199,29 @@ pub fn pieces(kind: Kind) -> &'static [PieceDef] {
             ];
             P
         }
+        // six knees, the two rocket pods on her shoulders, the belly plate
+        // over her core and the eye cannon under her brow
+        Kind::Queen => {
+            const P: &[PieceDef] = &[
+                pc(Leg, -650, 1050, -420, 110, 9),
+                pc(Leg, -650, 1050, 0, 110, 9),
+                pc(Leg, -650, 1050, 420, 110, 9),
+                pc(Leg, 650, 1050, -420, 110, 9),
+                pc(Leg, 650, 1050, 0, 110, 9),
+                pc(Leg, 650, 1050, 420, 110, 9),
+                pc(Gun, -330, 1120, -120, 140, 12),
+                pc(Gun, 330, 1120, -120, 140, 12),
+                pc(Plate, 0, 600, 0, 240, 22),
+                pc(Gun, 0, 820, -580, 120, 12),
+            ];
+            P
+        }
     }
 }
+
+/// The queen's pieces by name: the pods, the belly plate, the eye cannon.
+pub const QUEEN_PODS: [usize; 2] = [6, 7];
+pub const QUEEN_EYE: usize = 9;
 
 /// The parts of a drone that cannot come off: hit spheres (cm: offset,
 /// radius) and what each is.
@@ -214,6 +238,14 @@ pub fn zones(kind: Kind) -> &'static [(i32, i32, i32, i32, Zone)] {
         Kind::Warden => &[(0, -62, 0, 36, Zone::Weak), (0, 0, 0, 88, Zone::Armour)],
         Kind::Tick => &[(0, 18, 0, 22, Zone::Weak), (0, 40, 0, 30, Zone::Body)],
         Kind::Strider => &[(0, 140, 95, 55, Zone::Weak), (0, 165, -20, 88, Zone::Armour)],
+        // the core under the belly plate, the heat vent on her back, and the
+        // hull: a front and a rear shell
+        Kind::Queen => &[
+            (0, 610, 0, 150, Zone::Weak),
+            (0, 1090, 420, 110, Zone::Weak),
+            (0, 820, -200, 380, Zone::Armour),
+            (0, 820, 250, 330, Zone::Armour),
+        ],
     }
 }
 
@@ -327,6 +359,7 @@ impl Drone {
         match self.kind {
             Kind::Strider => self.to_world(0, 170, -80),
             Kind::Tick => self.to_world(0, 50, -30),
+            Kind::Queen => self.to_world(0, 860, -620),
             _ => self.pos,
         }
     }
@@ -335,6 +368,7 @@ impl Drone {
         match self.kind {
             Kind::Strider => self.to_world(0, 160, 0),
             Kind::Tick => self.to_world(0, 40, 0),
+            Kind::Queen => self.to_world(0, 820, 0),
             _ => self.pos,
         }
     }
@@ -345,6 +379,7 @@ impl Drone {
         let reach = cm(match self.kind {
             Kind::Warden => 190,
             Kind::Strider => 260,
+            Kind::Queen => 900,
             Kind::Moth => 130,
             Kind::Hornet => 130,
             _ => 80,
@@ -485,7 +520,13 @@ impl Drone {
                 self.corrode = (self.corrode + power / 4).min(100);
             }
             Effect::Shock => {
-                self.stun = self.stun.max(power / 2 + secs(350));
+                // the queen only shudders
+                let most = if self.kind == Kind::Queen {
+                    secs(300)
+                } else {
+                    i32::MAX
+                };
+                self.stun = self.stun.max((power / 2 + secs(350)).min(most));
             }
             Effect::Ember => {
                 self.burn = self.burn.max(power);
@@ -622,8 +663,10 @@ impl Drone {
             self.vel.x = fx::approach(self.vel.x, want.x, acc);
             self.vel.z = fx::approach(self.vel.z, want.z, acc);
             self.vel.y -= GRAVITY / TICKS_PER_SECOND;
-            // a strider steps about twice a second, a tick's short legs faster
-            self.gait = (self.gait + self.vel.len_xz() / 110) & (fx::TURN - 1);
+            // a strider steps about twice a second, a tick's short legs
+            // faster, the queen's long ones slow
+            let stride = if self.kind == Kind::Queen { 520 } else { 110 };
+            self.gait = (self.gait + self.vel.len_xz() / stride) & (fx::TURN - 1);
         } else {
             self.vel.x = fx::approach(self.vel.x, want.x, acc);
             self.vel.y = fx::approach(self.vel.y, want.y, acc);
@@ -678,10 +721,18 @@ impl Drone {
 
     fn integrate(&mut self, dt: i32, map: &Map, extra: &[Aabb]) {
         let step = self.vel.scale(dt);
+        if self.kind == Kind::Queen {
+            // she strides over cars, lamps and planters; the run keeps her
+            // to the street
+            self.pos = v3(self.pos.x + step.x, 0, self.pos.z + step.z);
+            self.vel.y = 0;
+            return;
+        }
         // the body a drone collides with spans its rotors: a warden whose
         // box was only its core pushed its rotor pods into the balconies
         let (half, h) = match self.kind {
             Kind::Strider => (cm(110), cm(80)),
+            Kind::Queen => (cm(300), cm(300)),
             Kind::Tick => (cm(40), cm(80)),
             Kind::Warden => (cm(165), cm(90)),
             Kind::Moth => (cm(95), cm(50)),

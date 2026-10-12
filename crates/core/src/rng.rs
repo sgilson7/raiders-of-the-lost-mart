@@ -7,7 +7,13 @@ pub struct Rng(u64);
 #[allow(clippy::should_implement_trait)]
 impl Rng {
     pub fn new(seed: u64) -> Rng {
-        Rng((seed ^ 0x9E37_79B9_7F4A_7C15) | 1)
+        // stir the seed (splitmix64) so neighbouring seeds start far apart:
+        // an `| 1` on the raw seed made seeds 2 and 3 the same run
+        let mut z = seed.wrapping_add(0x9E37_79B9_7F4A_7C15);
+        z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+        z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+        z ^= z >> 31;
+        Rng(if z == 0 { 1 } else { z })
     }
 
     pub fn next(&mut self) -> u64 {
@@ -36,6 +42,13 @@ impl Rng {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn neighbouring_seeds_give_different_rolls() {
+        let first = |seed: u64| Rng::new(seed).next();
+        assert_ne!(first(2), first(3));
+        assert_ne!(first(0), first(1));
+    }
 
     #[test]
     fn the_same_seed_gives_the_same_rolls() {
