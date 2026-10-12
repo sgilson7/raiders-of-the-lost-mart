@@ -1388,9 +1388,9 @@ pub fn hive(b: &mut Batch, h: &Hive, pal: &Palette, tick: u32) {
 }
 
 /// A place to search: a dark crate with a yellow lid, straps and a lit
-/// latch, under a column of light that pulses, standing at `at`. Searched,
-/// its lid stands open, it greys and the light is gone.
-pub fn cache(b: &mut Batch, at: V3, open: bool, pal: &Palette, tick: u32) {
+/// latch, standing at `at`; close by (`near`), a soft pulse of light over it.
+/// Searched, its lid stands open, it greys and the light is gone.
+pub fn cache(b: &mut Batch, at: V3, open: bool, near: bool, pal: &Palette, tick: u32) {
     let base = Affine::translate(at);
     let body = if open {
         pal.get("cache_open")
@@ -1450,19 +1450,16 @@ pub fn cache(b: &mut Batch, at: V3, open: bool, pal: &Palette, tick: u32) {
         ONE * 9 / 10,
         false,
     );
-    let pulse = fx::sin((tick as i32 * deg(3)) & (fx::TURN - 1));
-    glow_ball(
-        b,
-        v3(at.x, at.y + h + cm(30), at.z),
-        cm(70) + pulse / 10,
-        pal.get("loot"),
-        ONE / 4 + pulse / 12,
-    );
-    // the column: seen down a concourse, over counters and racks
-    let tall = int(3);
-    let shaft =
-        Affine::translate(v3(at.x, at.y + h + tall / 2, at.z)).then(&Affine::scale(v3(cm(22), tall, cm(22))));
-    b.glow(Mesh::Cyl, &shaft, pal.get("loot"), ONE * 2 / 5 + pulse / 10);
+    if near {
+        let pulse = fx::sin((tick as i32 * deg(3)) & (fx::TURN - 1));
+        glow_ball(
+            b,
+            v3(at.x, at.y + h + cm(15), at.z),
+            cm(50) + pulse / 14,
+            pal.get("loot"),
+            ONE / 5 + pulse / 14,
+        );
+    }
 }
 
 pub fn pickup(b: &mut Batch, p: &Pickup, c: &Content, tick: u32, pal: &Palette) {
