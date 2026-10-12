@@ -98,6 +98,14 @@ impl Game {
         self.inner.equip(id)
     }
 
+    pub fn pick_ammo(&mut self, id: &str) {
+        self.inner.pick_ammo(id)
+    }
+
+    pub fn trade(&mut self, id: &str) -> bool {
+        self.inner.trade(id)
+    }
+
     pub fn board(&mut self) {
         self.inner.board()
     }

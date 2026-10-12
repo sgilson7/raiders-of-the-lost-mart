@@ -250,6 +250,8 @@ kbd { border: 2px solid var(--ink); border-radius: 6px; padding: 0.05em 0.4em; b
 .ammo-tile { display: flex; flex-direction: column; align-items: center; border: 3px solid var(--ink); border-radius: 12px; padding: 0.3em; background: var(--paper-2); min-width: 5em; font-size: 0.8em; }
 .ammo-tile img { width: 3em; }
 .ammo-tile.on { background: var(--glow); }
+button.ammo-tile { font: inherit; font-size: 0.8em; color: inherit; cursor: pointer; }
+.ammo-tile .p-count { font-size: 0.85em; opacity: 0.75; }
 
 /* a drone's awareness of you */
 .marker.aware { width: 1.4em; height: 1.9em; padding: 0; border-radius: 8px; background: rgba(255, 244, 220, 0.85); overflow: hidden; transform: translate(-50%, -100%); }

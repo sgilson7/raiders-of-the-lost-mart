@@ -103,16 +103,46 @@ export function makeScreens(game, copy, changed) {
       kstat("notice", k.notice + "%"),
       kstat("melee", k.melee),
     );
+    el("ws-bring").textContent = fill(copy.ws_bring, { ammo: copy["ammo_" + s.gun_ammo], n: s.bring });
+    // a tile per ammunition: the shelf count; picking one sets what trades buy
     el("ws-ammo").replaceChildren(
       ...s.ammo.map((a) => {
-        const d = make("div", "ammo-tile" + (a.id === s.gun_ammo ? " on" : ""));
+        const d = make("button", "ammo-tile" + (a.id === s.trade_ammo ? " on" : ""));
+        d.type = "button";
         const img = make("img");
         img.src = "art/gear/ammo_" + a.id + ".png";
         img.alt = "";
         d.title = copy["ammo_" + a.id + "_about"];
         d.append(img, make("span", "p-name", copy["ammo_" + a.id]), make("strong", "", String(a.n)));
+        if (a.id === s.gun_ammo) d.append(make("span", "p-count", copy.ws_gun_takes));
+        d.addEventListener("click", () => {
+          game.pick_ammo(a.id);
+          changed();
+        });
         return d;
       }),
+    );
+    // spare gear on the shelf, each traded for rounds of the picked ammunition
+    const spare = s.gear.filter((g) => !g.basic && g.owned > 0);
+    el("ws-trade-hint").textContent = fill(copy.ws_trade_hint, { ammo: copy["ammo_" + s.trade_ammo] });
+    el("ws-trade").replaceChildren(
+      ...(spare.length
+        ? spare.map((g) => {
+            const b = make("button", "part r" + g.rarity);
+            b.type = "button";
+            const img = make("img");
+            img.src = "art/gear/" + g.id + ".png";
+            img.alt = "";
+            b.append(img, make("span", "p-name", copy["gear_" + g.id]));
+            b.append(make("span", "p-count", fill(copy.ws_trade_for, { n: g.trade, owned: g.owned })));
+            b.title = copy["gear_" + g.id + "_about"];
+            b.addEventListener("click", () => {
+              game.trade(g.id);
+              changed();
+            });
+            return b;
+          })
+        : [make("span", "fine", copy.ws_trade_none)]),
     );
     el("ws-cats").replaceChildren(
       ...cats.map((cat) => {

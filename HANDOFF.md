@@ -31,6 +31,8 @@ Everything the brief asked for is in: one to four raiders, alone or online; roll
 - Crouch, gradual stealth with "?" and "!" meters, five ammo kinds, melee, ten gear slots with thirty-five pieces and four belt gadgets, the Tab inventory with drops; wardens fly under the balconies; inputs tapped between ticks are kept.
 - Checks after the last round: 83 core tests, 12 boundary tests; browser check passed in Chromium, Firefox and WebKit locally and against the live site; the four-browser online run passed in all three engines.
 
+- **Ammunition for gear, and a fair start (row 18).** Every run starts with rounds enough for three or four drones of average health, worked out from the gun on the bench (`gun::starting_rounds`, `START_*` in `balance.rs`). The workshop's trade counter turns a spare piece of gear into a stack of the picked ammunition per step of its rarity. One drop no longer drops several things on a frame that runs several ticks (row 19). `./scripts/check.sh` passed in Chromium, Firefox and WebKit, online included.
+
 ## Waiting on Sam
 
 1. **The website listing is live.** `website-1e`, the session working in `~/Documents/website`, folded the record, project page, tile and route into its commit `5f38125` and deployed it (build d1e468dc; make check, packet, gate and gate-live all passed). https://sgilson7.github.io/projects/raiders-of-the-lost-mart/ answers 200, and /projects/ links to the game. The tile has no hover clip; an animated `raiders-of-the-lost-mart-clip.webp` in `static/img/tiles/` would add one.

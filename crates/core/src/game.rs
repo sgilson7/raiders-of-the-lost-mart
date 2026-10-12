@@ -222,6 +222,8 @@ pub struct Game {
     pub save: Save,
     pub build: Build,
     pub pick: usize,
+    /// the ammunition the workshop's trade counter buys (none picked: the gun's)
+    trade_ammo: Option<usize>,
     pub setup: Option<Setup>,
     pub run: Option<Run>,
     pub session: Option<Session>,
@@ -340,6 +342,7 @@ impl Game {
             },
             build,
             pick: 0,
+            trade_ammo: None,
             setup: None,
             run: None,
             session: None,
@@ -486,24 +489,74 @@ impl Game {
         *e = (*e + n).max(0);
     }
 
-    /// The rounds this raider takes into a run for their gun: light rounds
-    /// are topped up for free first, then as many as they carry come off
-    /// the shelf (they come back in the pack, or are lost with it).
+    /// The rounds this raider takes into a run for their gun: the shelf is
+    /// topped up for free to enough for three or four drones first, then as
+    /// many as they carry come off it (they come back in the pack, or are
+    /// lost with it).
     fn ammo_for_run(&mut self) -> i32 {
         let bring = self.ammo_peek();
         self.withdraw_ammo(bring);
         bring
     }
 
-    /// The rounds this raider would bring (topping light rounds up first).
+    /// The rounds this raider would bring (topping the shelf up first).
     fn ammo_peek(&mut self) -> i32 {
-        let a = gun::compose(&self.content, &self.build).ammo;
-        let def = self.content.ammo[a].clone();
-        let have = *self.save.ammo.get(&def.id).unwrap_or(&0);
-        if have < def.free {
-            self.save.ammo.insert(def.id.clone(), def.free);
+        let (id, floor, bring) = self.ammo_plan();
+        let have = self.save.ammo.entry(id).or_insert(0);
+        *have = (*have).max(floor);
+        bring
+    }
+
+    /// For the gun on the bench: its ammunition, what the shelf is topped
+    /// up to free, and the rounds a run would start with.
+    fn ammo_plan(&self) -> (String, i32, i32) {
+        let g = gun::compose(&self.content, &self.build);
+        let def = &self.content.ammo[g.ammo];
+        let floor = def.free.max(gun::starting_rounds(&g, self.average_drone_hp()));
+        let have = self.save.ammo.get(&def.id).copied().unwrap_or(0).max(floor);
+        (def.id.clone(), floor, have.min(def.carry.max(floor)))
+    }
+
+    fn average_drone_hp(&self) -> i32 {
+        let d = &self.content.drones;
+        d.iter().map(|d| d.hp).sum::<i32>() / (d.len() as i32).max(1)
+    }
+
+    /// The ammunition the trade counter would buy.
+    pub fn pick_ammo(&mut self, id: &str) {
+        if let Some(a) = self.content.ammo_id(id) {
+            self.trade_ammo = Some(a);
         }
-        (*self.save.ammo.get(&def.id).unwrap_or(&0)).min(def.carry)
+    }
+
+    fn trading_for(&self) -> usize {
+        self.trade_ammo
+            .unwrap_or_else(|| gun::compose(&self.content, &self.build).ammo)
+    }
+
+    /// Rounds one spare piece of gear buys: a stack for each step of rarity.
+    fn trade_price(&self, g: usize, a: usize) -> i32 {
+        self.content.ammo[a].stack * self.content.gear[g].rarity.max(1)
+    }
+
+    /// Trades a spare piece of gear off the shelf for rounds of the chosen
+    /// ammunition. Worn and basic pieces cannot be traded.
+    pub fn trade(&mut self, id: &str) -> bool {
+        if self.mode != Mode::Workshop {
+            return false;
+        }
+        let Some(g) = self.content.gear_id(id) else {
+            return false;
+        };
+        if self.content.gear[g].basic || self.owned_gear(g) <= 0 {
+            return false;
+        }
+        let a = self.trading_for();
+        let n = self.trade_price(g, a);
+        self.give_gear(g, -1);
+        self.give_ammo(a, n);
+        self.sounds.push("equip");
+        true
     }
 
     fn withdraw_ammo(&mut self, n: i32) {
@@ -1300,7 +1353,7 @@ impl Game {
     fn play_frame(&mut self, bits: u32, due: u32) {
         let quiet = self.menu_open || self.inv_open;
         let held = if quiet { 0 } else { bits & RUN_BITS };
-        let input = Input {
+        let mut input = Input {
             b: held | if quiet { 0 } else { self.pending & RUN_BITS },
             y: self.yaw,
             p: self.pitch,
@@ -1328,6 +1381,8 @@ impl Game {
                 for _ in 0..due {
                     run.step(&r, &[input]);
                     events.extend(run.events.iter().copied());
+                    // a drop is one act: the first tick takes it, not each one of a catch-up
+                    input.d = 0;
                 }
             }
             Some(s) => {
@@ -1338,6 +1393,7 @@ impl Game {
                 }
                 for _ in 0..due.max(1) {
                     s.local(input);
+                    input.d = 0;
                 }
                 events = s.advance(run, &r, due);
                 s.prune();
@@ -2476,6 +2532,7 @@ impl Game {
                     "rarity": d.rarity,
                     "owned": if d.basic { None } else { Some(self.owned_gear(k)) },
                     "on": self.wear.contains(&k),
+                    "trade": if d.basic { 0 } else { self.trade_price(k, self.trading_for()) },
                 })
             })
             .collect();
@@ -2530,6 +2587,8 @@ impl Game {
             "wear": self.wear_ids(&self.wear),
             "ammo": ammo,
             "gun_ammo": self.content.ammo[my_gun.ammo].id,
+            "trade_ammo": self.content.ammo[self.trading_for()].id,
+            "bring": self.ammo_plan().2,
             "kit": {
                 "hp": kit_now.max_hp,
                 "armour": kit_now.armour_pct,
@@ -2669,6 +2728,23 @@ mod tests {
     }
 
     #[test]
+    fn a_drop_on_a_frame_that_runs_several_ticks_drops_one_thing() {
+        let mut g = game();
+        g.board();
+        g.start_solo();
+        frames(&mut g, 5, 0);
+        let pack = &mut g.run.as_mut().unwrap().packs[0];
+        pack.push(Item::Ammo(1, 5));
+        pack.push(Item::Ammo(2, 5));
+        let before = pack.len();
+        g.drop_item(0);
+        // a hitch: three ticks due in one frame
+        let t = g.last_us.unwrap() + TICK_US * 3;
+        g.advance(t, 0, 0, 0);
+        assert_eq!(g.run.as_ref().unwrap().packs[0].len(), before - 1);
+    }
+
+    #[test]
     fn a_drop_or_a_press_on_a_frame_with_no_tick_is_kept_for_the_next() {
         let mut g = game();
         g.board();
@@ -2686,6 +2762,42 @@ mod tests {
             before - 1,
             "the drop happened"
         );
+    }
+
+    #[test]
+    fn spare_gear_trades_for_rounds_and_worn_or_basic_gear_does_not() {
+        let mut g = game();
+        g.workshop();
+        let shells = g.content.ammo_id("shells").unwrap();
+        let before = g.save.ammo["shells"];
+        g.pick_ammo("shells");
+        assert!(g.trade("kneepads"));
+        let rarity = g.content.gear[g.content.gear_id("kneepads").unwrap()].rarity;
+        assert_eq!(
+            g.save.ammo["shells"],
+            before + g.content.ammo[shells].stack * rarity
+        );
+        assert_eq!(g.save.gear.get("kneepads"), None, "the one pair is gone");
+        assert!(!g.trade("kneepads"), "nothing left to trade");
+        assert!(g.equip("decoys"));
+        assert!(!g.trade("decoys"), "worn gear stays on");
+        let basic = g.content.gear.iter().find(|d| d.basic).unwrap().id.clone();
+        assert!(!g.trade(&basic), "basic gear is worth nothing");
+    }
+
+    #[test]
+    fn every_run_starts_with_rounds_for_three_or_four_drones_even_on_an_empty_shelf() {
+        let mut g = game();
+        g.workshop();
+        assert!(g.equip("double"));
+        g.save.ammo.insert("shells".into(), 0);
+        let gun = gun::compose(&g.content, &g.build);
+        let want = gun::starting_rounds(&gun, g.average_drone_hp());
+        g.board();
+        g.start_solo();
+        let run = g.run.as_ref().unwrap();
+        assert_eq!(run.rounds(0, gun.ammo), want);
+        assert!(want >= gun.mag * gun.per_volley);
     }
 
     #[test]

@@ -437,6 +437,30 @@ pub fn volley_damage(g: &Gun) -> i32 {
     g.damage * g.pellets * n
 }
 
+/// The rounds a raider is handed for a run: enough to bring down
+/// `START_KILLS_X2 / 2` drones of `avg_hp`, missing some, in whole volleys
+/// and never less than a full magazine. A gun that does no damage (goo)
+/// gets a few magazines.
+pub fn starting_rounds(g: &Gun, avg_hp: i32) -> i32 {
+    use crate::balance::{START_HIT_PCT, START_HIT_PELLET_PCT, START_KILLS_X2, START_SUPPORT_MAGS};
+    let per_volley = g.per_volley.max(1);
+    let mag = g.mag * per_volley;
+    let per_round = g.damage * g.pellets;
+    let want = if per_round <= 0 {
+        mag * START_SUPPORT_MAGS
+    } else {
+        let hit = if g.pellets > 1 {
+            START_HIT_PELLET_PCT
+        } else {
+            START_HIT_PCT
+        };
+        let need = avg_hp * START_KILLS_X2 * 100;
+        let per = per_round * hit * 2;
+        (need + per - 1) / per
+    };
+    ((want + per_volley - 1) / per_volley * per_volley).max(mag)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -514,5 +538,36 @@ mod tests {
         assert!(g.gatling);
         assert!(g.cooldown < 5);
         assert_eq!(volley_damage(&g), g.damage);
+    }
+
+    #[test]
+    fn a_run_starts_with_rounds_for_three_or_four_average_drones() {
+        let c = content();
+        let avg = c.drones.iter().map(|d| d.hp).sum::<i32>() / c.drones.len() as i32;
+        let builds = [
+            ["pistol", "short", "single", "slug", "iron", "wood"],
+            ["ak", "rifle", "single", "slug", "iron", "stock"],
+            ["pump", "double", "square", "slug", "iron", "wood"],
+            ["heavy", "rocket", "single", "blast", "iron", "stock"],
+            ["smg", "short", "gatling", "slug", "iron", "wood"],
+        ];
+        for ids in builds {
+            let g = compose(&c, &build(&c, ids));
+            let n = starting_rounds(&g, avg);
+            let hit = if g.pellets > 1 { 40 } else { 60 };
+            let dealt = n * g.damage * g.pellets * hit / 100;
+            assert!(
+                dealt >= avg * 7 / 2,
+                "{ids:?}: {n} rounds deal {dealt} of {}",
+                avg * 7 / 2
+            );
+            assert!(
+                dealt < avg * 5 + g.mag * g.per_volley * g.damage * g.pellets,
+                "{ids:?}: {n} is far past four drones"
+            );
+            assert_eq!(n % g.per_volley, 0, "{ids:?}: whole volleys");
+        }
+        let goo = compose(&c, &build(&c, ["ak", "rocket", "single", "goo", "iron", "stock"]));
+        assert_eq!(starting_rounds(&goo, avg), goo.mag * goo.per_volley * 4);
     }
 }

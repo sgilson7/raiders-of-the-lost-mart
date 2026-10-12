@@ -33,6 +33,13 @@ pub const REVIVE_HP: i32 = 35;
 pub const REACH: i32 = ONE * 22 / 10;
 pub const SEARCH: i32 = secs(800);
 pub const BACKPACK: usize = 12;
+/// A run starts with rounds enough for this many drones of average health,
+/// in halves (seven: three and a half), at these hit rates
+pub const START_KILLS_X2: i32 = 7;
+pub const START_HIT_PCT: i32 = 60;
+pub const START_HIT_PELLET_PCT: i32 = 40;
+/// magazines handed out for a gun that does no damage (goo)
+pub const START_SUPPORT_MAGS: i32 = 4;
 pub const MAX_PITCH: i32 = deg(70);
 
 // ---- the camera --------------------------------------------------------------

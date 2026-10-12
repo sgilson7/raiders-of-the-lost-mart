@@ -432,7 +432,7 @@
  "gear_machete": "Machete",
  "gear_machete_about": "F swings. The fastest swing, lighter hits.",
  "ammo_light": "Light rounds",
- "ammo_light_about": "For short barrels. Plentiful; you are always given 60 for a run.",
+ "ammo_light_about": "For short barrels. Plentiful.",
  "ammo_heavy": "Heavy rounds",
  "ammo_heavy_about": "For rifle barrels.",
  "ammo_shells": "Shells",
@@ -472,5 +472,11 @@
  "hud_roll": "roll",
  "hud_dry": "no ammo: F to melee",
  "toast_no_ammo": "Out of ammo. Search for rounds, or use your melee (F).",
- "ws_worn": "worn"
+ "ws_worn": "worn",
+ "ws_bring": "Your gun takes {ammo}. You start the run with {n}: the shelf is always topped up to enough for three or four drones.",
+ "ws_gun_takes": "your gun",
+ "ws_trade_title": "Trade gear for ammunition",
+ "ws_trade_hint": "Pick an ammunition above, then trade a spare piece of gear for {ammo}. Rarer pieces buy more. Worn and basic pieces cannot be traded.",
+ "ws_trade_for": "+{n} · ×{owned}",
+ "ws_trade_none": "No spare gear on the shelf. Bring some back from a run."
 }

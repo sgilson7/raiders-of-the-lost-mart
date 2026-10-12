@@ -232,6 +232,7 @@ impl Session {
     pub fn local(&mut self, i: Input) {
         let to = self.current + DELAY;
         let mut t = self.upto[self.me];
+        let mut i = i;
         while t <= to {
             if !self.known[self.me].contains_key(&t) {
                 self.record(self.me, t, i);
@@ -239,6 +240,8 @@ impl Session {
                     self.unsent_from = t;
                 }
                 self.unsent.push(i);
+                // a drop is one act: only the first tick filled carries it
+                i.d = 0;
             }
             t += 1;
         }
@@ -501,6 +504,23 @@ mod tests {
         }
         assert!(sess[0].confirmed() > 150, "{}", sess[0].confirmed());
         assert!(sess[1].confirmed() > 150, "{}", sess[1].confirmed());
+    }
+
+    #[test]
+    fn a_drop_filling_several_ticks_is_recorded_on_the_first_only() {
+        let mut sess = Session::new(2, 0);
+        let i = Input {
+            d: 1,
+            ..Input::default()
+        };
+        sess.local(Input::default());
+        // three ticks pass with no frame to fill them
+        sess.current += 3;
+        let before = sess.known[0].len();
+        sess.local(i);
+        let drops = sess.known[0].values().filter(|i| i.d > 0).count();
+        assert_eq!(sess.known[0].len(), before + 3, "one call fills the three");
+        assert_eq!(drops, 1);
     }
 
     #[test]
