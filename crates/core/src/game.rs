@@ -20,7 +20,7 @@ use crate::render::{self, Batch, Camera};
 use crate::rng::Rng;
 use crate::rollback::{self, Msg, Seat, Session};
 use crate::run::{Event, Generator, Item, Ref, Run, Setup, Use};
-use crate::world::Map;
+use crate::world::{Aabb, Map, SpotKind};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -67,6 +67,25 @@ const STARTER: &[(&str, i32)] = &[
     ("ember", 1),
 ];
 const RESULTS_AFTER: i32 = secs(2500);
+/// crates to search are drawn this near, and the nearest few marked this near
+const CACHE_SEEN: i32 = int(70);
+const CACHE_MARKED: i32 = int(22);
+const CACHES_MARKED: usize = 5;
+
+/// Where each place to search stands its crate: on whatever is under the
+/// spot (a counter, a case, the floor), so none floats.
+fn loot_caches(map: &Map) -> Vec<(usize, V3)> {
+    map.spots
+        .iter()
+        .enumerate()
+        .filter(|(_, s)| s.kind == SpotKind::Loot)
+        .map(|(k, s)| {
+            let probe = Aabb::standing(s.at, ONE / 5, ONE / 5);
+            let y = map.floor_under(&probe, s.at.y + ONE / 20, &[]);
+            (k, v3(s.at.x, y, s.at.z))
+        })
+        .collect()
+}
 /// Frames a joiner looks for its host before saying it has not found one.
 const JOIN_PATIENCE: i32 = 60 * 20;
 
@@ -218,6 +237,8 @@ const WATCH_AIM: i32 = secs(600);
 pub struct Game {
     pub content: Content,
     pub map: Map,
+    /// every place to search, as (its spot, where its crate stands)
+    caches: Vec<(usize, V3)>,
     pub mode: Mode,
     pub save: Save,
     pub build: Build,
@@ -325,9 +346,11 @@ impl Game {
         draw::map_scene(&map, &mut b);
         let (static_values, static_draws) = b.finish(render::STATIC_BUFFER);
         let build = gun::basic_build(&content);
+        let caches = loot_caches(&map);
         let mut g = Game {
             content,
             map,
+            caches,
             mode: Mode::Title,
             save: Save {
                 stash: BTreeMap::new(),
@@ -1994,6 +2017,11 @@ impl Game {
                 for p in &run.pickups {
                     draw::pickup(&mut b, p, &self.content, tick, pal);
                 }
+                for &(k, at) in &self.caches {
+                    if at.dist(near) < CACHE_SEEN {
+                        draw::cache(&mut b, at, run.searched[k], pal, tick);
+                    }
+                }
                 for s in &run.shots {
                     draw::shot(&mut b, s, pal);
                 }
@@ -2117,6 +2145,27 @@ impl Game {
 
     // ---- the HUD and the screens ------------------------------------------------------------------
 
+    /// The nearest unsearched crates I can see, marked to search.
+    fn cache_markers(&self, run: &Run, cam: &Camera, from: V3) -> Vec<Value> {
+        let mut near: Vec<(i32, V3)> = self
+            .caches
+            .iter()
+            .filter(|(k, at)| !run.searched[*k] && at.dist(from) < CACHE_MARKED)
+            .map(|&(_, at)| (at.dist(from), v3(at.x, at.y + ONE * 6 / 10, at.z)))
+            .filter(|(_, top)| self.map.clear(cam.eye, *top, &run.extra))
+            .collect();
+        near.sort_by_key(|n| n.0);
+        near.iter()
+            .take(CACHES_MARKED)
+            .filter_map(|&(_, top)| {
+                let (x, y) = cam.screen(self.aspect, top)?;
+                (x > 0 && x < 100 * ONE && y > 0 && y < 100 * ONE).then(|| {
+                    json!({ "kind": "loot", "x": pct_q16(x), "y": pct_q16(y), "dist": metres(top.dist(from)), "off": false })
+                })
+            })
+            .collect()
+    }
+
     fn marker(&self, cam: &Camera, at: V3, kind: &str, from: V3) -> Value {
         let dist = metres(at.dist(from));
         match cam.screen(self.aspect, at) {
@@ -2194,6 +2243,7 @@ impl Game {
                 }
             }
         }
+        markers.extend(self.cache_markers(run, &cam, from));
         let van_at = run.van.pos.add(v3(0, int(3), 0));
         markers.push(self.marker(&cam, van_at, if goal_done { "extract" } else { "van" }, from));
         for (i, o) in run.raiders.iter().enumerate() {
@@ -2761,6 +2811,78 @@ mod tests {
             g.run.as_ref().unwrap().packs[0].len(),
             before - 1,
             "the drop happened"
+        );
+    }
+
+    #[test]
+    fn every_place_to_search_has_a_crate_standing_clear_on_something() {
+        let g = game();
+        let loot = g.map.spots.iter().filter(|s| s.kind == SpotKind::Loot).count();
+        assert_eq!(g.caches.len(), loot);
+        let mut bad = Vec::new();
+        for &(k, at) in &g.caches {
+            let spot = g.map.spots[k].at;
+            // the crate's box, a little in from its sides and up from its foot
+            let crate_box = Aabb::new(
+                v3(at.x - ONE * 3 / 10, at.y + ONE / 50, at.z - ONE / 5),
+                v3(at.x + ONE * 3 / 10, at.y + ONE * 4 / 10, at.z + ONE / 5),
+            );
+            let buried = g
+                .map
+                .solids
+                .iter()
+                .any(|s| s.look != crate::world::Look::Hidden && s.b.overlaps(&crate_box));
+            let rests = at.y == 0
+                || g.map.solids.iter().any(|s| {
+                    s.b.max.y == at.y
+                        && s.b.min.x < at.x
+                        && s.b.max.x > at.x
+                        && s.b.min.z < at.z
+                        && s.b.max.z > at.z
+                });
+            if at.y > spot.y || spot.y - at.y > int(2) || buried || !rests {
+                bad.push((spot, at, buried));
+            }
+        }
+        assert!(
+            bad.is_empty(),
+            "{} of {loot}: {:?}",
+            bad.len(),
+            &bad[..bad.len().min(5)]
+        );
+    }
+
+    #[test]
+    fn crates_near_enough_to_see_are_marked_to_search_and_searched_ones_are_not() {
+        let mut g = game();
+        g.board();
+        g.start_solo();
+        frames(&mut g, 2, 0);
+        let (k, at) = g.caches[0];
+        g.dev_place(&format!("{},{}", (at.x - int(4)) / ONE, at.z / ONE));
+        // face the crate
+        let me = g.run.as_ref().unwrap().raiders[0].pos;
+        g.yaw = yaw_pitch_of(at.sub(me)).0;
+        frames(&mut g, 4, 0);
+        let loot = |g: &Game| {
+            let h: Value = serde_json::from_str(&g.hud_json()).unwrap();
+            h["markers"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|m| m["kind"] == "loot")
+                .count()
+        };
+        assert!(loot(&g) >= 1, "a crate four metres off is marked");
+        g.run.as_mut().unwrap().searched[k] = true;
+        let after = loot(&g);
+        for &(j, _) in &g.caches {
+            g.run.as_mut().unwrap().searched[j] = true;
+        }
+        assert_eq!(
+            loot(&g),
+            0,
+            "searched crates are not ({after} with the first done)"
         );
     }
 

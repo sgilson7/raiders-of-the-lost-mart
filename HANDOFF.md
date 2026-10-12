@@ -32,6 +32,7 @@ Everything the brief asked for is in: one to four raiders, alone or online; roll
 - Checks after the last round: 83 core tests, 12 boundary tests; browser check passed in Chromium, Firefox and WebKit locally and against the live site; the four-browser online run passed in all three engines.
 
 - **Ammunition for gear, and a fair start (row 18).** Every run starts with rounds enough for three or four drones of average health, worked out from the gun on the bench (`gun::starting_rounds`, `START_*` in `balance.rs`). The workshop's trade counter turns a spare piece of gear into a stack of the picked ammunition per step of its rarity. One drop no longer drops several things on a frame that runs several ticks (row 19). `./scripts/check.sh` passed in Chromium, Firefox and WebKit, online included.
+- **Crates to search (row 20).** Every place to search is a drawn crate with a yellow lid and a column of light until it is searched (then it stands open and grey), and the nearest few in sight are marked "search". `./scripts/check.sh` passed in Chromium, Firefox and WebKit, online included.
 
 ## Waiting on Sam
 

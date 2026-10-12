@@ -478,5 +478,6 @@
  "ws_trade_title": "Trade gear for ammunition",
  "ws_trade_hint": "Pick an ammunition above, then trade a spare piece of gear for {ammo}. Rarer pieces buy more. Worn and basic pieces cannot be traded.",
  "ws_trade_for": "+{n} · ×{owned}",
- "ws_trade_none": "No spare gear on the shelf. Bring some back from a run."
+ "ws_trade_none": "No spare gear on the shelf. Bring some back from a run.",
+ "marker_loot": "search"
 }

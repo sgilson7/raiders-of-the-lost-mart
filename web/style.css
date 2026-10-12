@@ -181,6 +181,7 @@ kbd { border: 2px solid var(--ink); border-radius: 6px; padding: 0.05em 0.4em; b
 .marker.objective { background: var(--glow); }
 .marker.extract { background: var(--gold); }
 .marker.van { background: var(--paper-2); }
+.marker.loot { background: var(--gold); font-size: 0.65em; padding: 0.02em 0.4em; opacity: 0.92; }
 .marker.downed { background: var(--red); color: #fff; }
 .marker.mate { padding: 0.05em 0.3em; font-size: 0.65em; opacity: 0.85; }
 .marker.weak { width: 14px; height: 14px; padding: 0; border-radius: 50%; border-color: var(--glow); background: transparent; box-shadow: 0 0 0 2px var(--ink); transform: translate(-50%, -50%); }

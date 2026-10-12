@@ -1387,6 +1387,84 @@ pub fn hive(b: &mut Batch, h: &Hive, pal: &Palette, tick: u32) {
     }
 }
 
+/// A place to search: a dark crate with a yellow lid, straps and a lit
+/// latch, under a column of light that pulses, standing at `at`. Searched,
+/// its lid stands open, it greys and the light is gone.
+pub fn cache(b: &mut Batch, at: V3, open: bool, pal: &Palette, tick: u32) {
+    let base = Affine::translate(at);
+    let body = if open {
+        pal.get("cache_open")
+    } else {
+        pal.get("cache")
+    };
+    let trim = if open {
+        pal.get("cache_open")
+    } else {
+        pal.get("loot")
+    };
+    let (w, h, d) = (cm(90), cm(55), cm(60));
+    put(b, Mesh::Cube, &base, v3(0, h / 2, 0), v3(w, h, d), body, 0, true);
+    if open {
+        // the lid, propped up against the back
+        put(
+            b,
+            Mesh::Cube,
+            &base,
+            v3(0, h + cm(22), -d / 2 - cm(3)),
+            v3(w + cm(4), cm(44), cm(5)),
+            trim,
+            0,
+            true,
+        );
+        return;
+    }
+    put(
+        b,
+        Mesh::Cube,
+        &base,
+        v3(0, h + cm(3), 0),
+        v3(w + cm(4), cm(6), d + cm(4)),
+        trim,
+        ONE / 4,
+        true,
+    );
+    for x in [-w / 3, w / 3] {
+        put(
+            b,
+            Mesh::Cube,
+            &base,
+            v3(x, h / 2, 0),
+            v3(cm(7), h + cm(2), d + cm(3)),
+            trim,
+            ONE / 5,
+            false,
+        );
+    }
+    put(
+        b,
+        Mesh::Cube,
+        &base,
+        v3(0, h - cm(8), d / 2 + cm(2)),
+        v3(cm(14), cm(10), cm(3)),
+        pal.get("spark"),
+        ONE * 9 / 10,
+        false,
+    );
+    let pulse = fx::sin((tick as i32 * deg(3)) & (fx::TURN - 1));
+    glow_ball(
+        b,
+        v3(at.x, at.y + h + cm(30), at.z),
+        cm(70) + pulse / 10,
+        pal.get("loot"),
+        ONE / 4 + pulse / 12,
+    );
+    // the column: seen down a concourse, over counters and racks
+    let tall = int(3);
+    let shaft =
+        Affine::translate(v3(at.x, at.y + h + tall / 2, at.z)).then(&Affine::scale(v3(cm(22), tall, cm(22))));
+    b.glow(Mesh::Cyl, &shaft, pal.get("loot"), ONE * 2 / 5 + pulse / 10);
+}
+
 pub fn pickup(b: &mut Batch, p: &Pickup, c: &Content, tick: u32, pal: &Palette) {
     let bob = fx::sin((tick as i32 * deg(4)) & (fx::TURN - 1)) / 10;
     let spin = Affine::translate(v3(p.pos.x, p.pos.y + cm(30) + bob, p.pos.z))
